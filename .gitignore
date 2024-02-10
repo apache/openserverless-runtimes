@@ -63,3 +63,7 @@ exec
 *_launcher_.go
 test.json
 pkg/
+
+# etc
+.git-hooks/
+.vscode/
