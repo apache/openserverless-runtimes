@@ -15,8 +15,11 @@
 # limitations under the License.
 #
 
-# Do not fix the patch level for golang:1.22 to automatically get security fixes.
+# Do not fix the patch level for golang:1.20 to automatically get security fixes.
+
+FROM ghcr.io/nuvolaris/runtime-common-v1.17.1:3.1.0-mastrogpt.2402131638 as builder
 FROM golang:1.22-bookworm
+COPY --from=builder /go/bin/proxy /bin/proxy 
 
 RUN echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" \
      >>/etc/apt/sources.list &&\
@@ -26,6 +29,7 @@ RUN echo "deb http://deb.debian.org/debian buster-backports main contrib non-fre
     apt-get upgrade -y --no-install-recommends &&\
     apt-get install -y apt-utils &&\
     apt-get install -y \
+     python3-is-python \
      curl \
      jq \
      git \
@@ -40,11 +44,8 @@ RUN echo "deb http://deb.debian.org/debian buster-backports main contrib non-fre
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
     go install github.com/go-delve/delve/cmd/dlv@latest &&\
     mkdir /action
-#make python 3 react as python
-RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /action
-ADD proxy /bin/proxy
 ADD bin/compile /bin/compile
 ADD lib/launcher.go /lib/launcher.go
 ENV OW_COMPILER=/bin/compile

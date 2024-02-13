@@ -1,10 +1,54 @@
 version: '3'
 
+vars:
+  BASETAG: 3.1.0-mastrogpt
+  IMAGE: ghcr.io/nuvolaris/runtime-common
+  TAG:
+    sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
+  PUSH: ""
+
 tasks:
 
-  default: go build -o proxy
+  default: task --list-all
+
+  image-tag: 
+    silent: true
+    cmds:
+    - git tag -d $(git tag) 
+    - git tag -f {{.BASETAG}}.$(date +%y%m%d%H%M)
+    - env PAGER= git tag
+
+  compile: go build -o proxy
 
   test: 
     dir: openwhisk
     cmds:
     - go test -v
+
+  build-runtime:
+    requires: { vars: [DIR] } 
+    dir: "{{.DIR}}"
+    cmds:
+    - |
+      if test -e 
+      then docker build -t {{.DIR | replace "/" "-"}}:{{.TAG}} . --load
+      else docker buildx build --platform linux/amd64,linux/arm64 -t {{.DIR | replace "/" "-"}}:{{.TAG}} . --push
+      fi
+
+  build-lang:
+    requires: {vars: [PLANG] }
+    vars:
+      DIRS:
+        sh: ls -d  runtime/{{.PLANG}}/v*
+    cmds:
+      - for: { var: DIRS }
+        task: build-runtime
+        vars:
+          DIR: "{{.ITEM}}"
+
+  all:
+    - task: build-lang
+      vars: { PLANG: "common"}  
+    - task: build-lang
+      vars: { PLANG: "golang"}
+
