@@ -15,7 +15,7 @@ test.out
 vendor/
 
 # Go binary proxy
-common/proxy
+proxy
 actionloop/proxy
 golang1.19/proxy
 golang1.20/proxy

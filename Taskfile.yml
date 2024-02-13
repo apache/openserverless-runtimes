@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+
+  default: go build -o proxy
+
+  test: 
+    dir: openwhisk
+    cmds:
+    - go test -v
