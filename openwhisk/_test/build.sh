@@ -27,7 +27,7 @@ function build {
 
 function build_main {
    test -e exec && rm exec
-   cp ../../common/gobuild.py.launcher.go $1.go
+   cp ../common/gobuild.py.launcher.go $1.go
    cat $1.src >>$1.go
    go build -a -o exec $1.go
    rm $1.go
