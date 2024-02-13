@@ -67,3 +67,4 @@ pkg/
 # etc
 .git-hooks/
 .vscode/
+.task
