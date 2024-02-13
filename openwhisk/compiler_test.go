@@ -46,7 +46,7 @@ const (
 	PREP  = "_test/precompile.sh"
 	CHECK = "_test/postcompile.sh"
 	TMP   = "_test/compile/"
-	COMP  = "../common/gobuild.py"
+	COMP  = "common/gobuild.py"
 )
 
 // compile a main

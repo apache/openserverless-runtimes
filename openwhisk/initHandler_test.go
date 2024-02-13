@@ -160,7 +160,7 @@ func Example_main_zipinit_nocompiler() {
 }
 
 func Example_compile_simple() {
-	comp, _ := filepath.Abs("../common/gobuild.py")
+	comp, _ := filepath.Abs("common/gobuild.py")
 	ts, cur, log := startTestServer(comp)
 	doRun(ts, "")
 	doInit(ts, initCode("_test/hello.src", ""))
@@ -176,7 +176,7 @@ func Example_compile_simple() {
 }
 
 func Example_compile_withMain() {
-	comp, _ := filepath.Abs("../common/gobuild.py")
+	comp, _ := filepath.Abs("common/gobuild.py")
 	ts, cur, log := startTestServer(comp)
 	doRun(ts, "")
 	doInit(ts, initCode("_test/hello1.src", "hello"))
@@ -192,7 +192,7 @@ func Example_compile_withMain() {
 }
 
 func Example_compile_withZipSrc() {
-	comp, _ := filepath.Abs("../common/gobuild.py")
+	comp, _ := filepath.Abs("common/gobuild.py")
 	ts, cur, log := startTestServer(comp)
 	doRun(ts, "")
 	doInit(ts, initBinary("_test/hello.zip", ""))
