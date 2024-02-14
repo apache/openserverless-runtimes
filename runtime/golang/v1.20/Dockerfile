@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-# Do not fix the patch level for golang:1.20 to automatically get security fixes.
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 FROM golang:1.20-bookworm

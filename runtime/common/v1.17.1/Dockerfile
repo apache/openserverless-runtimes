@@ -19,6 +19,6 @@
 FROM golang:1.21
 ENV HOME=/tmp
 USER nobody
-RUN CGO_ENABLED=0  go install github.com/nuvolaris/nuvolaris-runtimes-ng@main
+RUN CGO_ENABLED=0  go install github.com/nuvolaris/nuvolaris-runtimes-ng@common1.17.1
 RUN mv /go/bin/nuvolaris-runtimes-ng /go/bin/proxy
 ENTRYPOINT [ "/go/bin/proxy" ]
