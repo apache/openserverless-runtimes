@@ -16,31 +16,26 @@
 #
 
 # Do not fix the patch level for golang:1.20 to automatically get security fixes.
-
-FROM ghcr.io/nuvolaris/runtime-common-v1.17.1:3.1.0-mastrogpt.2402131638 as builder
-FROM golang:1.20-bullseye
+ARG COMMON=missing:missing
+FROM ${COMMON} as builder
+FROM golang:1.20-bookworm
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
-RUN echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" \
-     >>/etc/apt/sources.list &&\
+RUN \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections &&\
     apt-get update &&\
-    # Upgrade installed packages to get latest security fixes if the base image does not contain them already.
     apt-get upgrade -y --no-install-recommends &&\
     apt-get install -y apt-utils &&\
     apt-get install -y \
-     python3-is-python \
-     curl \
-     jq \
-     git \
-     zip \
-     vim && \
+      curl \
+      jq \
+      git \
+      zip \
+      vim && \
      apt-get -y install \
      librdkafka1 \
-     librdkafka++1 &&\
-    apt-get -y install \
+     librdkafka++1 \
      librdkafka-dev &&\
-    # Cleanup apt data, we do not need them later on.
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
     go install github.com/go-delve/delve/cmd/dlv@latest &&\
     mkdir /action

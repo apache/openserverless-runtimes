@@ -1,15 +1,20 @@
 version: '3'
 
+dotenv: [.env]
+
 vars:
+  DRY: ""
+  PUSH: ""
   BASETAG: 3.1.0-mastrogpt
-  IMAGE: ghcr.io/nuvolaris/runtime-common
+  BASEIMG: ghcr.io/nuvolaris 
+  COMMON: runtime-common-v1.17.1
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
-  PUSH: ""
 
 tasks:
 
-  default: task --list-all
+  default:
+  - task --list-all
 
   image-tag: 
     silent: true
@@ -25,30 +30,45 @@ tasks:
     cmds:
     - go test -v
 
+  docker-login: 
+    cmds:
+      - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
+
+  docker-setup:
+    - docker buildx create --use
+    - docker run -it --rm --privileged tonistiigi/binfmt --install all
+
+
   build-runtime:
     requires: { vars: [DIR] } 
     dir: "{{.DIR}}"
     cmds:
     - |
-      if test -e 
-      then docker build -t {{.DIR | replace "/" "-"}}:{{.TAG}} . --load
-      else docker buildx build --platform linux/amd64,linux/arm64 -t {{.DIR | replace "/" "-"}}:{{.TAG}} . --push
+      RUNTIME="{{.BASEIMG}}/$(echo {{.DIR}} | tr / - )"
+      COMMON="{{.BASEIMG}}/{{.COMMON}}:{{.TAG}}"
+      if test -n "{{.PUSH}}"
+      then {{.DRY}} docker buildx build --platform linux/amd64,linux/arm64 -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="$COMMON" . --push
+      else {{.DRY}} docker build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="$COMMON" . --load
       fi
 
   build-lang:
     requires: {vars: [PLANG] }
     vars:
       DIRS:
-        sh: ls -d  runtime/{{.PLANG}}/v*
+        sh: ls -d  runtime/{{.PLANG}}/v* || echo ""
     cmds:
       - for: { var: DIRS }
         task: build-runtime
         vars:
           DIR: "{{.ITEM}}"
 
-  all:
-    - task: build-lang
-      vars: { PLANG: "common"}  
+  build-common:
+   - task: docker-login
+   - task: docker-setup
+   - task: build-lang
+     vars: { PLANG: "common"}  
+  
+  build-all:
     - task: build-lang
       vars: { PLANG: "golang"}
 

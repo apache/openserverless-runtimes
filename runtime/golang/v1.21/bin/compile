@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/python3 -u
 """Golang Action Compiler
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more

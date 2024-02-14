@@ -68,3 +68,4 @@ pkg/
 .git-hooks/
 .vscode/
 .task
+.env
