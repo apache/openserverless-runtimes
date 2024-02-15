@@ -1,0 +1,63 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# build go proxy from source
+# Do not fix the patch level for golang:1.20 to automatically get security fixes.
+ARG COMMON=missing:missing
+FROM ${COMMON} as builder
+
+FROM node:18.19.0-bookworm
+COPY --from=builder /go/bin/proxy /bin/proxy 
+
+# select the builder to use
+ARG GO_PROXY_BUILD_FROM=release
+
+ENV OW_COMPILER=/bin/compile
+ENV OW_LOG_INIT_ERROR=1
+ENV OW_WAIT_FOR_ACK=1
+ENV OW_EXECUTION_ENV=openwhisk/nodejs-18.17.0
+
+# Initial update and some basics.
+#
+RUN apt-get update && apt-get install -y \
+    imagemagick \
+    graphicsmagick \
+    unzip \
+    && rm -rf /var/lib/apt/lists/* &&\
+    mkdir -p /app/action
+
+WORKDIR /proxy
+COPY --from=builder_source /bin/proxy /bin/proxy_source
+COPY --from=builder_release /bin/proxy /bin/proxy_release
+RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
+
+# Add sources and copy the package.json to root container,
+# so npm packages from user functions take precedence.
+#
+WORKDIR /app
+COPY bin/compile /bin/compile
+COPY lib/launcher.ts /lib/launcher.ts
+COPY package.json /
+
+# Customize runtime with additional packages.
+#
+RUN cd / && npm install -g \
+  && npm cache clean --force
+
+EXPOSE 8080
+
+ENTRYPOINT ["/bin/proxy"]
