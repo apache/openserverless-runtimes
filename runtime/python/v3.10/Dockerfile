@@ -15,40 +15,42 @@
 # limitations under the License.
 #
 
-# Do not fix the patch level for golang:1.20 to automatically get security fixes.
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
-FROM golang:1.21-bookworm
+
+FROM python:3.10-buster
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
-RUN \
-    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections &&\
-    apt-get update &&\
-    apt-get upgrade -y --no-install-recommends &&\
-    apt-get install -y apt-utils &&\
-    apt-get install -y \
-     curl \
-     jq \
-     git \
-     zip \
-     vim && \
-     apt-get -y install \
-     librdkafka1 \
-     librdkafka++1 \
-     librdkafka-dev &&\
-    apt-get clean && rm -rf /var/lib/apt/lists/* &&\
-    go install github.com/go-delve/delve/cmd/dlv@latest &&\
-    mkdir /action
+# install zip
+RUN apt-get update && apt-get install -y zip python3-lxml python3-psycopg2 xpdf \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install common modules for python
+COPY requirements_common.txt requirements_common.txt
+COPY requirements.txt requirements.txt
+
+RUN pip3 install --upgrade pip six wheel virtualenv
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /action
+WORKDIR /
 
 ADD bin/compile /bin/compile
-ADD lib/launcher.go /lib/launcher.go
-ENV OW_COMPILER=/bin/compile
+ADD lib/launcher.py /lib/launcher.py
+
+# log initialization errors
 ENV OW_LOG_INIT_ERROR=1
+# the launcher must wait for an ack
 ENV OW_WAIT_FOR_ACK=1
-ENV OW_EXECUTION_ENV=openwhisk/action-golang-v1.21
+# using the runtime name to identify the execution environment
+ENV OW_EXECUTION_ENV=openwhisk/action-python-v3.10
+# compiler script
+ENV OW_COMPILER=/bin/compile
+# home directory
+ENV HOME=/tmp
 
 WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action
 USER nobody
 
-ENTRYPOINT [ "/bin/proxy" ]
+ENTRYPOINT ["/bin/proxy"]

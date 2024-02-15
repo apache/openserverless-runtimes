@@ -4,7 +4,7 @@ dotenv: [.env]
 
 vars:
   DRY: ""
-  PUSH: "y"
+  PUSH: ""
   BASETAG: 3.1.0-mastrogpt
   BASEIMG: ghcr.io/nuvolaris 
   COMMON: runtime-common-v1.17.1

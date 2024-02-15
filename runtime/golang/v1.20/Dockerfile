@@ -39,11 +39,16 @@ RUN \
     go install github.com/go-delve/delve/cmd/dlv@latest &&\
     mkdir /action
 
-WORKDIR /action
 ADD bin/compile /bin/compile
 ADD lib/launcher.go /lib/launcher.go
 ENV OW_COMPILER=/bin/compile
 ENV OW_LOG_INIT_ERROR=1
 ENV OW_WAIT_FOR_ACK=1
 ENV OW_EXECUTION_ENV=openwhisk/action-golang-v1.20
+
+
+WORKDIR /action
+RUN chown nobody:root /action ; chmod 0775 /action
+USER nobody
+
 ENTRYPOINT [ "/bin/proxy" ]
