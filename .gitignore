@@ -69,3 +69,5 @@ pkg/
 .vscode/
 .task
 .env
+virtulenv/
+node_modules/
