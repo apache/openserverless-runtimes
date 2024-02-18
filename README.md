@@ -16,33 +16,28 @@
 # limitations under the License.
 #
 -->
-# Apache OpenWhisk Runtimes for Go
+# Nuvolaris Runtines Next Generation
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Continuous Integration](https://github.com/apache/openwhisk-runtime-go/actions/workflows/ci.yaml/badge.svg)](https://github.com/apache/openwhisk-runtime-go/actions/workflows/ci.yaml)
-[![Join Slack](https://img.shields.io/badge/join-slack-9B69A0.svg)](http://slack.openwhisk.org/)
+All the runtimes in a single place using the Go proxy and ActionLoop.
 
-This repository contains both the OpenWhisk runtime for Golang Actions, as well as a runtime for Generic executables.
+# Source Code
 
-- If you are in a hurry, check the [examples](examples/EXAMPLES.md)
-- Writing Actions for the runtime in [Golang](docs/ACTION.md#golang)
-- How to deploy your [Golang](docs/DEPLOY.md#golang) sources
-- Precompiling [Golang](docs/DEPLOY.md#precompile) actions
-- How to use VSCode to write [Golang](docs/DEPLOY.md#vscode) actions
-- How to [Build](docs/BUILD.md#building) the runtime, with development notes
+runtimes are docker images, and they all use a proxy in go and some scripts for execution.
 
-## Actionloop runtime
+Go Proxy code is in folder `openwhisk` and the main is `proxy.go` in top level.
 
-### Using the Go runtime for Generic executables
+You can  compile it with `go build -o proxy`. 
 
-- Writing [Generic](docs/ACTION.md#generic) actions, in bash or as a generic linux binary
-- Deployment for [Generic](docs/DEPLOY.md#generic) actions
-- The [ActionLoop](docs/ACTION.md#actionloop) protocol for generic actions
-- Environment [Variables](docs/ENVVARS.md) to configure the proxy
+Tests are in openwhisk folder, test it with `cd opewhisk ; go test `
 
-# Change Log
+Runtime  sources are under `runtimes/<plang>/<version>` (`<plang>` is programming languate)
 
-[CHANGES.md](CHANGES.md)
+Special case is `runtime/common/<version>` that contains the proxy itseself, it is used as base image for the others and must be build first.
 
-# License
-[Apache 2.0](LICENSE.txt)
+# How to build images
+
+First, build and push the common with `task build-common`. Also ensure the image is public.
+
+Then you can build a single runtime specifingh the dir:
+
+Build a single runtime: `task build-runtime DIR=nodejs/v18`

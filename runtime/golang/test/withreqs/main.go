@@ -14,18 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package main
+ package main
 
-import "fmt"
-
-// Hello function for the action
-func Hello(obj map[string]interface{}) map[string]interface{} {
+ import (
+	 "github.com/rs/zerolog"
+	 "github.com/rs/zerolog/log"
+ )
+ 
+ func init() {
+	 zerolog.TimeFieldFormat = ""
+ }
+ 
+ // Main function for the action
+ func Main(obj map[string]interface{}) map[string]interface{} {
 	name, ok := obj["name"].(string)
 	if !ok {
-		name = "world"
+		 name = "world"
 	}
-	fmt.Printf("name=%s\n", name)
+	log.Debug().Str("name", name).Msg("Hello")
 	msg := make(map[string]interface{})
-	msg["single-hello"] = "Hello, " + name + "!"
+	msg["module-main"] = "Hello, " + name + "!"
 	return msg
-}
+ }

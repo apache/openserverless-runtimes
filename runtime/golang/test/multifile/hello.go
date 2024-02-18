@@ -14,18 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package main
 
-import "fmt"
+package action
 
-// Main function for the action
-func Main(obj map[string]interface{}) map[string]interface{} {
-	name, ok := obj["name"].(string)
-	if !ok {
-		name = "world"
+import (
+	"fmt"
+)
+
+// Hello receive an event in format
+// { "name": "Mike"}
+// and returns a greeting in format
+// { "greetings": "Hello, Mike"}
+func Hello(args map[string]interface{}) map[string]interface{} {
+	res := make(map[string]interface{})
+	greetings := "world"
+	name, ok := args["name"].(string)
+	if ok {
+		greetings = name
 	}
-	fmt.Printf("name=%s\n", name)
-	msg := make(map[string]interface{})
-	msg["single-main"] = "Hello, " + name + "!"
-	return msg
+	res["body"] = "Hello, " + greetings
+	fmt.Printf("Hello, %s\n", greetings)
+	return res
 }

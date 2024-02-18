@@ -14,25 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package hello
+package action
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
-// Hello receive an event in format
-// { "name": "Mike"}
-// and returns a greeting in format
-// { "greetings": "Hello, Mike"}
-func Hello(args map[string]interface{}) map[string]interface{} {
-	res := make(map[string]interface{})
-	greetings := "world"
-	name, ok := args["name"].(string)
-	if ok {
-		greetings = name
-	}
-	res["package-main"] = "Hello, " + greetings
-	fmt.Printf("Hello, %s\n", greetings)
-	return res
+func ExampleHello() {
+	var input = make(map[string]interface{})
+	input["name"] = "Mike"
+	output := Hello(input)
+	json, _ := json.Marshal(output)
+	fmt.Printf("%s", json)
+	// Output:
+	// Hello, Mike
+	// {"body":"Hello, Mike"}
+}
+
+func ExampleHello_noName() {
+	var input = make(map[string]interface{})
+	output := Hello(input)
+	json, _ := json.Marshal(output)
+	fmt.Printf("%s", json)
+	// Output:
+	// Hello, world
+	// {"body":"Hello, world"}
 }
