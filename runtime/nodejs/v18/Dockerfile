@@ -15,49 +15,35 @@
 # limitations under the License.
 #
 
-# build go proxy from source
-# Do not fix the patch level for golang:1.20 to automatically get security fixes.
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM node:18.19.0-bookworm
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
-# select the builder to use
-ARG GO_PROXY_BUILD_FROM=release
-
 ENV OW_COMPILER=/bin/compile
 ENV OW_LOG_INIT_ERROR=1
 ENV OW_WAIT_FOR_ACK=1
 ENV OW_EXECUTION_ENV=openwhisk/nodejs-18.17.0
 
-# Initial update and some basics.
-#
 RUN apt-get update && apt-get install -y \
     imagemagick \
     graphicsmagick \
     unzip \
-    && rm -rf /var/lib/apt/lists/* &&\
-    mkdir -p /app/action
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /proxy
-COPY --from=builder_source /bin/proxy /bin/proxy_source
-COPY --from=builder_release /bin/proxy /bin/proxy_release
-RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
+COPY package.json /
+RUN cd / && npm install -g && npm cache clean --force
 
-# Add sources and copy the package.json to root container,
-# so npm packages from user functions take precedence.
-#
+RUN mkdir -p /app/action ;\
+  chmod -R 0775 /app ;\
+  chown -R nobody:root /app
+
 WORKDIR /app
 COPY bin/compile /bin/compile
 COPY lib/launcher.js /lib/launcher.js
-COPY package.json /
-
-# Customize runtime with additional packages.
-#
-RUN cd / && npm install -g \
-  && npm cache clean --force
 
 EXPOSE 8080
+USER nobody
 
 ENTRYPOINT ["/bin/proxy"]

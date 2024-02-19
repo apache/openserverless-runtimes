@@ -49,11 +49,12 @@ tasks:
     cmds:
     - task: docker-login
     - |
-      RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}"
+      RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-      else {{.DRY}} docker buildx build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="{{.COMMON}}" . --load
+      then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
       fi
+      echo "Built $RUNTIME"
 
   build-lang: 
     desc: build images for one runtime
@@ -71,4 +72,12 @@ tasks:
   build:
     - task: docker-login
     - task build-lang RT=golang
+
+  run-runtime:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
+    cmds:
+    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+
+
 
