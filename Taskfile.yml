@@ -67,9 +67,8 @@ tasks:
         vars:
           VER: "{{base .ITEM}}"
 
-  
+
   build:
     - task: docker-login
-    - task: build-lang
-      vars: { RT: "go"}
+    - task build-lang RT=golang
 
