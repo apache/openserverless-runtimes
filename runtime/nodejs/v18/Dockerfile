@@ -50,7 +50,7 @@ RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
 #
 WORKDIR /app
 COPY bin/compile /bin/compile
-COPY lib/launcher.ts /lib/launcher.ts
+COPY lib/launcher.js /lib/launcher.js
 COPY package.json /
 
 # Customize runtime with additional packages.

@@ -36,7 +36,7 @@ Special case is `runtime/common/<version>` that contains the proxy itseself, it 
 
 # How to build images
 
-First, build and push the common with `task build-common`. Also ensure the image is public.
+Build and push the common runtime  with `task build-common`. Also ensure the image is public.
 
 Then you can build a single runtime specifingh the dir:
 

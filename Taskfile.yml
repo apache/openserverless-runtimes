@@ -7,7 +7,8 @@ vars:
   PUSH: ""
   BASETAG: 3.1.0-mastrogpt
   BASEIMG: ghcr.io/nuvolaris 
-  COMMON: runtime-common-v1.17.1
+  COMMON_VER: common1.17.1
+  COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
 
@@ -33,44 +34,42 @@ tasks:
     - go test -v
 
   docker-login: 
-    cmds:
-      - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
-
-  docker-setup:
-    - docker buildx create --use
+    - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
     - docker run -it --rm --privileged tonistiigi/binfmt --install all
 
+  build-common:
+    dir: "runtime/common/{{.COMMON_VER}}"
+    cmds:
+    - task: docker-login
+    - docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
 
   build-runtime:
-    requires: { vars: [DIR] } 
-    dir: "{{.DIR}}"
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
+    - task: docker-login
     - |
-      RUNTIME="{{.BASEIMG}}/$(echo {{.DIR}} | tr / - )"
-      COMMON="{{.BASEIMG}}/{{.COMMON}}:{{.TAG}}"
+      RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}"
       if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build --platform linux/amd64,linux/arm64 -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="$COMMON" . --push
-      else {{.DRY}} docker build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="$COMMON" . --load
+      then {{.DRY}} docker buildx build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+      else {{.DRY}} docker buildx build -t "$RUNTIME:{{.TAG}}" --build-arg COMMON="{{.COMMON}}" . --load
       fi
 
-  build-lang:
-    requires: {vars: [PLANG] }
+  build-lang: 
+    desc: build images for one runtime
+    requires: {vars: [RT] }
     vars:
       DIRS:
-        sh: ls -d  runtime/{{.PLANG}}/v* || echo ""
+        sh: ls -d  runtime/{{.RT}}/v* || echo ""
     cmds:
       - for: { var: DIRS }
         task: build-runtime
         vars:
-          DIR: "{{.ITEM}}"
+          VER: "{{base .ITEM}}"
 
-  build-common:
-   - task: docker-login
-   - task: docker-setup
-   - task: build-lang
-     vars: { PLANG: "common"}  
   
-  build-all:
+  build:
+    - task: docker-login
     - task: build-lang
-      vars: { PLANG: "golang"}
+      vars: { RT: "go"}
 
