@@ -73,20 +73,24 @@ tasks:
     - task build-lang RT=python
 
   run-runtime:
-    requires: { vars: [RT, VER] } 
-    dir: "runtime/{{.RT}}/{{.VER}}"
+    requires: { vars: [RT, V] } 
+    dir: "runtime/{{.RT}}/v{{.V}}"
     cmds:
-    - docker run -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-v{{.V}}:{{.TAG}}"
 
   debug-runtime:
-    requires: { vars: [RT, VER] } 
-    dir: "runtime/{{.RT}}/{{.VER}}"
+    requires: { vars: [RT, V] } 
+    dir: "runtime/{{.RT}}/v{{.V}}"
     cmds:
-    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-v{{.V}}:{{.TAG}}"
 
-  test-runtime:
-    requires: { vars: [RT, A] } 
-    dir: "runtime/{{.RT}}/{{.VER}}"
+  init:
+    desc: initialize a runtime running in localhost:8080 with an action 
+    requires: { vars: [A] } 
+    cmds:
+    - nuv ide init A={{.A}}
 
-
-
+  run:
+    desc: run a command with the J=<json-payload>
+    cmds:
+    - nuv ide run A="{{.A}}" J="{{.J}}"
