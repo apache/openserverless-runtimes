@@ -47,7 +47,6 @@ tasks:
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - task: docker-login
     - |
       RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
@@ -68,16 +67,26 @@ tasks:
         vars:
           VER: "{{base .ITEM}}"
 
-
   build:
     - task: docker-login
     - task build-lang RT=golang
+    - task build-lang RT=python
 
   run-runtime:
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - docker run -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+
+  debug-runtime:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
+    cmds:
+    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+
+  test-runtime:
+    requires: { vars: [RT, A] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
 
 
 

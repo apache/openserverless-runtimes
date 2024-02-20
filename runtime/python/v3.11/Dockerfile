@@ -35,10 +35,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 RUN mkdir -p /action
 WORKDIR /
 
-COPY --from=builder_source /bin/proxy /bin/proxy_source
-COPY --from=builder_release /bin/proxy /bin/proxy_release
-RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
-
 ADD bin/compile /bin/compile
 ADD lib/launcher.py /lib/launcher.py
 

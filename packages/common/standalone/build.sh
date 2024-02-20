@@ -1,0 +1,1 @@
+go build exec.go -o exec
