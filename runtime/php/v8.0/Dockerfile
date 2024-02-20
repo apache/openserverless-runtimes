@@ -16,28 +16,11 @@
 #
 
 
-# build go proxy from source
-FROM golang:1.21 AS builder_source
-ARG GO_PROXY_GITHUB_USER=apache
-ARG GO_PROXY_GITHUB_BRANCH=master
-RUN git clone --branch ${GO_PROXY_GITHUB_BRANCH} \
-   https://github.com/${GO_PROXY_GITHUB_USER}/openwhisk-runtime-go /src ;\
-   cd /src ; env GO111MODULE=on CGO_ENABLED=0 go build main/proxy.go && \
-   mv proxy /bin/proxy
-
-# or build it from a release
-FROM golang:1.21 AS builder_release
-ARG GO_PROXY_RELEASE_VERSION=1.21@1.23.0
-RUN curl -sL \
-  https://github.com/apache/openwhisk-runtime-go/archive/{$GO_PROXY_RELEASE_VERSION}.tar.gz\
-  | tar xzf -\
-  && cd openwhisk-runtime-go-*/main\
-  && GO111MODULE=on CGO_ENABLED=0 go build -o /bin/proxy
+# rely on nuvolaris common runtime image
+ARG COMMON=missing:missing
+FROM ${COMMON} as builder
 
 FROM php:8.0-cli-buster
-
-# select the builder to use
-ARG GO_PROXY_BUILD_FROM=release
 
 # install PHP extensions
 RUN apt-get -y update \
@@ -108,11 +91,11 @@ RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-script
 # install proxy binary along with compile and launcher scripts
 RUN mkdir -p /phpAction/action
 WORKDIR /phpAction
-COPY --from=builder_source /bin/proxy /bin/proxy_source
-COPY --from=builder_release /bin/proxy /bin/proxy_release
-RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
+COPY --from=builder /go/bin/proxy /bin/proxy
 ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
+# using the runtime name to identify the execution environment
+ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.0
 
 ENTRYPOINT [ "/bin/proxy" ]

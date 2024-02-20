@@ -19,7 +19,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
-FROM php:8.1-cli-bullseye
+FROM php:8.3-cli-bookworm
 
 # install PHP extensions
 RUN apt-get -y update \
@@ -28,10 +28,11 @@ RUN apt-get -y update \
     && apt-get -y install --no-install-recommends \
       unzip \
       libfreetype6 \
-      libicu67 \
+      libicu72 \
       libjpeg62-turbo \
       libpng16-16 \
-      libssl1.1 \
+      libssl3 \
+      libssl-dev \
       libxml2 \
       libzip4 \
       libpq5 \
@@ -43,13 +44,12 @@ RUN apt-get -y update \
       libssl-dev \
       libxml2-dev \
       libzip-dev \
-      postgresql-server-dev-13 \
+      postgresql-server-dev-15 \
     \
     && docker-php-ext-install \
       bcmath \
       gd \
       intl \
-      pgsql \
       mysqli \
       opcache \
       pdo_mysql \
@@ -69,7 +69,7 @@ RUN apt-get -y update \
       libssl-dev \
       libxml2-dev \
       libzip-dev \
-      postgresql-server-dev-13 \
+      postgresql-server-dev-15 \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /usr/src/php
@@ -93,6 +93,6 @@ COPY --from=builder /go/bin/proxy /bin/proxy
 ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
-ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.1
+ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.3
 
 ENTRYPOINT [ "/bin/proxy" ]
