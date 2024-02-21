@@ -19,6 +19,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 FROM golang:1.21-bookworm
+ENV OW_EXECUTION_ENV=nuvolaris/runtime-golang-v1.21
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 RUN \
@@ -45,7 +46,6 @@ ADD lib/launcher.go /lib/launcher.go
 ENV OW_COMPILER=/bin/compile
 ENV OW_LOG_INIT_ERROR=1
 ENV OW_WAIT_FOR_ACK=1
-ENV OW_EXECUTION_ENV=openwhisk/action-golang-v1.21
 
 WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action

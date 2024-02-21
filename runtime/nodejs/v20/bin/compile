@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Python Action Builder
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""
+import os, os.path, sys, ast, shutil, re
+from os.path import abspath, exists, dirname
+
+# write a file creating intermediate directories
+def write_file(file, body, executable=False):
+    try: os.makedirs(dirname(file), mode=0o755)
+    except: pass
+    with open(file, mode="wb") as f:
+        f.write(body.encode("utf-8"))
+    if executable:
+        os.chmod(file, 0o755)
+
+# copy a file eventually replacing a substring
+def copy_and_export(src, dst, main):
+    out = ""
+    pattern = rf"module\.exports\s*=\s{main}"
+    found = False
+    with open(src, 'rb') as f:
+        for line in f.readlines():
+            line = line.decode("UTF-8")
+            found = found or re.search(pattern, line)
+            out += line
+    if not found:
+        out += f"module.exports = {main}\n"            
+    write_file(dst, out)
+
+def copy_replace(src, dst,  match=None, replacement=""):
+    with open(src, 'rb') as s:
+        body = s.read().decode("utf-8")
+        if match:
+            body = body.replace(match, replacement)
+        write_file(dst, body)
+
+# assemble sources
+def sources(launcher, main_func, src_dir):
+    # single file actions are uploaded as exec so rename them
+    if exists(f"{src_dir}/exec"):
+        os.rename(f"{src_dir}/exec", f"{src_dir}/index.js")
+        
+    # the main file should be replaced by the launcher
+    copy_and_export(f"{src_dir}/index.js", f"{src_dir}/index__.js", main_func)
+
+    # write the boilerplate in a temp dir
+    copy_replace(launcher, f"{src_dir}/exec__.js")
+
+# compile sources
+def build(src_dir, tgt_dir):
+    # in general, compile your program into an executable format
+    # for scripting languages, move sources and create a launcher
+    # move away the action dir and replace with the new
+    shutil.rmtree(tgt_dir)
+    shutil.move(src_dir, tgt_dir)
+    tgt_file = "%s/exec" % tgt_dir
+    write_file(tgt_file, """#!/bin/bash
+echo "pwd=$(pwd)"
+echo "\$0=$0"
+if [ "$(cat $0.env)" != "$__OW_EXECUTION_ENV" ]
+then
+   echo "Execution Environment Mismatch"
+   echo "Expected: $(cat $0.env)"
+   echo "Actual: $__OW_EXECUTION_ENV"
+   exit 1
+fi
+cd "$(dirname $0)"
+node exec__.js
+""", True)
+    if os.environ.get("__OW_EXECUTION_ENV"):
+      write_file(f"{tgt_file}.env", os.environ['__OW_EXECUTION_ENV'])
+    return tgt_file
+
+if __name__ == '__main__':
+    if len(sys.argv) < 4:
+        sys.stdout.write("usage: <main-function> <source-dir> <target-dir>\n")
+        sys.stdout.flush()
+        sys.exit(1)
+    cur_dir = dirname(dirname(sys.argv[0]))
+    launcher = f"{cur_dir}/lib/launcher.js"
+    main_func = sys.argv[1]
+    src_dir = abspath(sys.argv[2])
+    tgt_dir = abspath(sys.argv[3])
+    sources(launcher, main_func, src_dir)
+    build(abspath(sys.argv[2]), tgt_dir)
+    sys.stdout.flush()
+    sys.stderr.flush()

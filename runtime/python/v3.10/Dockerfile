@@ -18,7 +18,9 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
-FROM python:3.10-buster
+FROM python:3.10.13-bookworm
+ENV OW_EXECUTION_ENV=nuvolaris/runtmie-python-v3.10.13
+
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 # install zip
@@ -42,8 +44,6 @@ ADD lib/launcher.py /lib/launcher.py
 ENV OW_LOG_INIT_ERROR=1
 # the launcher must wait for an ack
 ENV OW_WAIT_FOR_ACK=1
-# using the runtime name to identify the execution environment
-ENV OW_EXECUTION_ENV=openwhisk/action-python-v3.10
 # compiler script
 ENV OW_COMPILER=/bin/compile
 # home directory

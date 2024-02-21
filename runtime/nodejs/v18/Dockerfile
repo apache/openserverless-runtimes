@@ -18,13 +18,13 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
-FROM node:18.19.0-bookworm
+FROM node:18.19.1-bookworm
+ENV OW_EXECUTION_ENV=nuvolaris/nodejs-18.19.1
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 ENV OW_COMPILER=/bin/compile
 ENV OW_LOG_INIT_ERROR=1
 ENV OW_WAIT_FOR_ACK=1
-ENV OW_EXECUTION_ENV=nuvolaris/nodejs-18.17.0
 
 RUN apt-get update && apt-get install -y \
     imagemagick \
