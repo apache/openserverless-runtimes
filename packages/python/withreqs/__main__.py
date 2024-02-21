@@ -4,7 +4,8 @@
 import htmlgenerator as hg
 
 def main(args):
-    page = hg.HTML(hg.HEAD(), hg.BODY(hg.H1("Hello, world")))
+    name = args.get("name", "world")
+    page = hg.HTML(hg.HEAD(), hg.BODY(hg.H1(f"Hello, {name}.")))
     return {
         "body": hg.render(page, {})
     }

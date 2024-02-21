@@ -1,6 +1,6 @@
-function hello() {
-    return "hello world"
+function hello(args) {
+    let name = args.name || "world".
+    return `Hello, ${name}.`
 }
 
-module.exports = hello 
- 
+module.exports = hello

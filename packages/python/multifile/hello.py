@@ -1,2 +1,3 @@
-def hello():
-    return "hello world"
+def hello(args):
+    name = args.get("name", "world")
+    return "Hello, f{name}."

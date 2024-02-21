@@ -5,5 +5,5 @@ import hello
 
 def main(args):
     return { 
-        "body": hello.hello()
+        "body": hello.hello(args)
     }

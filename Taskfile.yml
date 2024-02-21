@@ -56,7 +56,7 @@ tasks:
       RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
       then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
+      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --push
       fi
       echo "Built $RUNTIME"
 
@@ -76,6 +76,7 @@ tasks:
     - task: docker-login
     - task build-lang RT=golang
     - task build-lang RT=python
+    - task build-lang RT=nodejs
 
   run-runtime:
     requires: { vars: [RT, VER] } 
@@ -99,3 +100,10 @@ tasks:
     desc: run a command, provide a jons with '-- <json-payload>'
     cmds:
     - nuv ide run J={{.CLI_ARGS}}
+
+  test-runtime:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
+    cmds:
+    - docker run -p 8080:8080 -d --name=test-runtime "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - nuv init A={{.RT}}/{{.ITEM}}
