@@ -135,7 +135,6 @@ if __name__ == '__main__':
     tgt_dir = abspath(sys.argv[3])
     sources(launcher, sys.argv[1], src_dir)
     build(abspath(sys.argv[2]), tgt_dir)
-    virtualenv(tgt_dir)
     check(tgt_dir, "main__")
     sys.stdout.flush()
     sys.stderr.flush()

@@ -16,12 +16,10 @@
  */
 
 try {
-  const main = require("./main__").main
+  const main = require("./index__.js")
   const readline = require('readline');
   const fs = require("fs")
   const os = require("os")
-
-
 
   async function actionLoop() {
     const out = fs.createWriteStream(null,

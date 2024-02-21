@@ -17,7 +17,12 @@ tasks:
   default:
   - task --list-all
 
-  setup: { silent: true}
+  setup:
+  # check we are running in ubuntu 
+  - grep '^ID=' /etc/os-release | grep -i ubuntu
+  - if ! which python3 | grep python3 ; then echo "python3 not found" ; exit 1; fi
+  - sudo apt-get -y install python3-pip python3-virtualenv
+  - python3 -m pip install ipython watchdog requests
 
   image-tag: 
     silent: true
@@ -55,7 +60,7 @@ tasks:
       fi
       echo "Built $RUNTIME"
 
-  build-lang: 
+  build-lang:
     desc: build images for one runtime
     requires: {vars: [RT] }
     vars:
@@ -73,16 +78,16 @@ tasks:
     - task build-lang RT=python
 
   run-runtime:
-    requires: { vars: [RT, V] } 
-    dir: "runtime/{{.RT}}/v{{.V}}"
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-v{{.V}}:{{.TAG}}"
+    - docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
   debug-runtime:
-    requires: { vars: [RT, V] } 
-    dir: "runtime/{{.RT}}/v{{.V}}"
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - docker run -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-v{{.V}}:{{.TAG}}"
+    - docker run -p 8080:8080 -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
   init:
     desc: initialize a runtime running in localhost:8080 with an action 
@@ -91,6 +96,6 @@ tasks:
     - nuv ide init A={{.A}}
 
   run:
-    desc: run a command with the J=<json-payload>
+    desc: run a command, provide a jons with '-- <json-payload>'
     cmds:
-    - nuv ide run A="{{.A}}" J="{{.J}}"
+    - nuv ide run J={{.CLI_ARGS}}
