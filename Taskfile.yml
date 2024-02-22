@@ -73,7 +73,6 @@ tasks:
           VER: "{{base .ITEM}}"
 
   build:
-    - task: docker-login
     - task: build-common
     - task build-lang RT=golang
     - task build-lang RT=python

@@ -41,8 +41,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Buildx install
         uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest   
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       - name: Setup
