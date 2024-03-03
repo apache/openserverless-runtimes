@@ -4,7 +4,7 @@ dotenv: [.env]
 
 vars:
   DRY: ""
-  PUSH: "y"
+  PUSH: ""
   BASETAG: 3.1.0-mastrogpt
   BASEIMG: ghcr.io/nuvolaris 
   COMMON_VER: common1.17.1
@@ -22,7 +22,7 @@ tasks:
   - grep '^ID=' /etc/os-release | grep -i ubuntu
   - if ! which python3 | grep python3 ; then echo "python3 not found" ; exit 1; fi
   - sudo apt-get -y install python3-pip python3-virtualenv
-  - python3 -m pip install ipython watchdog requests
+  - python3 -m pip install ipython watchdog requests cram
 
   image-tag: 
     silent: true
