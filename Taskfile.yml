@@ -39,6 +39,8 @@ tasks:
     - go test -v
 
   docker-login: 
+    ignore_error: true
+    cmds:
     - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
     - docker run -it --rm --privileged tonistiigi/binfmt --install all
     - docker buildx create --name mybuilder --bootstrap --use

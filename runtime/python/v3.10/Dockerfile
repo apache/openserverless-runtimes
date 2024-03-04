@@ -28,7 +28,6 @@ RUN apt-get update && apt-get install -y zip python3-lxml python3-psycopg2 xpdf 
     && rm -rf /var/lib/apt/lists/*
 
 # Install common modules for python
-COPY requirements_common.txt requirements_common.txt
 COPY requirements.txt requirements.txt
 
 RUN pip3 install --upgrade pip six wheel virtualenv
