@@ -1,4 +1,10 @@
 {
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "nodejs action",
+  "author": "Nuvolaris",
+  "keywords": [],
+  "license": "ISC",
   "main": "index.js",
   "dependencies": {
     "@azure/openai": "^1.0.0-beta.11",
@@ -9,6 +15,7 @@
     "openai": "^4.28.4",
     "openwhisk": "^3.21.8",
     "pg": "^8.11.3",
+    "plotly": "^1.0.6",
     "redis": "^4.6.13",
     "uuid": "^9.0.1"
   }

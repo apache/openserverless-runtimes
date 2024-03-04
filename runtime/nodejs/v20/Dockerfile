@@ -33,12 +33,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json /
-RUN cd / && npm install -g && npm cache clean --force
+RUN cd / && npm install && npm cache clean --force
 
 RUN mkdir -p /app/action ;\
   chmod -R 0775 /app ;\
   chown -R nobody:root /app
 
+ENV HOME=/app
 WORKDIR /app
 COPY bin/compile /bin/compile
 COPY lib/launcher.js /lib/launcher.js

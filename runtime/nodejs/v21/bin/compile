@@ -71,8 +71,6 @@ def build(src_dir, tgt_dir):
     shutil.move(src_dir, tgt_dir)
     tgt_file = "%s/exec" % tgt_dir
     write_file(tgt_file, """#!/bin/bash
-echo "pwd=$(pwd)"
-echo "\$0=$0"
 if [ "$(cat $0.env)" != "$__OW_EXECUTION_ENV" ]
 then
    echo "Execution Environment Mismatch"
