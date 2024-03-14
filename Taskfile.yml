@@ -85,8 +85,7 @@ tasks:
     - task build-lang RT=nodejs
 
   build-and-push:
-  #- task build PUSH=y
-  - task build-common PUSH=y
+  - task build PUSH=y
 
   run-runtime:
     requires: { vars: [RT, VER] } 
