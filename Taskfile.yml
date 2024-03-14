@@ -54,7 +54,6 @@ tasks:
       else {{.DRY}} docker buildx build -t "{{.COMMON}}" . --load
       fi
 
-
   build-runtime:
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
@@ -80,13 +79,14 @@ tasks:
           VER: "{{base .ITEM}}"
 
   build:
-    - task: build-common
+    - task build-common
     - task build-lang RT=golang
     - task build-lang RT=python
     - task build-lang RT=nodejs
 
   build-and-push:
-  - task build PUSH=y
+  #- task build PUSH=y
+  - task build-common PUSH=y
 
   run-runtime:
     requires: { vars: [RT, VER] } 

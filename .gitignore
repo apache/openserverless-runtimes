@@ -71,3 +71,5 @@ pkg/
 .env
 virtulenv/
 node_modules/
+.env
+.env.nuv
