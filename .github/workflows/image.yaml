@@ -46,4 +46,4 @@ jobs:
       - name: Setup
         run: task setup
       - name: Build
-        run: task build
+        run: task build-and-push
