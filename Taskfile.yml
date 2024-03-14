@@ -86,7 +86,6 @@ tasks:
     - task build-lang RT=nodejs
 
   build-and-push:
-  - task: docker-login
   - task build PUSH=y
 
   run-runtime:
