@@ -79,9 +79,9 @@ tasks:
           VER: "{{base .ITEM}}"
 
   build:
-    - task build-lang RT=golang
-    - task build-lang RT=python
-    - task build-lang RT=nodejs
+    - task build-lang RT=golang PUSH="{{.PUSH}}"
+    - task build-lang RT=python PUSH="{{.PUSH}}"
+    - task build-lang RT=nodejs PUSH="{{.PUSH}}"
 
   build-and-push:
   - task build PUSH=y
