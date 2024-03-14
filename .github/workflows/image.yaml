@@ -46,4 +46,4 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3          
       - name: Build
-        run: task build-common PUSH=y
+        run: task build PUSH=y
