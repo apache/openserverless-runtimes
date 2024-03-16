@@ -119,8 +119,3 @@ tasks:
   clean-images:
     - docker images -qa | xargs docker rmi -f 
     - yes | docker buildx prune
-
-  build-and-push-test:
-    - docker pull busybox:latest
-    - docker tag busybox:latest ghcr.io/nuvolaris/busybox:{{.TAG}}
-    - docker push ghcr.io/nuvolaris/busybox:{{.TAG}}
