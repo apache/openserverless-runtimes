@@ -122,5 +122,5 @@ tasks:
 
   build-and-push-test:
     - docker pull busybox:latest
-    - docker tag busybox:latest ghcr.io/nuvolaris/busybox:{{.TAG}} 
-    - docker push ghcr.io/nuvolaris/busybox:{{.TAG}} 
+    - docker tag busybox:latest ghcr.io/nuvolaris/nuvolaris-runtimes-ng:{{.TAG}} 
+    - docker push ghcr.io/nuvolaris/nuvolaris-runtimes-ng:{{.TAG}} 
