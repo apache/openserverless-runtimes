@@ -23,6 +23,11 @@ on:
       - '[0-9]*'
     branches-ignore: '*'
 
+permissions:
+  content: read
+  package: write
+
+
 jobs:
   build:
     name: Build
