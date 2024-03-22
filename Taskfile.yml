@@ -11,6 +11,7 @@ vars:
   COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
+  J: "{}"
 
 tasks:
 
@@ -44,6 +45,10 @@ tasks:
     - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
     - docker run -it --rm --privileged tonistiigi/binfmt --install all
     - docker buildx create --name mybuilder --bootstrap --use
+
+  clean-images:
+    - docker images -qa | xargs docker rmi -f 
+    - yes | docker buildx prune
 
   build-common:
     dir: "runtime/common/{{.COMMON_VER}}"
@@ -86,36 +91,30 @@ tasks:
   build-and-push:
   - task build PUSH=y
 
-  run-runtime:
+  run:
+    desc: run a runtime
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
-  debug-runtime:
+  debug:
+    desc: debug a runtime
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - docker run -p 8080:8080 -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
   init:
-    desc: initialize a runtime running in localhost:8080 with an action 
-    requires: { vars: [A] } 
+    desc: intialize a runtime with a test
+    requires: { vars: [RT, VER, T] } 
     cmds:
-    - nuv ide init A={{.A}}
+    - nuv ide {{.RT}} pack A={{.RT}}/{{.T}}
+    - python3 packages/invoke.py init packages/{{.RT}}/{{.T}}.zip
 
-  run:
-    desc: run a command, provide a jons with '-- <json-payload>'
+  invoke:
+    desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
-    - nuv ide run J={{.CLI_ARGS}}
+    - python3 packages/invoke.py run '{{.J}}'
+  
 
-  test-runtime:
-    requires: { vars: [RT, VER] } 
-    dir: "runtime/{{.RT}}/{{.VER}}"
-    cmds:
-    - docker run -p 8080:8080 -d --name=test-runtime "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
-    - nuv init A={{.RT}}/{{.ITEM}}
-
-  clean-images:
-    - docker images -qa | xargs docker rmi -f 
-    - yes | docker buildx prune

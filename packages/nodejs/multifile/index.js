@@ -1,12 +1,11 @@
 //--web true
-//--docker ghcr.io/nuvolaris/runtime-nodejs-v21:3.1.0-mastrogpt.2402201748
-
+//--kind nodeks:default
 
 const hello = require("./hello")
 
 function main(args) { 
     return { 
-        body: hello()
+        body: hello(args)
     }
 }
 
