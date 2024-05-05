@@ -6,7 +6,6 @@
     },
     "require": {
         "guzzlehttp/guzzle": "7.2.0",
-        "ramsey/uuid": "4.1.1",
-        "openai-php/client": "v0.8.5"
+        "ramsey/uuid": "4.1.1"
     }
 }
