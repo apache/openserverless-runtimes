@@ -13,6 +13,8 @@ test.out
 
 # Dependencies
 vendor/
+virtulenv/
+node_modules/
 
 # Go binary proxy
 proxy
@@ -69,7 +71,5 @@ pkg/
 .vscode/
 .task
 .env
-virtulenv/
-node_modules/
 .env
 .env.nuv

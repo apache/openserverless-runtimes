@@ -96,7 +96,8 @@ WORKDIR /phpAction
 COPY --from=builder /go/bin/proxy /bin/proxy
 ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
+RUN chmod +x /bin/compile.php && chmod +x /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.3
 
-ENTRYPOINT [ "/bin/proxy" ]
+ENTRYPOINT [ "/bin/proxy", "-debug" ]

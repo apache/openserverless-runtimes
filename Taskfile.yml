@@ -87,6 +87,7 @@ tasks:
     - task build-lang RT=golang PUSH="{{.PUSH}}"
     - task build-lang RT=python PUSH="{{.PUSH}}"
     - task build-lang RT=nodejs PUSH="{{.PUSH}}"
+    - task build-lang RT=php PUSH="{{.PUSH}}"
 
   build-and-push:
   - task build PUSH=y
@@ -104,12 +105,13 @@ tasks:
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - docker run -p 8080:8080 -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      
+
 
   init:
     desc: intialize a runtime with a test
     requires: { vars: [RT, VER, T] } 
     cmds:
-    - nuv ide {{.RT}} pack A={{.RT}}/{{.T}}
     - python3 packages/invoke.py init packages/{{.RT}}/{{.T}}.zip
 
   invoke:
