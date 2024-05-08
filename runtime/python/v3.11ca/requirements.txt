@@ -26,5 +26,5 @@ azure-core==1.30.1
 azure-cosmos==4.5.1
 tenacity==8.2.3
 ollama==0.1.9
-soccerdata==0.5.6
+soccerdata==1.6.1
 ScraperFC==2.9.2
