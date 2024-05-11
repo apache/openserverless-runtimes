@@ -61,6 +61,10 @@ RUN apt-get -y update \
     && curl -fsSL https://pecl.php.net/get/mongodb-1.14.0 | tar xvz -C "/usr/src/php/ext/mongodb" --strip 1 \
     && docker-php-ext-install -j$(nproc) mongodb \
     \
+    && pecl install -o -f redis \
+    && rm -rf /tmp/pear \
+    && docker-php-ext-enable redis \
+    \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && apt-get purge -y --auto-remove libfreetype6-dev \
       libicu-dev \
@@ -92,7 +96,8 @@ WORKDIR /phpAction
 COPY --from=builder /go/bin/proxy /bin/proxy
 ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
+RUN chmod +x /bin/compile.php && chmod +x /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.3
 
-ENTRYPOINT [ "/bin/proxy" ]
+ENTRYPOINT [ "/bin/proxy", "-debug" ]

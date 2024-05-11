@@ -14,12 +14,24 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Apache Software Foundation
 
-.DS_Store
-/.build
-/Packages
-/*.xcodeproj
-Package.resolved
-*.json
-.*_history
-.viminfo
+  paths-ignore:
+    - '**/*.sample'
+    - 'env.src'
+    - '.git-hooks/pre-commit'
+    - '**/_*'
+    - 'nuvroot.json'
+    - 'LICENSE'
+    - 'cert-manager.yaml'
+    - 'ingress-deploy.yaml'
+    - 'runtimes.json'
+    - '**/*.json'
+    - '**/*.service'
+    - 'update/update.ps1' 
+    - '**/mime.types'
+    - '**/*.txt'

@@ -31,7 +31,7 @@ exit;
 function main($argc, $argv)
 {
     if ($argc < 4) {
-        print("usage: <main-function-name> <source-dir> <bin-dir>");
+        print ("usage: <main-function-name> <source-dir> <target-dir>");
         exit(1);
     }
     $main = $argv[1];
@@ -44,6 +44,22 @@ function main($argc, $argv)
     build($shim, $src, $main);
 }
 
+function write_file(string $filename, mixed $content, bool $executable = false)
+{
+    try {
+        $dir = dirname($filename);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+    } catch (\Exception $ex) {
+    }
+    file_put_contents($filename, $content);
+    if ($executable) {
+        chmod($filename, 0755);
+    }
+}
+
+
 /**
  * Sort out the source code
  *
@@ -55,8 +71,13 @@ function sources(string $src)
     // If the file uploaded by the user is a plain PHP file, then
     // the filename will be called exec by the action proxy.
     // Rename it to index.php
-    if (file_exists($src . '/exec')) {
+    if (file_exists($src . '/exec')) {        
         rename($src . '/exec', $src . '/index.php');
+    }
+
+    if (file_exists($src . '/composer.json')) {
+        // Run composer if exists locally composer.json
+        exec("export HOME=$src; cd $src; composer install --no-progress --no-dev -o -q");
     }
 
     // put vendor in the right place if it doesn't exist
@@ -70,13 +91,25 @@ function sources(string $src)
  */
 function build(string $shim, string $src, string $main) : void
 {
+    $shim_env_file = sprintf("%s.env", $shim);
     $contents = <<<EOT
 #!/bin/bash
-cd $src
-exec php -f /bin/runner.php -- "$main"
 
+if [[ "\$__OW_EXECUTION_ENV" == "" || "\$(cat $shim_env_file)" == "\$__OW_EXECUTION_ENV" ]]
+then cd $src
+    exec php -f /bin/runner.php -- "$main"
+else echo "Execution Environment Mismatch"
+     echo "Expected: \$(cat $shim_env_file)"
+     echo "Actual: \$__OW_EXECUTION_ENV"
+     exit 1
+fi
 EOT;
 
-    file_put_contents($shim, $contents);
-    chmod($shim, 0755);
+    write_file($shim, $contents, true);
+    
+    $ow_exec_env = getenv('__OW_EXECUTION_ENV');
+    if ($ow_exec_env!==false) {
+        // write shim env file
+        write_file($shim_env_file, $ow_exec_env);
+    }
 }

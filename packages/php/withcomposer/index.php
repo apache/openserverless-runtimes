@@ -1,3 +1,4 @@
+<?php
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,20 +18,12 @@
  * under the License.
  */
 
-import com.google.gson.JsonObject;
+  require('vendor/autoload.php');
 
-public class Hello {
-    public static JsonObject main(JsonObject args){
-        String name;
-
-        try {
-            name = args.getAsJsonPrimitive("name").getAsString();
-        } catch(Exception e) {
-            name = "stranger";
-        }
-
-        JsonObject response = new JsonObject();
-        response.addProperty("greeting", "Hello " + name + "!");
-        return response;
-    }
-}
+  function main(array $args): array {
+    $loader = new \Twig\Loader\FilesystemLoader('templates/');
+    $twig = new \Twig\Environment($loader,['cache'=>false]);
+    $template = $twig->load('hello.twig');
+    $name = $args["name"] || "world";
+    return ['body' => $template->render(['name'=>$name])];
+  }

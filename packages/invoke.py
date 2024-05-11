@@ -95,7 +95,7 @@ def parseArgs():
 def init(args):
     main = args.main
     artifact = args.artifact
-
+    
     if artifact and (args.binary or artifact.endswith('.zip') or artifact.endswith('tgz') or artifact.endswith('jar')):
         with open(artifact, 'rb') as fp:
             contents = fp.read()

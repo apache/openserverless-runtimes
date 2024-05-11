@@ -62,6 +62,10 @@ RUN apt-get -y update \
     && curl -fsSL https://pecl.php.net/get/mongodb-1.9.0RC1 | tar xvz -C "/usr/src/php/ext/mongodb" --strip 1 \
     && docker-php-ext-install -j$(nproc) mongodb \
     \
+    && pecl install -o -f redis \
+    && rm -rf /tmp/pear \
+    && docker-php-ext-enable redis \
+    \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && apt-get purge -y --auto-remove libclang-common-7-dev clang-7 llvm-7 llvm-7-dev \
     && apt-get purge -y --auto-remove libfreetype6-dev \

@@ -1,3 +1,4 @@
+<?php
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,27 +19,38 @@
  */
 
 //--web true
-//--docker ghcr.io/nuvolaris/runtime-nodejs-v21:3.1.0-mastrogpt.2403032235
+//--kind php:default
 //--param OPENAI_API_KEY $OPENAI_API_KEY
 //--param OPENAI_API_HOST $OPENAI_API_HOST
+function main(array $args): array
+{
+  $openaiKey = array_key_exists('OPENAI_API_KEY',$args) ? $args['OPENAI_API_KEY'] : null;
+  $openaiHost = array_key_exists('OPENAI_API_HOST',$args) ? $args['OPENAI_API_HOST'] : null;
+  
+  $model = "gpt-35-turbo";
 
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+  if (empty($openaiHost)) {
+    $openaiHost = 'openai.nuvolaris.io';
+  }
+  if (empty($openaiKey)) {
+    return ['error'=>"OpenAI Key is not set"];
+  }
 
-async function main(args) {
-    const key = args.OPENAI_API_KEY || process.env.OPENAI_API_KEY
-    const host = args.OPENAI_API_HOST || process.env.OPENAI_API_HOST
-    const model = "gpt-35-turbo"
-    const AI = new OpenAIClient(host, new AzureKeyCredential(key))
-    const input = args.input || ""
-    let answer = "Please provide an input parameter."
-    if (input != "") {
-        //const { id, created, choices, usage } =
-        const request = [
-            { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: input },
-        ]
-        const response = await AI.getChatCompletions(model, request);
-        answer = response.choices[0].message.content
-    }
-    return { body: answer }
+  print "Sending request to $openaiHost";
+
+  $client = OpenAI::factory()
+  ->withApiKey($openaiKey)
+  ->withBaseUri($openaiHost)
+  ->make();
+
+  $response = $client->models()->list();
+
+  /*$response = $client->chat()->create([
+    'model' => $model,
+    'messages' => [
+        ['role' => 'user', 'content' => 'Hello!'],
+    ],
+  ]);*/
+
+  return ['body' => print_r($response, true)];
 }
