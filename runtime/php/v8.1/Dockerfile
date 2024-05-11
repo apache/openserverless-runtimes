@@ -53,6 +53,7 @@ RUN apt-get -y update \
       mysqli \
       mongodb \
       opcache \
+      pgsql \
       pdo_mysql \
       pdo_pgsql \
       redis \
