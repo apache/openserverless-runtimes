@@ -6,6 +6,7 @@
     },
     "require": {
         "guzzlehttp/guzzle": "7.7.0",
-        "ramsey/uuid": "4.7.4"
+        "ramsey/uuid": "4.7.4",
+        "league/flysystem": "^3.0"
     }
 }

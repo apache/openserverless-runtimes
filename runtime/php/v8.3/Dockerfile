@@ -20,6 +20,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM php:8.3-cli-bookworm
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 # install PHP extensions
 RUN apt-get -y update \
@@ -46,20 +47,18 @@ RUN apt-get -y update \
       libzip-dev \
       postgresql-server-dev-15 \
     \
-    && docker-php-ext-install \
+    && install-php-extensions  \
       bcmath \
       gd \
       intl \
       mysqli \
+      mongodb \
       opcache \
       pdo_mysql \
       pdo_pgsql \
+      redis \
       soap \
       zip \
-    \
-    && mkdir -p /usr/src/php/ext/mongodb \
-    && curl -fsSL https://pecl.php.net/get/mongodb-1.14.0 | tar xvz -C "/usr/src/php/ext/mongodb" --strip 1 \
-    && docker-php-ext-install -j$(nproc) mongodb \
     \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && apt-get purge -y --auto-remove libfreetype6-dev \

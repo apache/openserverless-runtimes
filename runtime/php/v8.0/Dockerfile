@@ -21,6 +21,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM php:8.0-cli-buster
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 # install PHP extensions
 RUN apt-get -y update \
@@ -46,34 +47,29 @@ RUN apt-get -y update \
       libzip-dev \
       postgresql-server-dev-11 \
     \
-    && docker-php-ext-install \
+    && install-php-extensions  \
       bcmath \
       gd \
       intl \
-      pgsql \
       mysqli \
+      mongodb \
       opcache \
+      pgsql \
       pdo_mysql \
       pdo_pgsql \
+      redis \
       soap \
       zip \
     \
-    && mkdir -p /usr/src/php/ext/mongodb \
-    && curl -fsSL https://pecl.php.net/get/mongodb-1.9.0RC1 | tar xvz -C "/usr/src/php/ext/mongodb" --strip 1 \
-    && docker-php-ext-install -j$(nproc) mongodb \
-    \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
-    && apt-get purge -y --auto-remove libclang-common-7-dev clang-7 llvm-7 llvm-7-dev \
-    && apt-get purge -y --auto-remove libfreetype6-dev \
-      libicu-dev \
+    && apt-get purge -y --autoremove libfreetype6-dev \
       libjpeg-dev \
       libpng-dev \
       libssl-dev \
-      libxml2-dev \
       libzip-dev \
-      postgresql-server-dev-11 \
+    && apt-get purge -y --auto-remove libclang-common-7-dev clang-7 llvm-7 llvm-7-dev \
     && apt-get autoremove -y \
-    && apt-get clean -y \
+    && apt-get clean -y  \
     && rm -rf /usr/src/php
 
 COPY php.ini /usr/local/etc/php
