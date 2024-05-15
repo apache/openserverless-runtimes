@@ -31,11 +31,15 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      MY_GITHUB_USER: ${{ secrets.MY_GITHUB_USER }}
+      MY_GITHUB_REGISTRY: ${{ secrets.MY_GITHUB_REGISTRY }}
     steps:
       - name: Checkout recursive
         uses: actions/checkout@v2
-      #- name: License check
-      #  uses: apache/skywalking-eyes@main
+      - name: License check
+        uses: apache/skywalking-eyes@main
       #  continue-on-error: true
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
