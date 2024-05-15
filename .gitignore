@@ -90,3 +90,4 @@ pkg/
 .env
 .env
 .env.nuv
+.env.src

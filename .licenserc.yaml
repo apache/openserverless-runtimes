@@ -35,3 +35,8 @@ header:
     - 'update/update.ps1' 
     - '**/mime.types'
     - '**/*.txt'
+    - '.env.src'
+    - 'go.sum'
+    - 'openwhisk/_test/**'
+    - '.gitattributes'
+    - '.env.dist'
