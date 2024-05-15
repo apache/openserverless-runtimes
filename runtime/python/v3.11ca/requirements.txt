@@ -28,3 +28,4 @@ tenacity==8.2.3
 ollama==0.1.9
 soccerdata==1.6.1
 ScraperFC==2.9.2
+azure-search-documents==11.4.0
