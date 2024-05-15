@@ -59,9 +59,11 @@ tasks:
   docker-login: 
     ignore_error: true
     cmds:
-    - echo $GITHUB_TOKEN | docker login -u $GITHUB_USER --password-stdin  ghcr.io 
-    - docker run -it --rm --privileged tonistiigi/binfmt --install all
-    - docker buildx create --name mybuilder --bootstrap --use
+    - echo ${MY_GITHUB_TOKEN:-$GITHUB_TOKEN} | docker login -u ${MY_GITHUB_USER:-$GITHUB_USER} --password-stdin ghcr.io 
+    - >
+      {{.DRY}} docker run -it --rm --privileged tonistiigi/binfmt --install all
+    - >
+      {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
 
   clean-images:
     - docker images -a | grep ghcr.io/nuvolaris | awk '{print $3}' | xargs docker rmi -f 
@@ -81,7 +83,7 @@ tasks:
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - |
-      BASEIMG=$(echo "$GITHUB_REGISTRY")
+      BASEIMG=$(echo "${MY_GITHUB_REGISTRY:-$GITHUB_REGISTRY}")
       RUNTIME="$BASEIMG/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
       then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
@@ -102,30 +104,33 @@ tasks:
           VER: "{{base .ITEM}}"
 
   build:
-    - task build-lang RT=golang PUSH="{{.PUSH}}"
-    - task build-lang RT=python PUSH="{{.PUSH}}"
-    - task build-lang RT=nodejs PUSH="{{.PUSH}}"
-    - task build-lang RT=php PUSH="{{.PUSH}}"
+    - task build-lang RT=golang PUSH="{{.PUSH}}" DRY={{.DRY}}
+    - task build-lang RT=python PUSH="{{.PUSH}}" DRY={{.DRY}}
+    - task build-lang RT=nodejs PUSH="{{.PUSH}}" DRY={{.DRY}}
+    - task build-lang RT=php PUSH="{{.PUSH}}" DRY={{.DRY}}
 
   build-and-push:
-  - task build PUSH=y
+  - task build PUSH=y DRY={{.DRY}}
 
   run:
     desc: run a runtime
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - >
+      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
 
   debug:
     desc: debug a runtime
     requires: { vars: [RT, VER] } 
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - docker run -p 8080:8080 -ti --entrypoint=/bin/bash -v $PWD:/mnt -e OW_COMPILER=/mnt/bin/compile "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+    - >
+      {{.DRY}} docker run -p 8080:8080 -ti 
+      --entrypoint=/bin/bash -v $PWD:/mnt 
+      -e OW_COMPILER=/mnt/bin/compile 
+      "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       
-
-
   init:
     desc: intialize a runtime with a test
     requires: { vars: [RT, VER, T] } 
