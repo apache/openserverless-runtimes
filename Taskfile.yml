@@ -29,6 +29,7 @@ vars:
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
+  RUNTIMES: "golang,nodejs,php,python"
 
 tasks:
 
@@ -41,13 +42,17 @@ tasks:
   - if ! which python3 | grep python3 ; then echo "python3 not found" ; exit 1; fi
   - sudo apt-get -y install python3-pip python3-virtualenv
   - python3 -m pip install ipython watchdog requests cram
-
-  image-tag: 
+  
+  image-tag:
     silent: true
     cmds:
-    - git tag -d $(git tag) 
-    - git tag -f {{.BASETAG}}.$(date +%y%m%d%H%M)
-    - env PAGER= git tag
+      - git tag -d $(git tag) 
+      - | 
+        if test -n "{{.RT}}"
+        then git tag -f {{.BASETAG}}-{{.RT}}.$(date +%y%m%d%H%M)
+        else git tag -f {{.BASETAG}}.$(date +%y%m%d%H%M)
+        fi
+      - env PAGER= git tag
 
   compile: go build -o proxy
 
@@ -104,10 +109,25 @@ tasks:
           VER: "{{base .ITEM}}"
 
   build:
-    - task build-lang RT=golang PUSH="{{.PUSH}}" DRY={{.DRY}}
-    - task build-lang RT=python PUSH="{{.PUSH}}" DRY={{.DRY}}
-    - task build-lang RT=nodejs PUSH="{{.PUSH}}" DRY={{.DRY}}
-    - task build-lang RT=php PUSH="{{.PUSH}}" DRY={{.DRY}}
+    silent: true
+    requires: { vars: [TAG,RUNTIMES] } 
+    vars:
+      RT_REGEX:
+        sh: echo "{{.RUNTIMES}}" | tr ',' '|'
+      SPECIFIC_RT:
+        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
+    cmds:
+      - |        
+        if [ -z "{{.SPECIFIC_RT}}" ];
+        then
+          echo "==> BUILDING RUNTIMES {{.RUNTIMES}}"
+          for ITEM in `echo {{.RUNTIMES}} | tr ',' ' '`; do
+            echo "==> BUILDING $ITEM:{{.TAG}}"
+            task build-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}}            
+          done
+        else echo "Build {{.SPECIFIC_RT}}"
+          task build-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
+        fi
 
   build-and-push:
   - task build PUSH=y DRY={{.DRY}}
@@ -142,4 +162,3 @@ tasks:
     cmds:
     - python3 packages/invoke.py run '{{.J}}'
   
-
