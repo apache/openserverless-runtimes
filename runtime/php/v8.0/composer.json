@@ -7,6 +7,6 @@
     "require": {
         "guzzlehttp/guzzle": "7.2.0",
         "ramsey/uuid": "4.1.1",
-        "league/flysystem": "^2.0"
+        "aws/aws-sdk-php": "3.209.31 || 3.210.0"
     }
 }

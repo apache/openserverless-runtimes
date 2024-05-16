@@ -8,6 +8,6 @@
         "guzzlehttp/guzzle": "7.7.0",
         "ramsey/uuid": "4.7.4",
         "openai-php/client": "v0.8.5",
-        "league/flysystem": "^3.0"
+        "aws/aws-sdk-php": "3.306.7"
     }
 }
