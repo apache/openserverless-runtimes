@@ -17,11 +17,6 @@
 #
 
 name: Build Images
-on: 
-  push:
-    tags:
-      - '[0-9]*'
-    branches-ignore: '*'
 on: workflow_dispatch
 
 permissions:
