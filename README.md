@@ -16,9 +16,9 @@
 # limitations under the License.
 #
 -->
-# Nuvolaris Runtines Next Generation
+# Apache OpenServerless Runtimes
 
-All the runtimes in a single place using the Go proxy and ActionLoop.
+All the Apache Openserverless OpenWhisk runtimes in a single place using the Go proxy and ActionLoop.
 
 # Source Code
 

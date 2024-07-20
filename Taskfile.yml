@@ -22,8 +22,8 @@ dotenv: [.env]
 vars:
   DRY: ""
   PUSH: ""
-  BASETAG: 3.1.0-mastrogpt
-  BASEIMG: ghcr.io/nuvolaris 
+  BASETAG: 0-1.dev
+  BASEIMG: registry.hub.docker.com/apacheopenserverless
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
   TAG:
@@ -64,7 +64,7 @@ tasks:
   docker-login: 
     ignore_error: true
     cmds:
-    - echo ${MY_GITHUB_TOKEN:-$GITHUB_TOKEN} | docker login -u ${MY_GITHUB_USER:-$GITHUB_USER} --password-stdin ghcr.io 
+    - echo ${MY_DOCKER_HUB_TOKEN:-$DOCKER_HUB_TOKEN} | docker login -u ${MY_DOCKER_HUB_USER:-$DOCKER_HUB_USER} --password-stdin registry.hub.docker.com
     - >
       {{.DRY}} docker run -it --rm --privileged tonistiigi/binfmt --install all
     - >
@@ -88,7 +88,7 @@ tasks:
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - |
-      BASEIMG=$(echo "${MY_GITHUB_REGISTRY:-$GITHUB_REGISTRY}")
+      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
       RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
       then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
@@ -161,4 +161,3 @@ tasks:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
     - python3 packages/invoke.py run '{{.J}}'
-  

@@ -17,7 +17,7 @@
   ~ under the License.
 -->
 
-module github.com/nuvolaris/nuvolaris-runtimes-ng
+module github.com/apache/openserverless-runtimes
 
 go 1.21.4
 

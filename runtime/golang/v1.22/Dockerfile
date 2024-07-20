@@ -19,7 +19,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 FROM golang:1.22-bookworm
-ENV OW_EXECUTION_ENV=nuvolaris/runtime-golang-v1.22
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.22
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 RUN \

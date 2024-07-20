@@ -92,6 +92,6 @@ COPY --from=builder /go/bin/proxy /bin/proxy
 ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
-ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.2
+ENV OW_EXECUTION_ENV=apacheopenserverless/action-php-v8.2
 
 ENTRYPOINT [ "/bin/proxy" ]

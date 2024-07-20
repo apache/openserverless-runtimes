@@ -19,7 +19,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM python:3.10.13-bookworm
-ENV OW_EXECUTION_ENV=nuvolaris/runtmie-python-v3.10.13
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtmie-python-v3.10.13
 
 COPY --from=builder /go/bin/proxy /bin/proxy 
 

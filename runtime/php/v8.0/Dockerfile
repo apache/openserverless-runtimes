@@ -92,6 +92,6 @@ ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 # using the runtime name to identify the execution environment
-ENV OW_EXECUTION_ENV=openwhisk/action-php-v8.0
+ENV OW_EXECUTION_ENV=apacheopenserverless/action-php-v8.0
 
 ENTRYPOINT [ "/bin/proxy" ]
