@@ -19,7 +19,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM node:21.6.2-bookworm
-ENV OW_EXECUTION_ENV=nuvolaris/nodejs-21.6.2
+ENV OW_EXECUTION_ENV=apacheopenserverless/nodejs-21.6.2
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 ENV OW_COMPILER=/bin/compile

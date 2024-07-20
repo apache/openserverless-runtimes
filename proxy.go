@@ -23,7 +23,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/nuvolaris/nuvolaris-runtimes-ng/openwhisk"
+	"github.com/apache/openserverless-runtimes/openwhisk"
 )
 
 // flag to show version

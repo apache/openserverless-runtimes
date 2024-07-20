@@ -19,7 +19,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} as builder
 
 FROM python:3.11.8-bookworm
-ENV OW_EXECUTION_ENV=nuvolaris/runtime-python-v3.11.8
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11.8
 COPY --from=builder /go/bin/proxy /bin/proxy 
 
 # install zip
