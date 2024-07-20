@@ -48,11 +48,13 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3          
+      - name: Build common
+        run: task build-common PUSH=true        
       - name: Build golang
-        run: task image-tag RT=golang && task build-and-push
+        run: task build-and-push
       - name: Build python
-        run: task image-tag RT=python && task build-and-push
+        run: task build-and-push
       - name: Build Nodejs
-        run: task image-tag RT=nodejs && task build-and-push
+        run: task build-and-push
       - name: Build php
-        run: task image-tag RT=php && task build-and-push
+        run: task build-and-push
