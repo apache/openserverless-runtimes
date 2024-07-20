@@ -37,6 +37,7 @@ header:
     - '**/*.txt'
     - '.env.src'
     - 'go.sum'
+    - 'go.mod'
     - 'openwhisk/_test/**'
     - '.gitattributes'
     - '.env.dist'
