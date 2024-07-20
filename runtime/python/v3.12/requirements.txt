@@ -12,7 +12,7 @@ pyyaml==6.0.1
 redis==4.4.2
 boto3==1.28.25
 psycopg==3.1.10
-pymongo==4.4.1
+pymongo==4.6.3
 minio==7.1.16
 openai==1.7.1
 auth0-python==4.6.0
