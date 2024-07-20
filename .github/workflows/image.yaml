@@ -49,10 +49,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3      
       - name: Build golang
-        run: task build-and-push
+        run: task build-lang RT=golang PUSH=y
       - name: Build python
-        run: task build-and-push
+        run: task build-lang RT=python PUSH=y
       - name: Build Nodejs
-        run: task build-and-push
+        run: task build-lang RT=nodejs PUSH=y
       - name: Build php
-        run: task build-and-push
+        run: task build-lang RT=php PUSH=y
