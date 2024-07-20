@@ -22,7 +22,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-
 	"github.com/apache/openserverless-runtimes/openwhisk"
 )
 
