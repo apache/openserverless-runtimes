@@ -21,6 +21,8 @@ on:
     tags:
       - '[0-9]*'
     branches-ignore: '*'
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -36,6 +38,14 @@ jobs:
       - name: License check
         uses: apache/skywalking-eyes@main
       #  continue-on-error: true
+      - name: Assign TAG from pull request
+        if:  ${{ github.event_name == 'pull_request' }}
+        run: |
+          echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - name: Assign TAG from push
+        if:  ${{ github.event_name != 'pull_request' }}
+        run: |
+          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       - name: Registry login
@@ -47,12 +57,12 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3      
+        uses: docker/setup-buildx-action@v3 
       - name: Build golang
-        run: task build-and-push
+        run: task build-lang RT=golang PUSH=y TAG="$IMG_TAG"
       - name: Build python
-        run: task build-and-push
+        run: task build-lang RT=python PUSH=y TAG="$IMG_TAG"
       - name: Build Nodejs
-        run: task build-and-push
+        run: task build-lang RT=nodejs PUSH=y TAG="$IMG_TAG"
       - name: Build php
-        run: task build-and-push
+        run: task build-lang RT=php PUSH=y TAG="$IMG_TAG"
