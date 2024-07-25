@@ -17,7 +17,7 @@
 
 # Do not fix the patch level for golang:1.20 to automatically get security fixes.
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 FROM golang:1.22-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.22
 COPY --from=builder /go/bin/proxy /bin/proxy 

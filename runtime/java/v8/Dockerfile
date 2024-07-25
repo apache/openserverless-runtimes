@@ -17,7 +17,7 @@
 
 # rely on nuvolaris common runtime image
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 
 FROM ubuntu:22.04
 

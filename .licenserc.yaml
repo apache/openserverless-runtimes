@@ -43,3 +43,4 @@ header:
     - 'openwhisk/_test/**'
     - '.gitattributes'
     - '.env.dist'
+    - '**/.npmrc'

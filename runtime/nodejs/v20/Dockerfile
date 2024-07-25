@@ -16,7 +16,7 @@
 #
 
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 
 FROM node:20.11.1-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/nodejs-20.11.1
@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json /
+RUN npm config set fetch-retry-maxtimeout 60000 -g
 RUN cd / && npm install && npm cache clean --force
 
 RUN mkdir -p /app/action ;\

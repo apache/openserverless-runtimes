@@ -16,7 +16,7 @@
 #
 
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 
 FROM python:3.11.8-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11.8

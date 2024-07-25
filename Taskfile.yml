@@ -22,7 +22,7 @@ dotenv: [.env]
 vars:
   DRY: ""
   PUSH: ""
-  BASETAG: 0-1.dev
+  BASETAG: 0.1-snapshot
   BASEIMG: registry.hub.docker.com/apacheopenserverless
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
