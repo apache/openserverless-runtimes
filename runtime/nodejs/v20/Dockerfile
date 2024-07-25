@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json /
+COPY .npmrc /
 RUN cd / && npm install && npm cache clean --force
 
 RUN mkdir -p /app/action ;\
