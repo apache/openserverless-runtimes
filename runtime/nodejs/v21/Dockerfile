@@ -16,7 +16,7 @@
 #
 
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 
 FROM node:21.6.2-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/nodejs-21.6.2

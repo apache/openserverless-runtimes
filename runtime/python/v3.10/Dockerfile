@@ -16,7 +16,7 @@
 #
 
 ARG COMMON=missing:missing
-FROM ${COMMON} as builder
+FROM ${COMMON} AS builder
 
 FROM python:3.10.13-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtmie-python-v3.10.13
