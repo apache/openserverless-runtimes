@@ -44,3 +44,4 @@ header:
     - '.gitattributes'
     - '.env.dist'
     - '**/.npmrc'
+    - 'customkitd.toml'

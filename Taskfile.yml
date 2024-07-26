@@ -22,8 +22,8 @@ dotenv: [.env]
 vars:
   DRY: ""
   PUSH: ""
-  BASETAG: 0.1-snapshot
-  BASEIMG: registry.hub.docker.com/apacheopenserverless
+  BASETAG: 0.1.0-testing
+  BASEIMG: registry.hub.docker.com/sciabarracom
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
   TAG:
@@ -91,9 +91,10 @@ tasks:
     cmds:
     - |
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
       if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+      then 
+        {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push    
       else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
       fi
       echo "Built $RUNTIME"
