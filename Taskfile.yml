@@ -25,7 +25,7 @@ vars:
   BASETAG: ""
   BASEIMG: registry.hub.docker.com/apache
   COMMON_VER: common1.17.1
-  COMMON: "{{BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
+  COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
@@ -163,4 +163,4 @@ tasks:
   invoke:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
-    - python3 packages/invoke.py run '{{.J}}'
+    - python3 packages/invoke.py run '{{.J}}'  
