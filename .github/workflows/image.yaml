@@ -70,7 +70,7 @@ jobs:
         with:
           context: ./runtime/golang/${{ matrix.version }}
           platforms: linux/amd64,linux/arm64
-          tags: sciabarracom/openserverless-runtime-golang-${{ matrix.version }}:${{ env.IMG_TAG }}
+          tags: apache/openserverless-runtime-go:${{ matrix.version }}-${{ env.IMG_TAG }}
           build-args: COMMON=registry.hub.docker.com/sciabarracom/runtime-common:common1.17.1
           # For pull requests, export results to the build cache.
           # Otherwise, push to a registry.
@@ -118,7 +118,7 @@ jobs:
           with:
             context: ./runtime/python/${{ matrix.version }}
             platforms: linux/amd64,linux/arm64
-            tags: sciabarracom/openserverless-runtime-python-${{ matrix.version }}:${{ env.IMG_TAG }}
+            tags: apache/openserverless-runtime-python:${{ matrix.version }}-${{ env.IMG_TAG }}
             build-args: COMMON=registry.hub.docker.com/sciabarracom/runtime-common:common1.17.1
             # For pull requests, export results to the build cache.
             # Otherwise, push to a registry.
@@ -166,7 +166,7 @@ jobs:
         with:
           context: ./runtime/nodejs/${{ matrix.version }}
           platforms: linux/amd64,linux/arm64
-          tags: sciabarracom/openserverless-runtime-nodejs-${{ matrix.version }}:${{ env.IMG_TAG }}
+          tags: apache/openserverless-runtime-nodejs:${{ matrix.version }}-${{ env.IMG_TAG }}
           build-args: COMMON=registry.hub.docker.com/sciabarracom/runtime-common:common1.17.1
           # For pull requests, export results to the build cache.
           # Otherwise, push to a registry.
@@ -214,7 +214,7 @@ jobs:
           with:
             context: ./runtime/php/${{ matrix.version }}
             platforms: linux/amd64,linux/arm64
-            tags: sciabarracom/openserverless-runtime-php-${{ matrix.version }}:${{ env.IMG_TAG }}
+            tags: apache/openserverless-runtime-php:${{ matrix.version }}:${{ env.IMG_TAG }}
             build-args: COMMON=registry.hub.docker.com/sciabarracom/runtime-common:common1.17.1
             # For pull requests, export results to the build cache.
             # Otherwise, push to a registry.
