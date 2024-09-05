@@ -31,11 +31,7 @@ permissions:
 jobs:
   common:
     name: Build Golang Common
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [1.20,1.21,1.22]      
+    runs-on: ubuntu-latest   
     steps:
       - name: Checkout recursive
         uses: actions/checkout@v2
