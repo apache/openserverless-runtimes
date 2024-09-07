@@ -48,12 +48,12 @@ jobs:
           echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"                                    
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-      - name: Use sciabarracom
+      - name: Use non ASF docker hub repo
         if:  ${{ github.repository_owner != 'apache'}}
         run: |
           echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
-      - name: Use apache
-        if:  ${{ github.repository_owner != 'apache'}}
+      - name: Use ASF docker hub repo
+        if:  ${{ github.repository_owner == 'apache'}}
         run: |
           echo "BASE_REPO=apache" >> "$GITHUB_ENV"
       - name: Set up QEMU
