@@ -22,14 +22,14 @@ dotenv: [.env]
 vars:
   DRY: ""
   PUSH: ""
-  BASETAG: 0.1.0-testing
-  BASEIMG: registry.hub.docker.com/sciabarracom
+  BASETAG: ""
+  BASEIMG: registry.hub.docker.com/apache
   COMMON_VER: common1.17.1
-  COMMON: "{{.BASEIMG}}/runtime-common:{{.COMMON_VER}}"
+  COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
-  RUNTIMES: "golang,nodejs,php,python"
+  RUNTIMES: "go,nodejs,php,python"
   COMMIT_ID: 
     sh: git rev-parse --short HEAD
 
@@ -51,8 +51,8 @@ tasks:
       - git tag -d $(git tag) 
       - | 
         if test -n "{{.RT}}"
-        then git tag -f {{.BASETAG}}-{{.RT}}.$(date +%y%m%d%H%M)
-        else git tag -f {{.BASETAG}}.$(date +%y%m%d%H%M)
+        then git tag -f {{.RT}}.$(date +%y%m%d%H%M)
+        else git tag -f $(date +%y%m%d%H%M)
         fi
       - env PAGER= git tag
 
@@ -91,7 +91,7 @@ tasks:
     cmds:
     - |
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       if test -n "{{.PUSH}}"
       then 
         {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push    
@@ -141,7 +141,7 @@ tasks:
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
     - >
-      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
 
   debug:
     desc: debug a runtime
@@ -152,7 +152,7 @@ tasks:
       {{.DRY}} docker run -p 8080:8080 -ti 
       --entrypoint=/bin/bash -v $PWD:/mnt 
       -e OW_COMPILER=/mnt/bin/compile 
-      "{{.BASEIMG}}/runtime-{{.RT}}-{{.VER}}:{{.TAG}}"
+      "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       
   init:
     desc: intialize a runtime with a test
@@ -163,4 +163,4 @@ tasks:
   invoke:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
-    - python3 packages/invoke.py run '{{.J}}'
+    - python3 packages/invoke.py run '{{.J}}'  
