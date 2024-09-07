@@ -167,6 +167,10 @@ tasks:
 
   build-common-from-ci:
     desc: builds the common from the Github action
+    requires: { vars: [REPO_CONTEXT] }
+    vars:
+      CI_CD_COMMON:
+        sh: echo "registry.hub.docker.com/{{.REPO_CONTEXT}}/openserverless-runtime-common:{{.COMMON_VER}}"
     cmds:    
     - docker buildx create --name opsbuilder --bootstrap --use
-    - task build-common PUSH=true
+    - task build-common PUSH=true COMMON={{.CI_CD_COMMON}}
