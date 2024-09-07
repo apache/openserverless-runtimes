@@ -164,8 +164,3 @@ tasks:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
     - python3 packages/invoke.py run '{{.J}}'
-
-  build-common-from-ci:
-    cmds:    
-    - docker buildx create --name opsbuilder --bootstrap --use
-    - task build-common PUSH=true
