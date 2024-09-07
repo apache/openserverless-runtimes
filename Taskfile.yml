@@ -167,6 +167,6 @@ tasks:
 
   build-common-from-ci:
     desc: builds the common from the Github action
-    cmds:
+    cmds:    
     - docker buildx create --name opsbuilder --bootstrap --use
     - task build-common PUSH=true

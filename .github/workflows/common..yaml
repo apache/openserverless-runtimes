@@ -49,11 +49,11 @@ jobs:
       - name: Assign Base Image if Apache
         if: ${{ github.repository_owner == 'apache'}}
         run: |
-          echo "BASE_IMG=registry.hub.docker.com/apache" >> "$GITHUB_ENV"
+          echo "REPO_PATH=apache" >> "$GITHUB_ENV"
       - name: Assign Base Image if Not Apache
         if: ${{ github.repository_owner != 'apache'}}
         run: |
-          echo "BASE_IMG=registry.hub.docker.com/sciabarracom" >> "$GITHUB_ENV"                                      
+          echo "REPO_PATH=sciabarracom" >> "$GITHUB_ENV"                                      
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
       - name: Registry login
@@ -63,5 +63,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
-        run: |          
-          task build-common-from-ci BASEIMG=${{ env.BASE_IMG }}
+        run: |
+          echo ${{ env.BASE_IMG }}          
+          task build-common-from-ci BASEIMG="registry.hub.docker.com/${{ env.REPO_PATH }}"
