@@ -40,4 +40,4 @@ Build and push the common runtime  with `task build-common`. Also ensure the ima
 
 Then you can build a single runtime specifingh the dir:
 
-Build a single runtime: `task build-runtime DIR=nodejs/v18`
+Build a single runtime: `task build-runtime RT=nodejs VER=v18`
