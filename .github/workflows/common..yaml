@@ -45,7 +45,15 @@ jobs:
       - name: Assign TAG from push
         if:  ${{ github.event_name != 'pull_request' }}
         run: |
-          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
+          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
+      - name: Assign Base Image if Apache
+        if: ${{ github.repository_owner == 'apache'}}
+        run: |
+          echo "BASE_IMG=registry.hub.docker.com/apache" >> "$GITHUB_ENV"
+      - name: Assign Base Image if Not Apache
+        if: ${{ github.repository_owner != 'apache'}}
+        run: |
+          echo "BASE_IMG=registry.hub.docker.com/sciabarracom" >> "$GITHUB_ENV"                                      
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
       - name: Registry login
@@ -56,4 +64,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         run: |          
-          task build-common-from-ci
+          task build-common-from-ci BASEIMG=${{ env.BASE_IMG }}
