@@ -23,7 +23,7 @@ vars:
   DRY: ""
   PUSH: ""
   BASETAG: ""
-  BASEIMG: registry.hub.docker.com/apache
+  BASEIMG: registry.hub.docker.com/sciabarracom
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
   TAG:
