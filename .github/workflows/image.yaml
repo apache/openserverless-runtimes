@@ -170,10 +170,10 @@ jobs:
         if:  ${{ github.event_name != 'pull_request' }}
         run: |
           echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
-          - name: Use non ASF docker hub repo
-          if:  ${{ github.repository_owner != 'apache'}}
-          run: |
-            echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+      - name: Use non ASF docker hub repo
+        if:  ${{ github.repository_owner != 'apache'}}
+        run: |
+          echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
       - name: Use ASF docker hub repo
         if:  ${{ github.repository_owner == 'apache'}}
         run: |
