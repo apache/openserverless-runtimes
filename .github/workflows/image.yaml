@@ -49,7 +49,15 @@ jobs:
       - name: Assign TAG from push
         if:  ${{ github.event_name != 'pull_request' }}
         run: |
-          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
+          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
+      - name: Use non ASF docker hub repo
+        if:  ${{ github.repository_owner != 'apache'}}
+        run: |
+          echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+      - name: Use ASF docker hub repo
+        if:  ${{ github.repository_owner == 'apache'}}
+        run: |
+          echo "BASE_REPO=apache" >> "$GITHUB_ENV"                    
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
       - name: Registry login
@@ -58,20 +66,24 @@ jobs:
           #registry: registry.hub.docker.com
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v3
+      #  with:
+      #    version: "lab:latest"
+      #    driver: cloud
+      #    endpoint: "sciabarracom/openserverless-builder"
+      #    use: true
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "sciabarracom/openserverless-builder"
-          use: true
+        uses: docker/setup-buildx-action@v3      
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./runtime/go/${{ matrix.version }}
           platforms: linux/amd64,linux/arm64
-          tags: apache/openserverless-runtime-go:${{ matrix.version }}-${{ env.IMG_TAG }}
-          build-args: COMMON=registry.hub.docker.com/sciabarracom/openserverless-runtime-common:common1.17.1
+          tags: ${{ env.BASE_REPO }}/openserverless-runtime-go:${{ matrix.version }}-${{ env.IMG_TAG }}
+          build-args: COMMON=registry.hub.docker.com/${{ env.BASE_REPO }}/openserverless-runtime-common:common1.17.1
           # For pull requests, export results to the build cache.
           # Otherwise, push to a registry.
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}
@@ -98,6 +110,14 @@ jobs:
           if:  ${{ github.event_name != 'pull_request' }}
           run: |
             echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
+        - name: Use non ASF docker hub repo
+          if:  ${{ github.repository_owner != 'apache'}}
+          run: |
+            echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+        - name: Use ASF docker hub repo
+          if:  ${{ github.repository_owner == 'apache'}}
+          run: |
+            echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
         - name: Task
           run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
         - name: Registry login
@@ -106,20 +126,24 @@ jobs:
             #registry: registry.hub.docker.com
             username: ${{ secrets.DOCKERHUB_USER }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
+        #- name: Set up Docker Buildx
+        #  uses: docker/setup-buildx-action@v3
+        #  with:
+        #    version: "lab:latest"
+        #    driver: cloud
+        #    endpoint: "sciabarracom/openserverless-builder"
+        #    use: true
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
         - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-            version: "lab:latest"
-            driver: cloud
-            endpoint: "sciabarracom/openserverless-builder"
-            use: true
+          uses: docker/setup-buildx-action@v3          
         - name: Build and push
           uses: docker/build-push-action@v5
           with:
             context: ./runtime/python/${{ matrix.version }}
             platforms: linux/amd64,linux/arm64
-            tags: apache/openserverless-runtime-python:${{ matrix.version }}-${{ env.IMG_TAG }}
-            build-args: COMMON=registry.hub.docker.com/sciabarracom/openserverless-runtime-common:common1.17.1
+            tags: ${{ env.BASE_REPO }}/openserverless-runtime-python:${{ matrix.version }}-${{ env.IMG_TAG }}
+            build-args: COMMON=registry.hub.docker.com/${{ env.BASE_REPO }}/openserverless-runtime-common:common1.17.1
             # For pull requests, export results to the build cache.
             # Otherwise, push to a registry.
             outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}          
@@ -146,6 +170,22 @@ jobs:
         if:  ${{ github.event_name != 'pull_request' }}
         run: |
           echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
+          - name: Use non ASF docker hub repo
+          if:  ${{ github.repository_owner != 'apache'}}
+          run: |
+            echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+      - name: Use ASF docker hub repo
+        if:  ${{ github.repository_owner == 'apache'}}
+        run: |
+          echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
+          - name: Use non ASF docker hub repo
+          if:  ${{ github.repository_owner != 'apache'}}
+          run: |
+            echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+      - name: Use ASF docker hub repo
+        if:  ${{ github.repository_owner == 'apache'}}
+        run: |
+          echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
       - name: Registry login
@@ -154,20 +194,24 @@ jobs:
           #registry: registry.hub.docker.com
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v3
+      #  with:
+      #    version: "lab:latest"
+      #    driver: cloud
+      #    endpoint: "sciabarracom/openserverless-builder"
+      #    use: true
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "sciabarracom/openserverless-builder"
-          use: true
+        uses: docker/setup-buildx-action@v3          
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./runtime/nodejs/${{ matrix.version }}
           platforms: linux/amd64,linux/arm64
-          tags: apache/openserverless-runtime-nodejs:${{ matrix.version }}-${{ env.IMG_TAG }}
-          build-args: COMMON=registry.hub.docker.com/sciabarracom/openserverless-runtime-common:common1.17.1
+          tags: ${{ env.BASE_REPO }}/openserverless-runtime-nodejs:${{ matrix.version }}-${{ env.IMG_TAG }}
+          build-args: COMMON=registry.hub.docker.com/${{ env.BASE_REPO }}/openserverless-runtime-common:common1.17.1
           # For pull requests, export results to the build cache.
           # Otherwise, push to a registry.
           outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}   
@@ -194,6 +238,18 @@ jobs:
           if:  ${{ github.event_name != 'pull_request' }}
           run: |
             echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
+            - name: Use ASF docker hub repo
+            if:  ${{ github.repository_owner == 'apache'}}
+            run: |
+              echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
+              - name: Use non ASF docker hub repo
+              if:  ${{ github.repository_owner != 'apache'}}
+              run: |
+                echo "BASE_REPO=sciabarracom" >> "$GITHUB_ENV"        
+        - name: Use ASF docker hub repo
+          if:  ${{ github.repository_owner == 'apache'}}
+          run: |
+            echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
         - name: Task
           run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
         - name: Registry login
@@ -202,20 +258,24 @@ jobs:
             #registry: registry.hub.docker.com
             username: ${{ secrets.DOCKERHUB_USER }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
+        #- name: Set up Docker Buildx
+        #  uses: docker/setup-buildx-action@v3
+        #  with:
+        #    version: "lab:latest"
+        #    driver: cloud
+        #    endpoint: "sciabarracom/openserverless-builder"
+        #    use: true
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
         - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-            version: "lab:latest"
-            driver: cloud
-            endpoint: "sciabarracom/openserverless-builder"
-            use: true
+          uses: docker/setup-buildx-action@v3 
         - name: Build and push
           uses: docker/build-push-action@v5
           with:
             context: ./runtime/php/${{ matrix.version }}
             platforms: linux/amd64,linux/arm64
-            tags: apache/openserverless-runtime-php:${{ matrix.version }}:${{ env.IMG_TAG }}
-            build-args: COMMON=registry.hub.docker.com/sciabarracom/openserverless-runtime-common:common1.17.1
+            tags: ${{ env.BASE_REPO }}/openserverless-runtime-php:${{ matrix.version }}:${{ env.IMG_TAG }}
+            build-args: COMMON=registry.hub.docker.com/${{ env.BASE_REPO }}/openserverless-runtime-common:common1.17.1
             # For pull requests, export results to the build cache.
             # Otherwise, push to a registry.
             outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}           
