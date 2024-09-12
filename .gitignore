@@ -93,3 +93,5 @@ pkg/
 .env.src
 
 openserverless-runtimes
+
+runtimes.json

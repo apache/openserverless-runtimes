@@ -45,3 +45,5 @@ header:
     - '.env.dist'
     - '**/.npmrc'
     - 'customkitd.toml'
+    - 'runtimes.json'
+    - 'runtimes.json.tpl'

@@ -23,7 +23,8 @@ vars:
   DRY: ""
   PUSH: ""
   BASETAG: ""
-  BASEIMG: registry.hub.docker.com/apache
+  REPO_PATH: apache
+  BASEIMG: registry.hub.docker.com/{{.REPO_PATH}}
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
   TAG:
@@ -172,3 +173,68 @@ tasks:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
     - python3 packages/invoke.py run '{{.J}}'
+
+
+  render-runtime:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/{{.RT}}/{{.VER}}"
+    cmds:
+    - |
+      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+      ENVVER=$(echo "{{.VER}}" | tr '.' '_' | tr '[:upper:][:lower:]' '[:lower:][:upper:]')
+      ENVRT=$(echo "{{.RT}}" | tr '[a-zA-Z]' '[A-Za-z]')    
+      if test -n "{{.PUSH}}"
+      then 
+        {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"  >> {{.BASE_DIR}}/runtimes.env
+      else {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"
+      fi
+      echo "Rendered $RUNTIME"
+
+  render-lang:
+    desc: render images for one runtime
+    requires: {vars: [RT,BASE_DIR] }
+    vars:
+      DIRS:
+        sh: ls -d  runtime/{{.RT}}/v* || echo ""
+    cmds:
+      - for: { var: DIRS }
+        task: render-runtime
+        vars:
+          VER: "{{base .ITEM}}"
+          BASE_DIR: "{{.BASE_DIR}}"
+
+  render:
+    silent: true
+    requires: { vars: [TAG,RUNTIMES] } 
+    vars:
+      RT_REGEX:
+        sh: echo "{{.RUNTIMES}}" | tr ',' '|'
+      SPECIFIC_RT:
+        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
+      BASE_DIR:
+        sh: pwd  
+    cmds:
+      - |      
+        rm -f runtimes.env
+        echo "OPS_RUNTIME_PREFIX={{.REPO_PATH}}" >> runtimes.env
+        echo "==> RENDERING RUNTIMES {{.RUNTIMES}}"
+        for ITEM in `echo {{.RUNTIMES}} | tr ',' ' '`; do
+          echo "==> RENDERINGG $ITEM:{{.TAG}}"
+          task render-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}} BASE_DIR="{{.BASE_DIR}}"       
+        done
+
+  generate-runtimes:
+    silent: true
+    dotenv: 
+      - runtimes.env
+    cmds:
+      - cat runtimes.json.tpl | envsubst  > runtimes.json
+
+  render-runtimes:
+    silent: true
+    desc: generate a runtimes.json file with all the runtime corresponding to the current TAG
+    cmds:
+      - |
+        task render PUSH=y
+        task generate-runtimes      

@@ -56,5 +56,5 @@ ADD bin/compile /bin/compile
 ENV OW_COMPILER=/bin/compile
 ENV OW_SAVE_JAR=exec.jar
 # using the runtime name to identify the execution environment
-ENV OW_EXECUTION_ENV=apacheopenserverless/action-java-v8
+ENV OW_EXECUTION_ENV=openserverless-runtime-java/v8
 ENTRYPOINT /bin/proxy
