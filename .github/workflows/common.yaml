@@ -69,4 +69,4 @@ jobs:
       #    # Otherwise, push to a registry.
       #    outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}
       - name: Image
-        run: task build-cmmon PUSH=true
+        run: task build-common PUSH=true
