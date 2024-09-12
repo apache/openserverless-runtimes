@@ -23,7 +23,7 @@ vars:
   DRY: ""
   PUSH: ""
   BASETAG: ""
-  BASEIMG: registry.hub.docker.com/sciabarracom
+  BASEIMG: registry.hub.docker.com/apache
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
   TAG:
@@ -55,6 +55,14 @@ tasks:
         else git tag -f $(date +%y%m%d%H%M)
         fi
       - env PAGER= git tag
+
+  common-tag:
+    silent: true
+    cmds:
+      - git tag -d $(git tag) 
+      - git tag -f common-$(date +%y%m%d%H%M)
+        
+      - env PAGER= git tag      
 
   compile: go build -o proxy
 
