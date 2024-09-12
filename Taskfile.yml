@@ -56,6 +56,14 @@ tasks:
         fi
       - env PAGER= git tag
 
+  common-tag:
+    silent: true
+    cmds:
+      - git tag -d $(git tag) 
+      - git tag -f common-$(date +%y%m%d%H%M)
+        
+      - env PAGER= git tag      
+
   compile: go build -o proxy
 
   test: 
