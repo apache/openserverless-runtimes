@@ -30,7 +30,7 @@ vars:
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
-  RUNTIMES: "go,nodejs,php,python"
+  RUNTIMES: "go,nodejs,php,python,java"
   COMMIT_ID: 
     sh: git rev-parse --short HEAD
 
