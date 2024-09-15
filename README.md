@@ -45,8 +45,8 @@ Build a single runtime: `task build-runtime RT=nodejs VER=v18`
 # How to generate a new runtimes.json
 
 The project contains a `runtimes.json.tpl` with specific placeholder for managed Apache OpenServerless runtimes. To regenerate a newer `runtimes.json` from the current TAG
-and assuming that the images have been effectively pushed to the Official DockerHub repositories under the apache account use the command:
+and assuming that the images have been effectively pushed to the Apache Official DockerHub repositories execute the command:
 
 `task render-runtimes`
 
-This will create a new `runtimes.json` that can be pushed to the official Apache OpenServerless [task](https://github.com/apache/openserverless-task) repo.
+This will create a new `runtimes.json` that can be pushed to the official Apache OpenServerless [task](https://github.com/apache/openserverless-task) repo, replacing the existing file.

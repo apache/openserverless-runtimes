@@ -218,9 +218,9 @@
                 "kind": "java:8",
                 "default": true,
                 "image": {
-                    "prefix": "ghcr.io/nuvolaris",
-                    "name": "action-java-v8",
-                    "tag": "0.3.0-morpheus.22110809"
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-java",
+                    "tag": "$OPS_RUNTIME_TAG_JAVA_V8"
                 },
                 "deprecated": false,
                 "attached": {
@@ -228,7 +228,52 @@
                     "attachmentType": "text/plain"
                 },
                 "requireMain": true
-            }
+            },
+            {
+                "kind": "java:11",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-java",
+                    "tag": "$OPS_RUNTIME_TAG_JAVA_V11"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "requireMain": true
+            },
+            {
+                "kind": "java:17",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-java",
+                    "tag": "$OPS_RUNTIME_TAG_JAVA_V17"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "requireMain": true
+            },
+            {
+                "kind": "java:21",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-java",
+                    "tag": "$OPS_RUNTIME_TAG_JAVA_V21"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "requireMain": true
+            }            
         ],
         "php": [
             {
