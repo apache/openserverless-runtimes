@@ -30,7 +30,7 @@ vars:
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
-  RUNTIMES: "go,nodejs,php,python"
+  RUNTIMES: "go,nodejs,php,python,java"
   COMMIT_ID: 
     sh: git rev-parse --short HEAD
 
@@ -151,7 +151,7 @@ tasks:
     cmds:
     - >
       {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-
+         
   debug:
     desc: debug a runtime
     requires: { vars: [RT, VER] } 
@@ -159,8 +159,8 @@ tasks:
     cmds:
     - >
       {{.DRY}} docker run -p 8080:8080 -ti 
-      --entrypoint=/bin/bash -v $PWD:/mnt 
-      -e OW_COMPILER=/mnt/bin/compile 
+      --entrypoint=/bin/bash -v $PWD:/mnt
+      -e OW_COMPILER=/mnt/bin/compile
       "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       
   init:

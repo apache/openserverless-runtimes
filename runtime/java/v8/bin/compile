@@ -121,9 +121,9 @@ def assemble(argv):
     sys.stdout.flush()
     sys.stderr.flush()
     
-if __name__ == '__main__':
+if __name__ == '__main__':    
     if len(sys.argv) < 4:
         sys.stdout.write("usage: <main-class> <source-dir> <target-dir>\n")
         sys.exit(1)
-    logging.basicConfig(filename="/var/log/compile.log")
+    logging.basicConfig(filename="/var/log/compile.log",level=logging.DEBUG)
     assemble(sys.argv)
