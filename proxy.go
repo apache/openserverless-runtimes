@@ -22,6 +22,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+
 	"github.com/apache/openserverless-runtimes/openwhisk"
 )
 
@@ -60,8 +61,16 @@ func main() {
 		os.Setenv("OW_DEBUG", "1")
 	}
 
+	useProxy := os.Getenv("OW_USE_PROXY_MAIN")
+	isUsingAsProxy := useProxy == "1"
+	if isUsingAsProxy {
+		openwhisk.Debug("OW_USE_PROXY_MAIN is set to true. Using runtime as a proxy client.")
+	} else {
+		openwhisk.Debug("OW_USE_PROXY_MAIN is not set. Using runtime as a standalone runtime.")
+
+	}
 	// create the action proxy
-	ap := openwhisk.NewActionProxy("./action", os.Getenv("OW_COMPILER"), os.Stdout, os.Stderr)
+	ap := openwhisk.NewActionProxy("./action", os.Getenv("OW_COMPILER"), os.Stdout, os.Stderr, isUsingAsProxy)
 
 	// compile on the fly upon request
 	if *compile != "" {

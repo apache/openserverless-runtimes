@@ -44,6 +44,10 @@ func sendError(w http.ResponseWriter, code int, cause string) {
 }
 
 func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
+	if ap.isProxyClientRuntime {
+		ap.ForwardRunRequest(w, r)
+		return
+	}
 
 	// parse the request
 	body, err := ioutil.ReadAll(r.Body)

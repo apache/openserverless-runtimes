@@ -24,13 +24,23 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+type ProxyData struct {
+	MainFunc string
+	ProxyURL url.URL
+}
+
 // ActionProxy is the container of the data specific to a server
 type ActionProxy struct {
+
+	// is it a proxy client runtime? If so, we just have to forward the requests and not to execute the action
+	isProxyClientRuntime bool
+	proxyData            *ProxyData
 
 	// is it initialized?
 	initialized bool
@@ -56,9 +66,12 @@ type ActionProxy struct {
 }
 
 // NewActionProxy creates a new action proxy that can handle http requests
-func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File) *ActionProxy {
+func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File, isProxy bool) *ActionProxy {
 	os.Mkdir(baseDir, 0755)
+
 	return &ActionProxy{
+		isProxy,
+		nil,
 		false,
 		baseDir,
 		compiler,
@@ -70,7 +83,7 @@ func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *
 	}
 }
 
-//SetEnv sets the environment
+// SetEnv sets the environment
 func (ap *ActionProxy) SetEnv(env map[string]interface{}) {
 	// Propagate proxy version
 	ap.env["__OW_PROXY_VERSION"] = Version
@@ -190,9 +203,9 @@ func (ap *ActionProxy) ExtractAndCompileIO(r io.Reader, w io.Writer, main string
 
 	envMap := make(map[string]interface{})
 	if env != "" {
-	    json.Unmarshal([]byte(env), &envMap)
+		json.Unmarshal([]byte(env), &envMap)
 	}
-    ap.SetEnv(envMap)
+	ap.SetEnv(envMap)
 
 	// extract and compile it
 	file, err := ap.ExtractAndCompile(&in, main)

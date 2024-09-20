@@ -21,7 +21,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -60,12 +60,17 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// read body of the request
+	if ap.isProxyClientRuntime {
+		ap.ForwardInitRequest(w, r)
+		return
+	}
+
 	if ap.compiler != "" {
 		Debug("compiler: " + ap.compiler)
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	// read body of the request
+	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("%v", err))
@@ -79,11 +84,12 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 
 	var request initRequest
 	err = json.Unmarshal(body, &request)
-
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error unmarshaling request: %v", err))
 		return
 	}
+
+	Debug("Decoded init request: %v", request)
 
 	// request with empty code - stop any executor but return ok
 	if request.Value.Code == "" {
