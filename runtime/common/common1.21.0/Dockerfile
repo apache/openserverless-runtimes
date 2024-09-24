@@ -18,6 +18,6 @@
 FROM golang:1.21
 ENV HOME=/tmp
 USER nobody
-RUN CGO_ENABLED=0 go install github.com/apache/openserverless-runtimes
+RUN CGO_ENABLED=0 go install github.com/apache/openserverless-runtimes@main
 RUN mv /go/bin/openserverless-runtimes /go/bin/proxy
 ENTRYPOINT [ "/go/bin/proxy" ]
