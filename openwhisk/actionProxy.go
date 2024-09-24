@@ -30,17 +30,35 @@ import (
 	"strings"
 )
 
-type ProxyData struct {
-	MainFunc string
-	ProxyURL url.URL
+type ProxyMode int
+
+const (
+	// ProxyModeNone is the default mode
+	ProxyModeNone ProxyMode = iota
+	// ProxyModeClient is the client mode
+	ProxyModeClient
+	// ProxyModeServer is the server mode
+	ProxyModeServer
+)
+
+type ClientProxyData struct {
+	ProxyActionID string
+	MainFunc      string
+	ProxyURL      url.URL
+}
+
+type ServerProxyData struct {
+	actions map[string]*ActionProxy
 }
 
 // ActionProxy is the container of the data specific to a server
 type ActionProxy struct {
-
-	// is it a proxy client runtime? If so, we just have to forward the requests and not to execute the action
-	isProxyClientRuntime bool
-	proxyData            *ProxyData
+	// is it a classic runtime, a forwarder or a server?
+	proxyMode ProxyMode
+	// client proxy data, if runtime is a forwarder
+	clientProxyData *ClientProxyData
+	// ServerProxyData, if runtime is a server
+	ServerProxyData *ServerProxyData
 
 	// is it initialized?
 	initialized bool
@@ -66,11 +84,12 @@ type ActionProxy struct {
 }
 
 // NewActionProxy creates a new action proxy that can handle http requests
-func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File, isProxy bool) *ActionProxy {
+func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File, proxyMode ProxyMode) *ActionProxy {
 	os.Mkdir(baseDir, 0755)
 
 	return &ActionProxy{
-		isProxy,
+		proxyMode,
+		nil,
 		nil,
 		false,
 		baseDir,
