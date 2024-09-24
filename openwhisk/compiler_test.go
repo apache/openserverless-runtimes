@@ -52,7 +52,7 @@ const (
 // compile a main
 func Example_cli_compiler() {
 	sys(PREP, "hello.src", "0", "exec")
-	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr)
+	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr, ProxyModeNone)
 	fmt.Println(isCompiled(TMP + "0/src/exec"))
 	ap.CompileAction("main", TMP+"0/src", TMP+"0/bin")
 	sys(CHECK, TMP+"0/bin/exec")
@@ -72,7 +72,7 @@ func Example_cli_compiler() {
 func Example_hello() {
 	N := "1"
 	sys(PREP, "hello1.src", N, "exec")
-	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr)
+	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr, ProxyModeNone)
 	env := map[string]interface{}{"GOROOT": TMP + N}
 	ap.SetEnv(env)
 	ap.CompileAction("hello", TMP+N+"/src", TMP+N+"/bin")
@@ -87,7 +87,7 @@ func Example_hello() {
 func Example_package() {
 	N := "2"
 	sys(PREP, "hello2.src", N, "exec", "hello")
-	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr)
+	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr, ProxyModeNone)
 	env := map[string]interface{}{"GOROOT": TMP + N}
 	ap.SetEnv(env)
 	ap.CompileAction("main", TMP+N+"/src", TMP+N+"/bin")
@@ -102,17 +102,17 @@ func Example_package() {
 func Example_compileError() {
 	N := "6"
 	sys(PREP, "error.src", N)
-	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr)
+	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr, ProxyModeNone)
 	err := ap.CompileAction("main", TMP+N+"/src", TMP+N+"/bin")
 	fmt.Printf("%v", removeLineNr(err.Error()))
 	// Unordered output:
-	// ./exec__.go::: syntax error: unexpected error at end of statement
+	// ./exec__.go::: syntax error: unexpected name error at end of statement
 }
 
 func Example_withMain() {
 	N := "7"
 	sys(PREP, "hi.src", N, "exec")
-	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr)
+	ap := NewActionProxy(TMP, COMP, os.Stdout, os.Stderr, ProxyModeNone)
 	err := ap.CompileAction("main", TMP+N+"/src", TMP+N+"/bin")
 	fmt.Println(err)
 	sys(TMP + N + "/bin/exec")

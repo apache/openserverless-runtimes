@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 -->
+
 # Apache OpenServerless Runtimes
 
 All the Apache Openserverless OpenWhisk runtimes in a single place using the Go proxy and ActionLoop.
@@ -26,17 +27,17 @@ runtimes are docker images, and they all use a proxy in go and some scripts for 
 
 Go Proxy code is in folder `openwhisk` and the main is `proxy.go` in top level.
 
-You can  compile it with `go build -o proxy`. 
+You can compile it with `go build -o proxy`.
 
 Tests are in openwhisk folder, test it with `cd opewhisk ; go test `
 
-Runtime  sources are under `runtimes/<plang>/<version>` (`<plang>` is programming languate)
+Runtime sources are under `runtimes/<plang>/<version>` (`<plang>` is programming languate)
 
 Special case is `runtime/common/<version>` that contains the proxy itseself, it is used as base image for the others and must be build first.
 
 # How to build images
 
-Build and push the common runtime  with `task build-common`. Also ensure the image is public.
+Build and push the common runtime with `task build-common`. Also ensure the image is public.
 
 Then you can build a single runtime specifingh the dir:
 
@@ -50,3 +51,18 @@ and assuming that the images have been effectively pushed to the Apache Official
 `task render-runtimes`
 
 This will create a new `runtimes.json` that can be pushed to the official Apache OpenServerless [task](https://github.com/apache/openserverless-task) repo, replacing the existing file.
+
+# How to use the client/server mode
+
+The proxy can be used in client or server mode, where the client acts as a forward
+proxy and the server will be the actual executor.
+
+In client mode the runtime does not execute the action, but instead forwards the
+/init and /run requests to a server runtime. To activate this mode, set the environment
+variable `OW_ACTIVATE_PROXY_CLIENT` to 1.
+When creating actions, use the --main flag with this syntax:
+`--main "<main>@<remote runtime address>"`. `<main>` can be empty.
+
+The remote runtime is enabled by setting the environment variable `OW_ACTIVATE_PROXY_SERVER` to 1.
+In this mode the runtime is multi-action enabled, meaning that it can initialize and run more than one action.
+Many client runtimes can forward requests to the same server runtime.

@@ -21,16 +21,43 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+type ProxyMode int
+
+const (
+	// ProxyModeNone is the default mode
+	ProxyModeNone ProxyMode = iota
+	// ProxyModeClient is the client mode
+	ProxyModeClient
+	// ProxyModeServer is the server mode
+	ProxyModeServer
+)
+
+type ClientProxyData struct {
+	ProxyActionID string
+	MainFunc      string
+	ProxyURL      url.URL
+}
+
+type ServerProxyData struct {
+	actions map[string]*ActionProxy
+}
+
 // ActionProxy is the container of the data specific to a server
 type ActionProxy struct {
+	// is it a classic runtime, a forwarder or a server?
+	proxyMode ProxyMode
+	// client proxy data, if runtime is a forwarder
+	clientProxyData *ClientProxyData
+	// ServerProxyData, if runtime is a server
+	ServerProxyData *ServerProxyData
 
 	// is it initialized?
 	initialized bool
@@ -56,9 +83,13 @@ type ActionProxy struct {
 }
 
 // NewActionProxy creates a new action proxy that can handle http requests
-func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File) *ActionProxy {
+func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *os.File, proxyMode ProxyMode) *ActionProxy {
 	os.Mkdir(baseDir, 0755)
+
 	return &ActionProxy{
+		proxyMode,
+		nil,
+		nil,
 		false,
 		baseDir,
 		compiler,
@@ -70,7 +101,7 @@ func NewActionProxy(baseDir string, compiler string, outFile *os.File, errFile *
 	}
 }
 
-//SetEnv sets the environment
+// SetEnv sets the environment
 func (ap *ActionProxy) SetEnv(env map[string]interface{}) {
 	// Propagate proxy version
 	ap.env["__OW_PROXY_VERSION"] = Version
@@ -124,13 +155,13 @@ func (ap *ActionProxy) StartLatestAction() error {
 	execEnv := os.Getenv("OW_EXECUTION_ENV")
 	if execEnv != "" {
 		execEnvFile := fmt.Sprintf("%s/%d/bin/exec.env", ap.baseDir, highestDir)
-		execEnvData, err := ioutil.ReadFile(execEnvFile)
+		execEnvData, err := os.ReadFile(execEnvFile)
 		if err != nil {
 			return err
 		}
 		if strings.TrimSpace(string(execEnvData)) != execEnv {
 			fmt.Printf("Expected exec.env should start with %s\nActual value: %s", execEnv, execEnvData)
-			return fmt.Errorf("Execution environment version mismatch. See logs for details.")
+			return fmt.Errorf("execution environment version mismatch. See logs for details")
 		}
 	}
 
@@ -183,16 +214,16 @@ func (ap *ActionProxy) Start(port int) {
 func (ap *ActionProxy) ExtractAndCompileIO(r io.Reader, w io.Writer, main string, env string) {
 
 	// read the std input
-	in, err := ioutil.ReadAll(r)
+	in, err := io.ReadAll(r)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	envMap := make(map[string]interface{})
 	if env != "" {
-	    json.Unmarshal([]byte(env), &envMap)
+		json.Unmarshal([]byte(env), &envMap)
 	}
-    ap.SetEnv(envMap)
+	ap.SetEnv(envMap)
 
 	// extract and compile it
 	file, err := ap.ExtractAndCompile(&in, main)

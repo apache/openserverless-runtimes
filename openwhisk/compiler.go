@@ -19,7 +19,6 @@ package openwhisk
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
@@ -33,7 +32,7 @@ func isCompiled(file string) bool {
 		return false
 	}
 
-	buf, err := ioutil.ReadFile(file)
+	buf, err := os.ReadFile(file)
 	if err != nil {
 		Debug(err.Error())
 		return false
@@ -46,13 +45,12 @@ func isCompiled(file string) bool {
 // CompileAction will compile an anction in source format invoking a compiler
 func (ap *ActionProxy) CompileAction(main string, srcDir string, binDir string) error {
 	if ap.compiler == "" {
-		return fmt.Errorf("No compiler defined")
+		return fmt.Errorf("no compiler defined")
 	}
 
 	Debug("compiling: %s %s %s %s", ap.compiler, main, srcDir, binDir)
 
-	var cmd *exec.Cmd
-	cmd = exec.Command(ap.compiler, main, srcDir, binDir)
+	cmd := exec.Command(ap.compiler, main, srcDir, binDir)
 	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
 	for k, v := range ap.env {
 		cmd.Env = append(cmd.Env, k+"="+v)

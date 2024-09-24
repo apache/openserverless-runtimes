@@ -22,7 +22,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -39,14 +39,14 @@ import (
 func startTestServer(compiler string) (*httptest.Server, string, *os.File) {
 	// temporary workdir
 	cur, _ := os.Getwd()
-	dir, _ := ioutil.TempDir("", "action")
+	dir, _ := os.MkdirTemp("", "action")
 	file, _ := filepath.Abs("_test")
 	os.Symlink(file, dir+"/_test")
 	os.Chdir(dir)
-	log.Printf(dir)
+	log.Print(dir)
 	// setup the server
-	buf, _ := ioutil.TempFile("", "log")
-	ap := NewActionProxy(dir, compiler, buf, buf)
+	buf, _ := os.CreateTemp("", "log")
+	ap := NewActionProxy(dir, compiler, buf, buf, ProxyModeNone)
 	ts := httptest.NewServer(ap)
 	log.Printf(ts.URL)
 	doPost(ts.URL+"/init", `{value: {code: ""}}`)
@@ -69,7 +69,7 @@ func doPost(url string, message string) (string, int, error) {
 		return "", -1, err
 	}
 	defer res.Body.Close()
-	resp, err := ioutil.ReadAll(res.Body)
+	resp, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", -1, err
 	}
@@ -101,7 +101,7 @@ func doInit(ts *httptest.Server, message string) {
 }
 
 func initCode(file string, main string) string {
-	dat, _ := ioutil.ReadFile(file)
+	dat, _ := os.ReadFile(file)
 	body := initBodyRequest{Code: string(dat)}
 	if main != "" {
 		body.Main = main
@@ -121,7 +121,7 @@ func initBytes(dat []byte, main string) string {
 }
 
 func initBinary(file string, main string) string {
-	dat, _ := ioutil.ReadFile(file)
+	dat, _ := os.ReadFile(file)
 	return initBytes(dat, main)
 }
 
@@ -132,7 +132,7 @@ func abs(in string) string {
 
 func dump(file *os.File) {
 	//file.Read()
-	buf, _ := ioutil.ReadFile(file.Name())
+	buf, _ := os.ReadFile(file.Name())
 	fmt.Print(string(buf))
 	//fmt.Print(file.ReadAll())
 	os.Remove(file.Name())
@@ -169,7 +169,7 @@ func exists(dir, filename string) error {
 
 func detectExecutable(dir, filename string) bool {
 	path := fmt.Sprintf("%s/%d/%s", dir, highestDir(dir), filename)
-	file, _ := ioutil.ReadFile(path)
+	file, _ := os.ReadFile(path)
 	return IsExecutable(file, runtime.GOOS)
 }
 
@@ -185,7 +185,7 @@ func TestMain(m *testing.M) {
 	Debugging = false // enable debug of tests
 	if !Debugging {
 		// silence those annoying tests
-		log.SetOutput(ioutil.Discard)
+		log.SetOutput(io.Discard)
 		// build support files
 		sys("_test/build.sh")
 		sys("_test/zips.sh")
