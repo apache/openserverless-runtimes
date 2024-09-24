@@ -19,7 +19,6 @@ package openwhisk
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 )
@@ -27,7 +26,7 @@ import (
 // higherDir will find the highest numeric name a sub directory has
 // 0 if no numeric dir names found
 func highestDir(dir string) int {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return 0
 	}
@@ -69,5 +68,5 @@ func (ap *ActionProxy) ExtractAction(buf *[]byte, suffix string) (string, error)
 		Debug("Extract Action, assuming a tar.gz")
 		return file, UnTar(*buf, newDir)
 	}
-	return file, ioutil.WriteFile(file, *buf, 0755)
+	return file, os.WriteFile(file, *buf, 0755)
 }

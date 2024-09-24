@@ -21,7 +21,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"testing"
@@ -49,7 +49,7 @@ func Example_startTestServer() {
 
 func TestStartLatestAction_emit1(t *testing.T) {
 	os.RemoveAll("./action/t2")
-	logf, _ := ioutil.TempFile("/tmp", "log")
+	logf, _ := os.CreateTemp("/tmp", "log")
 	ap := NewActionProxy("./action/t2", "", logf, logf, ProxyModeNone)
 	// start the action that emits 1
 	buf := []byte("#!/bin/sh\nwhile read a; do echo 1 >&3 ; done\n")
@@ -62,7 +62,7 @@ func TestStartLatestAction_emit1(t *testing.T) {
 
 func TestStartLatestAction_terminate(t *testing.T) {
 	os.RemoveAll("./action/t3")
-	logf, _ := ioutil.TempFile("/tmp", "log")
+	logf, _ := os.CreateTemp("/tmp", "log")
 	ap := NewActionProxy("./action/t3", "", logf, logf, ProxyModeNone)
 	// now start an action that terminate immediately
 	buf := []byte("#!/bin/sh\ntrue\n")
@@ -73,7 +73,7 @@ func TestStartLatestAction_terminate(t *testing.T) {
 
 func TestStartLatestAction_emit2(t *testing.T) {
 	os.RemoveAll("./action/t4")
-	logf, _ := ioutil.TempFile("/tmp", "log")
+	logf, _ := os.CreateTemp("/tmp", "log")
 	ap := NewActionProxy("./action/t4", "", logf, logf, ProxyModeNone)
 	// start the action that emits 2
 	buf := []byte("#!/bin/sh\nwhile read a; do echo 2 >&3 ; done\n")
@@ -87,7 +87,7 @@ func TestStartLatestAction_emit2(t *testing.T) {
 
 func Example_compile_bin() {
 	os.RemoveAll("./action/c1")
-	logf, _ := ioutil.TempFile("/tmp", "log")
+	logf, _ := os.CreateTemp("/tmp", "log")
 	ap := NewActionProxy("./action/c1", "_test/compile.py", logf, logf, ProxyModeNone)
 	dat, _ := Zip("_test/pysample")
 	inp := bytes.NewBuffer(dat)
@@ -107,9 +107,9 @@ func Example_compile_bin() {
 
 func Example_compile_src() {
 	os.RemoveAll("./action/c2")
-	logf, _ := ioutil.TempFile("/tmp", "log")
+	logf, _ := os.CreateTemp("/tmp", "log")
 	ap := NewActionProxy("./action/c2", "_test/compile.py", logf, logf, ProxyModeNone)
-	log.Println(ioutil.ReadAll(logf))
+	log.Println(io.ReadAll(logf))
 	dat, _ := Zip("_test/pysample/lib")
 	inp := bytes.NewBuffer(dat)
 	out := new(bytes.Buffer)
@@ -187,6 +187,6 @@ func Example_executionEnv_check() {
 	// Output:
 	// Expected exec.env should start with bad/env
 	// Actual value: exec/env
-	// {"error":"cannot start action: Execution environment version mismatch. See logs for details."}
+	// {"error":"cannot start action: execution environment version mismatch. See logs for details"}
 	// {"ok":true}
 }

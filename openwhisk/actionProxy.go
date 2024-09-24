@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -156,13 +155,13 @@ func (ap *ActionProxy) StartLatestAction() error {
 	execEnv := os.Getenv("OW_EXECUTION_ENV")
 	if execEnv != "" {
 		execEnvFile := fmt.Sprintf("%s/%d/bin/exec.env", ap.baseDir, highestDir)
-		execEnvData, err := ioutil.ReadFile(execEnvFile)
+		execEnvData, err := os.ReadFile(execEnvFile)
 		if err != nil {
 			return err
 		}
 		if strings.TrimSpace(string(execEnvData)) != execEnv {
 			fmt.Printf("Expected exec.env should start with %s\nActual value: %s", execEnv, execEnvData)
-			return fmt.Errorf("Execution environment version mismatch. See logs for details.")
+			return fmt.Errorf("execution environment version mismatch. See logs for details")
 		}
 	}
 
@@ -215,7 +214,7 @@ func (ap *ActionProxy) Start(port int) {
 func (ap *ActionProxy) ExtractAndCompileIO(r io.Reader, w io.Writer, main string, env string) {
 
 	// read the std input
-	in, err := ioutil.ReadAll(r)
+	in, err := io.ReadAll(r)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -18,13 +18,13 @@ package openwhisk
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 var m = map[string]string{}
 
 func ExampleNewExecutor_failed() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "true", m)
 	err := proc.Start(false)
 	fmt.Println(err)
@@ -49,7 +49,7 @@ func ExampleNewExecutor_failed() {
 }
 
 func ExampleNewExecutor_bc() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/bc.sh", m)
 	err := proc.Start(false)
 	fmt.Println(err)
@@ -65,7 +65,7 @@ func ExampleNewExecutor_bc() {
 }
 
 func ExampleNewExecutor_hello() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/hello.sh", m)
 	err := proc.Start(false)
 	fmt.Println(err)
@@ -82,7 +82,7 @@ func ExampleNewExecutor_hello() {
 }
 
 func ExampleNewExecutor_env() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/env.sh", map[string]string{"TEST_HELLO": "WORLD", "TEST_HI": "ALL"})
 	err := proc.Start(false)
 	fmt.Println(err)
@@ -98,7 +98,7 @@ func ExampleNewExecutor_env() {
 }
 
 func ExampleNewExecutor_ack() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/hi", m)
 	err := proc.Start(true)
 	fmt.Println(err)
@@ -110,7 +110,7 @@ func ExampleNewExecutor_ack() {
 }
 
 func ExampleNewExecutor_badack() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/badack.sh", m)
 	err := proc.Start(true)
 	fmt.Println(err)
@@ -121,7 +121,7 @@ func ExampleNewExecutor_badack() {
 }
 
 func ExampleNewExecutor_badack2() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/badack2.sh", m)
 	err := proc.Start(true)
 	fmt.Println(err)
@@ -132,7 +132,7 @@ func ExampleNewExecutor_badack2() {
 }
 
 func ExampleNewExecutor_helloack() {
-	log, _ := ioutil.TempFile("", "log")
+	log, _ := os.CreateTemp("", "log")
 	proc := NewExecutor(log, log, "_test/helloack/exec", m)
 	err := proc.Start(true)
 	fmt.Println(err)

@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,7 +46,7 @@ func UnzipOrSaveJar(src []byte, dest string, jarFile string) error {
 	}
 	for _, f := range r.File {
 		if f.Name == "META-INF/MANIFEST.MF" {
-			ioutil.WriteFile(jarFile, src, 0644)
+			os.WriteFile(jarFile, src, 0644)
 			return nil
 		}
 	}
@@ -78,7 +77,7 @@ func Unzip(src []byte, dest string) error {
 
 		// link
 		if isLink {
-			buf, err := ioutil.ReadAll(rc)
+			buf, err := io.ReadAll(rc)
 			if err != nil {
 				return err
 			}

@@ -18,7 +18,6 @@ package openwhisk
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -61,7 +60,7 @@ func Example_venv() {
 	os.Mkdir("./action/unzip", 0755)
 	buf, err := Zip("_test/venv")
 	fmt.Println(1, err)
-	err = ioutil.WriteFile("/tmp/appo.zip", buf, 0644)
+	err = os.WriteFile("/tmp/appo.zip", buf, 0644)
 	fmt.Println(2, err)
 	err = UnzipOrSaveJar(buf, "./action/unzip", "./action/unzip/exec.jar")
 	sys("bash", "-c", "cd action/unzip/bin && find . -type l -name python && rm ./python")
