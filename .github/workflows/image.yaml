@@ -60,12 +60,21 @@ jobs:
           echo "BASE_REPO=apache" >> "$GITHUB_ENV"                    
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
+      - name: Load DockerHub secrets
+        uses: 1password/load-secrets-action@v2
+        with:
+          # Export loaded secrets as environment variables
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+          OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
       - name: Registry login
         uses: docker/login-action@v3
         with:
           #registry: registry.hub.docker.com
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.OPS_DOCKERHUB_USER }}
+          password: ${{ env.OPS_DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -116,12 +125,21 @@ jobs:
             echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
         - name: Task
           run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
+        - name: Load DockerHub secrets
+          uses: 1password/load-secrets-action@v2
+          with:
+            # Export loaded secrets as environment variables
+            export-env: true
+          env:
+            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
         - name: Registry login
           uses: docker/login-action@v3
           with:
             #registry: registry.hub.docker.com
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+            username: ${{ env.OPS_DOCKERHUB_USER }}
+            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
           with:
@@ -172,12 +190,21 @@ jobs:
           echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
       - name: Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
+      - name: Load DockerHub secrets
+        uses: 1password/load-secrets-action@v2
+        with:
+          # Export loaded secrets as environment variables
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+          OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
       - name: Registry login
         uses: docker/login-action@v3
         with:
           #registry: registry.hub.docker.com
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.OPS_DOCKERHUB_USER }}
+          password: ${{ env.OPS_DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -227,13 +254,31 @@ jobs:
           run: |
             echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
         - name: Task
-          run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
+          run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+        - name: Load DockerHub secrets
+          uses: 1password/load-secrets-action@v2
+          with:
+            # Export loaded secrets as environment variables
+            export-env: true
+          env:
+            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
+        - name: Load DockerHub secrets
+          uses: 1password/load-secrets-action@v2
+          with:
+            # Export loaded secrets as environment variables
+            export-env: true
+          env:
+            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
         - name: Registry login
           uses: docker/login-action@v3
           with:
             #registry: registry.hub.docker.com
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+            username: ${{ env.OPS_DOCKERHUB_USER }}
+            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
           with:
@@ -284,12 +329,21 @@ jobs:
             echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
         - name: Task
           run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
+        - name: Load DockerHub secrets
+          uses: 1password/load-secrets-action@v2
+          with:
+            # Export loaded secrets as environment variables
+            export-env: true
+          env:
+            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
+            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
         - name: Registry login
           uses: docker/login-action@v3
           with:
             #registry: registry.hub.docker.com
-            username: ${{ secrets.DOCKERHUB_USER }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+            username: ${{ env.OPS_DOCKERHUB_USER }}
+            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
           with:
