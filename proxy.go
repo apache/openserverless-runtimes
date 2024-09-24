@@ -85,6 +85,6 @@ func main() {
 
 	// start the balls rolling
 	openwhisk.Debug("OpenWhisk ActionLoop Proxy %s: starting", openwhisk.Version)
-	ap.Start(8082)
+	ap.Start(8080)
 
 }
