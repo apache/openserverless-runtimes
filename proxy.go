@@ -61,16 +61,21 @@ func main() {
 		os.Setenv("OW_DEBUG", "1")
 	}
 
-	useProxy := os.Getenv("OW_USE_PROXY_MAIN")
-	isUsingAsProxy := useProxy == "1"
-	if isUsingAsProxy {
-		openwhisk.Debug("OW_USE_PROXY_MAIN is set to true. Using runtime as a proxy client.")
-	} else {
-		openwhisk.Debug("OW_USE_PROXY_MAIN is not set. Using runtime as a standalone runtime.")
-
+	proxyMode := openwhisk.ProxyModeNone
+	useProxyClient := os.Getenv("OW_ACTIVATE_PROXY_CLIENT")
+	if useProxyClient == "1" {
+		openwhisk.Debug("OW_ACTIVATE_PROXY_CLIENT set. Using runtime as a forward proxy.")
+		proxyMode = openwhisk.ProxyModeClient
 	}
+
+	useProxyServer := os.Getenv("OW_ACTIVATE_PROXY_SERVER")
+	if useProxyServer == "1" {
+		openwhisk.Debug("OW_ACTIVATE_PROXY_SERVER set. Using runtime as a proxy server.")
+		proxyMode = openwhisk.ProxyModeServer
+	}
+
 	// create the action proxy
-	ap := openwhisk.NewActionProxy("./action", os.Getenv("OW_COMPILER"), os.Stdout, os.Stderr, isUsingAsProxy)
+	ap := openwhisk.NewActionProxy("./action", os.Getenv("OW_COMPILER"), os.Stdout, os.Stderr, proxyMode)
 
 	// compile on the fly upon request
 	if *compile != "" {
@@ -80,6 +85,6 @@ func main() {
 
 	// start the balls rolling
 	openwhisk.Debug("OpenWhisk ActionLoop Proxy %s: starting", openwhisk.Version)
-	ap.Start(8080)
+	ap.Start(8082)
 
 }
