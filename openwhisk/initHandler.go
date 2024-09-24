@@ -36,7 +36,8 @@ type initBodyRequest struct {
 }
 
 type initRequest struct {
-	Value initBodyRequest `json:"value,omitempty"`
+	ProxiedActionID string          `json:"proxiedActionID,omitempty"`
+	Value           initBodyRequest `json:"value,omitempty"`
 }
 
 func sendOK(w http.ResponseWriter) {
@@ -51,7 +52,6 @@ func sendOK(w http.ResponseWriter) {
 }
 
 func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
-
 	// you can do multiple initializations when debugging
 	if ap.initialized && !Debugging {
 		msg := "Cannot initialize the action more than once."
@@ -60,11 +60,42 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ap.isProxyClientRuntime {
+	if ap.proxyMode == ProxyModeClient {
 		ap.ForwardInitRequest(w, r)
 		return
 	}
 
+	if ap.proxyMode == ProxyModeServer {
+		if ap.ServerProxyData == nil {
+			ap.ServerProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
+		}
+
+		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, ap.outFile, ap.errFile, ProxyModeNone)
+		id, err := innerActionProxy.doInit(r, w)
+		if err != nil {
+			return
+		}
+		if id == "" {
+			sendError(w, http.StatusBadGateway, "Cannot identify the action in remote runtime.")
+			return
+		}
+
+		ap.ServerProxyData.actions[id] = innerActionProxy
+		Debug("Added action %s to the server proxy data", id)
+
+		sendOK(w)
+		return
+	}
+
+	if _, err := ap.doInit(r, w); err != nil {
+		Debug("Error initializing action: %v", err)
+		return
+	}
+
+	sendOK(w)
+}
+
+func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, error) {
 	if ap.compiler != "" {
 		Debug("compiler: " + ap.compiler)
 	}
@@ -74,7 +105,7 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("%v", err))
-		return
+		return "", err
 	}
 
 	// decode request parameters
@@ -86,15 +117,13 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error unmarshaling request: %v", err))
-		return
+		return "", err
 	}
-
-	Debug("Decoded init request: %v", request)
 
 	// request with empty code - stop any executor but return ok
 	if request.Value.Code == "" {
 		sendError(w, http.StatusForbidden, "Missing main/no code to execute.")
-		return
+		return "", fmt.Errorf("code in body is empty")
 	}
 
 	// passing the env to the action proxy
@@ -113,7 +142,7 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 		buf, err = base64.StdEncoding.DecodeString(request.Value.Code)
 		if err != nil {
 			sendError(w, http.StatusBadRequest, "cannot decode the request: "+err.Error())
-			return
+			return "", err
 		}
 	} else {
 		Debug("it is source code")
@@ -131,7 +160,7 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "The action failed to generate or locate a binary. See logs for details.")
 		}
-		return
+		return "", err
 	}
 
 	// start an action
@@ -145,10 +174,12 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "Cannot start action. Check logs for details.")
 		}
-		return
+		return "", err
 	}
 	ap.initialized = true
-	sendOK(w)
+
+	// if it's a forwarded init it won't be empty
+	return request.ProxiedActionID, nil
 }
 
 // ExtractAndCompile decode the buffer and if a compiler is defined, compile it also
