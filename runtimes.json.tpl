@@ -211,6 +211,20 @@
                     "name": "go-nuvolaris-metaflow",
                     "tag": "bc86ab6"
                 }
+            },
+            {
+                "kind": "go:1.22proxy",
+                "default": true,
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-go",
+                    "tag": "$OPS_RUNTIME_TAG_GO_V1_22PROXY"
+                }
             }            
         ],
         "java": [

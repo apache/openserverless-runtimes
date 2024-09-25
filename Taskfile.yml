@@ -27,10 +27,13 @@ vars:
   BASEIMG: registry.hub.docker.com/{{.REPO_PATH}}
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
+  EXPERIMENTAL_COMMON_VER: common1.18.0
+  EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
   RUNTIMES: "go,nodejs,php,python,java"
+  EXPERIMENTAL_RUNTIMES: "python"
   COMMIT_ID: 
     sh: git rev-parse --short HEAD
 
@@ -237,4 +240,52 @@ tasks:
     cmds:
       - |
         task render PUSH=y
-        task generate-runtimes      
+        task generate-runtimes
+
+  build-experimental-runtime:
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/experimental/{{.RT}}/{{.VER}}"
+    cmds:
+    - |
+      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+      PLATFORMS=$(cat platforms.txt)
+      if test -n "{{.PUSH}}"
+      then 
+        {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" --platform "$PLATFORMS" . --push
+      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" . --load
+      fi
+      echo "Built $RUNTIME on platforms $PLATFORMS"        
+
+  build-experimental-lang:
+    desc: build images for experimental runtimes
+    requires: {vars: [RT] }
+    vars:
+      DIRS:
+        sh: ls -d runtime/experimental/{{.RT}}/v* || echo ""
+    cmds:
+      - for: { var: DIRS }
+        task: build-experimental-runtime
+        vars:
+          VER: "{{base .ITEM}}"
+
+  build-experimental-runtimes:
+    silent: true
+    requires: { vars: [TAG,EXPERIMENTAL_RUNTIMES] } 
+    vars:
+      RT_REGEX:
+        sh: echo "{{.EXPERIMENTAL_RUNTIMES}}" | tr ',' '|'
+      SPECIFIC_RT:
+        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
+    cmds:
+      - |        
+        if [ -z "{{.SPECIFIC_RT}}" ];
+        then
+          echo "==> BUILDING RUNTIMES {{.EXPERIMENTAL_RUNTIMES}}"
+          for ITEM in `echo {{.EXPERIMENTAL_RUNTIMES}} | tr ',' ' '`; do
+            echo "==> BUILDING $ITEM:{{.TAG}}"
+            task build-experimental-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}}            
+          done
+        else echo "Build {{.SPECIFIC_RT}}"
+          task build-experimental-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
+        fi                        

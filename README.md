@@ -66,3 +66,10 @@ When creating actions, use the --main flag with this syntax:
 The remote runtime is enabled by setting the environment variable `OW_ACTIVATE_PROXY_SERVER` to 1.
 In this mode the runtime is multi-action enabled, meaning that it can initialize and run more than one action.
 Many client runtimes can forward requests to the same server runtime.
+
+Currently the proxy client/server extension has been compiled and releaed inside the common runtime `common1.18.0`. 
+
+The go runtimes have been extended with the runtime `v1.22proxy` which has been setup by default with the `OW_ACTIVATE_PROXY_CLIENT` set to 1. To deploy an action to be proxid remotely
+use a command similar to `ops action create <action> tests/pytorch.py --main main@http://ops-cuda-service:8080 --kind go:1.22proxy`
+
+The experimental runtime to be used as remote proxy server are currently within the `runtime\experimental` folder and can be built using `task build-experimental-runtimes`. These runtime have to be deployed as regular pod/container on a remote machine. To activate the proxy server mode endure that the image is launched setting the environment variable `OW_ACTIVATE_PROXY_SERVER=1`, otherwise the runtime behaves as a regular OpenWhisk one.

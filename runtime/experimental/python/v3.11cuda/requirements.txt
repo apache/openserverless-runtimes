@@ -1,0 +1,24 @@
+# default packages available across all runtimes
+beautifulsoup4==4.10.0
+httplib2==0.19.1
+kafka_python==2.0.2
+python-dateutil==2.8.2
+requests==2.31.0
+scrapy==2.5.0
+simplejson==3.17.5
+twisted==21.7.0
+netifaces==0.11.0
+pyyaml==6.0.1
+redis==4.4.2
+boto3==1.28.25
+psycopg==3.1.10
+pymongo==4.4.1
+minio==7.1.16
+openai==1.7.1
+auth0-python==4.6.0
+langchain==0.1.0
+farm-haystack==1.23.0
+nltk==3.8.1
+langdetect==1.0.9
+plotly==5.19.0
+ollama==0.1.9
