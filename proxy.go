@@ -21,7 +21,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
+	"time"
 
 	"github.com/apache/openserverless-runtimes/openwhisk"
 )
@@ -83,8 +86,54 @@ func main() {
 		return
 	}
 
+	go hookExitSignals()
+
 	// start the balls rolling
 	openwhisk.Debug("OpenWhisk ActionLoop Proxy %s: starting", openwhisk.Version)
 	ap.Start(8080)
+}
 
+func hookExitSignals() {
+	var captureSignalChan = make(chan os.Signal, 1)
+	// Relay stop signals to captureSignalChan
+	signal.Notify(captureSignalChan,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGABRT,
+		syscall.SIGQUIT,
+		syscall.SIGHUP)
+	signalHandler(<-captureSignalChan)
+}
+
+func signalHandler(signal os.Signal) {
+	fmt.Printf("\nCaught signal: %+v", signal)
+	fmt.Println("\nWait for 1 second to finish processing")
+	time.Sleep(1 * time.Second)
+
+	switch signal {
+
+	case syscall.SIGHUP: // kill -SIGHUP XXXX
+		fmt.Println("- got hungup")
+
+	case syscall.SIGINT: // kill -SIGINT XXXX or Ctrl+c
+		fmt.Println("- got ctrl+c")
+
+	case syscall.SIGTERM: // kill -SIGTERM XXXX
+		fmt.Println("- got force stop")
+
+	case syscall.SIGQUIT: // kill -SIGQUIT XXXX
+		fmt.Println("- stop and core dump")
+
+	case syscall.SIGABRT: // kill -SIGABRT XXXX
+		fmt.Println("- got abort signal")
+
+	case syscall.SIGKILL: // kill -SIGKILL XXXX
+		fmt.Println("- got kill signal")
+
+	default:
+		fmt.Println("- unknown signal")
+	}
+
+	fmt.Println("\nFinished server cleanup")
+	os.Exit(0)
 }
