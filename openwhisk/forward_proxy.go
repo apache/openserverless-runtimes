@@ -66,7 +66,6 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
 
-		Debug("Forwarding action with id %s to %s", ap.clientProxyData.ProxyActionID, ap.clientProxyData.ProxyURL.String())
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
@@ -124,8 +123,6 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
-
-		Debug("Forwarding action with id %s to %s", ap.clientProxyData.ProxyActionID, ap.clientProxyData.ProxyURL.String())
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}

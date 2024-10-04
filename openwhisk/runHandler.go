@@ -72,7 +72,7 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 
 		actionID := runRequest.ProxiedActionID
 
-		innerActionProxy, ok := ap.ServerProxyData.actions[actionID]
+		innerActionProxy, ok := ap.serverProxyData.actions[actionID]
 		if !ok {
 			Debug("Action %s not found in server proxy data", actionID)
 			sendError(w, http.StatusNotFound, "Action not found in remote runtime. Check logs for details.")
