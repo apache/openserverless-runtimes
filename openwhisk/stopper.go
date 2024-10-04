@@ -29,7 +29,13 @@ import (
 	"syscall"
 )
 
-func (ap *ActionProxy) HookExitSignals(captureSignalChan chan os.Signal) {
+func (ap *ActionProxy) HookExitSignals() {
+	signalChan := make(chan os.Signal, 1)
+	listenOnExitSignals(ap, signalChan)
+	os.Exit(0)
+}
+
+func listenOnExitSignals(ap *ActionProxy, captureSignalChan chan os.Signal) {
 	// Relay stop signals to captureSignalChan
 	signal.Notify(captureSignalChan,
 		syscall.SIGINT,
@@ -41,7 +47,6 @@ func (ap *ActionProxy) HookExitSignals(captureSignalChan chan os.Signal) {
 
 	Debug("Listening on exit signals for remote action cleanup...")
 	signalHandler(<-captureSignalChan, ap)
-
 }
 
 func signalHandler(signal os.Signal, ap *ActionProxy) {

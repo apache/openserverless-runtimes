@@ -57,7 +57,7 @@ func TestSendStopRequest(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
-func TestHookExitSignals(t *testing.T) {
+func TestListenOnExitSignals(t *testing.T) {
 	mockedServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var stopReq stopRequest
 		err := json.NewDecoder(r.Body).Decode(&stopReq)
@@ -76,5 +76,5 @@ func TestHookExitSignals(t *testing.T) {
 
 	signalChan := make(chan os.Signal, 1)
 	signalChan <- os.Interrupt
-	ap.HookExitSignals(signalChan)
+	listenOnExitSignals(ap, signalChan)
 }

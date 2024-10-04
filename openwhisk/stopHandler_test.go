@@ -20,7 +20,6 @@ package openwhisk
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -54,7 +53,6 @@ func TestStopHandler(t *testing.T) {
 	doInit(ts, string(initBody))
 	require.Contains(t, rootAP.serverProxyData.actions, actionID)
 	lastAction := highestDir(dir)
-	fmt.Printf("lastAction dir: %d\n", lastAction)
 
 	doRun(ts, "")
 	doStop(ts, actionID)

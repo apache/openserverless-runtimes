@@ -85,7 +85,7 @@ func main() {
 
 	if useProxyClient == "1" {
 		// hook exit signals for remote action cleanup
-		go ap.HookExitSignals(make(chan os.Signal, 1))
+		go ap.HookExitSignals()
 	}
 
 	// start the balls rolling
