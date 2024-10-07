@@ -56,8 +56,8 @@ type ActionProxy struct {
 	proxyMode ProxyMode
 	// client proxy data, if runtime is a forwarder
 	clientProxyData *ClientProxyData
-	// ServerProxyData, if runtime is a server
-	ServerProxyData *ServerProxyData
+	// serverProxyData, if runtime is a server
+	serverProxyData *ServerProxyData
 
 	// is it initialized?
 	initialized bool
@@ -201,6 +201,8 @@ func (ap *ActionProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ap.initHandler(w, r)
 	case "/run":
 		ap.runHandler(w, r)
+	case "/stop":
+		ap.stopHandler(w, r)
 	}
 }
 

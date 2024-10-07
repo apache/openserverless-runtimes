@@ -66,8 +66,8 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ap.proxyMode == ProxyModeServer {
-		if ap.ServerProxyData == nil {
-			ap.ServerProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
+		if ap.serverProxyData == nil {
+			ap.serverProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
 		}
 
 		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, ap.outFile, ap.errFile, ProxyModeNone)
@@ -80,7 +80,7 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		ap.ServerProxyData.actions[id] = innerActionProxy
+		ap.serverProxyData.actions[id] = innerActionProxy
 		Debug("Added action %s to the server proxy data", id)
 
 		sendOK(w)

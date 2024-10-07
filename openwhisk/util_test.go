@@ -100,6 +100,15 @@ func doInit(ts *httptest.Server, message string) {
 	}
 }
 
+func doStop(ts *httptest.Server, actionID string) {
+	resp, status, err := doPost(ts.URL+"/stop", fmt.Sprintf(`{"proxiedActionID":"%s"}`, actionID))
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("%d %s", status, resp)
+	}
+}
+
 func initCode(file string, main string) string {
 	dat, _ := os.ReadFile(file)
 	body := initBodyRequest{Code: string(dat)}
