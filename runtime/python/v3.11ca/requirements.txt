@@ -19,7 +19,7 @@ openai==1.14.0
 langchain==0.1.12
 langchain-openai==0.0.8
 farm-haystack==1.23.0
-nltk==3.8.1
+nltk==3.9
 langdetect==1.0.9
 plotly==5.19.0
 azure-core==1.30.1
