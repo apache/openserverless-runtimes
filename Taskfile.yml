@@ -27,7 +27,7 @@ vars:
   BASEIMG: registry.hub.docker.com/{{.REPO_PATH}}
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
-  EXPERIMENTAL_COMMON_VER: common1.18.0
+  EXPERIMENTAL_COMMON_VER: common1.18.1
   EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest

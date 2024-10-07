@@ -67,7 +67,7 @@ The remote runtime is enabled by setting the environment variable `OW_ACTIVATE_P
 In this mode the runtime is multi-action enabled, meaning that it can initialize and run more than one action.
 Many client runtimes can forward requests to the same server runtime.
 
-Currently the proxy client/server extension has been compiled and releaed inside the common runtime `common1.18.0`. 
+Currently the proxy client/server extension has been compiled and releaed inside the common runtime `common1.18.1`. 
 
 The go runtimes have been extended with the runtime `v1.22proxy` which has been setup by default with the `OW_ACTIVATE_PROXY_CLIENT` set to 1. To deploy an action to be proxid remotely
 use a command similar to `ops action create <action> tests/pytorch.py --main main@http://ops-cuda-service:8080 --kind go:1.22proxy`
