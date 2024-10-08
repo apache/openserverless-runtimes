@@ -130,7 +130,7 @@ func (proc *Executor) Start(waitForAck bool) error {
 	Debug("Start:")
 	err := proc.cmd.Start()
 	if err != nil {
-		Debug("run: early exit")
+		Debug("run: early exit: %e", err)
 		proc.cmd = nil // no need to kill
 		return fmt.Errorf("command exited")
 	}

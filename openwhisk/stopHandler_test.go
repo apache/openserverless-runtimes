@@ -30,6 +30,7 @@ import (
 )
 
 func TestStopHandler(t *testing.T) {
+	oldCurrentDir, _ := os.Getwd()
 
 	actionID := "test-action-id"
 	// temporary workdir
@@ -37,6 +38,7 @@ func TestStopHandler(t *testing.T) {
 	file, _ := filepath.Abs("_test")
 	os.Symlink(file, dir+"/_test")
 	os.Chdir(dir)
+
 	// setup the server
 	buf, _ := os.CreateTemp("", "log")
 	rootAP := NewActionProxy(dir, "", buf, buf, ProxyModeServer)
@@ -53,11 +55,15 @@ func TestStopHandler(t *testing.T) {
 	doInit(ts, string(initBody))
 	require.Contains(t, rootAP.serverProxyData.actions, actionID)
 	lastAction := highestDir(dir)
+	require.Greater(t, lastAction, 0)
 
-	doRun(ts, "")
 	doStop(ts, actionID)
 
 	require.NotContains(t, rootAP.serverProxyData.actions, actionID)
 	require.NoDirExistsf(t, filepath.Join(dir, strconv.Itoa(lastAction)), "lastAction dir should be removed")
+	require.DirExists(t, dir)
 
+	os.RemoveAll(dir)
+
+	stopTestServer(ts, oldCurrentDir, buf)
 }
