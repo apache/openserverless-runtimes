@@ -20,6 +20,7 @@ from sys import stdout
 from sys import stderr
 from os import fdopen
 import sys, os, json, traceback, warnings
+import threading, collections
 
 try:
   # if the directory 'virtualenv' is extracted out of a zip file
@@ -41,7 +42,8 @@ except Exception:
   sys.exit(1)
 
 # now import the action as process input/output
-from main__ import main as main
+import main__
+
 
 out = fdopen(3, "wb")
 if os.getenv("__OW_WAIT_FOR_ACK", "") != "":
@@ -50,19 +52,33 @@ if os.getenv("__OW_WAIT_FOR_ACK", "") != "":
     out.flush()
 
 env = os.environ
+setup_deque = collections.deque()
+setup_thread = None
+
 while True:
   line = stdin.readline()
   if not line: break
   args = json.loads(line)
+  
   payload = {}
   for key in args:
     if key == "value":
       payload = args["value"]
     else:
       env["__OW_%s" % key.upper()]= args[key]
+
+  if setup_thread: 
+     if setup_thread.is_alive():    
+        payload['setup_status'] = list(setup_deque)
+  elif hasattr(main__, 'setup'):
+    setup_thread = threading.Thread(target=main__.setup, args=(payload, setup_deque,))
+    setup_thread.start()
+    payload['setup_status'] = ["setup thread started"]
+    print("started setup", file=sys.stderr)
+
   res = {}
   try:
-    res = main(payload)
+    res = main__.main(payload)
   except Exception as ex:
     print(traceback.format_exc(), file=stderr)
     res = {"error": str(ex)}

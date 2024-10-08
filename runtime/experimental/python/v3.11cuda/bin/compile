@@ -54,22 +54,22 @@ def sources(launcher, main, src_dir):
           "from main__ import main as main",
           "from main__ import %s as main" % main )
 
-# build virtualenv if there is a requirements.txt
+# build virtualenv
 def virtualenv(tgt_dir):
     # check virtualenv
     virtualenv_dir = abspath('%s/virtualenv' % tgt_dir)
+    if not os.path.isdir(virtualenv_dir):
+        cmd = "python -m virtualenv %s >/tmp/err 2>/tmp/err" % virtualenv_dir
+        if os.system(cmd) != 0:
+            with open("/tmp/err", "r") as f:
+                sys.stderr.write(f.read())
     requirements_txt = abspath("%s/requirements.txt" % tgt_dir)
     if exists(requirements_txt):
-        if not os.path.isdir(virtualenv_dir):
-            cmd = "python -m virtualenv %s >/tmp/err 2>/tmp/err" % virtualenv_dir
-            if os.system(cmd) != 0:
-                with open("/tmp/err", "r") as f:
-                    sys.stderr.write(f.read())
-            else:
-                cmd = ". %s/bin/activate && python -m pip install -r %s >/tmp/err 2>/tmp/err" % (virtualenv_dir, requirements_txt)
-                if os.system(cmd) != 0:
-                    with open("/tmp/err", "r") as f:
-                        sys.stderr.write(f.read())
+        cmd = ". %s/bin/activate && python -m pip install -r %s >/tmp/err 2>/tmp/err" % (virtualenv_dir, requirements_txt)
+        if os.system(cmd) != 0:
+            with open("/tmp/err", "r") as f:
+                sys.stderr.write(f.read())
+
     sys.stderr.flush()
 
 # compile sources
@@ -84,7 +84,8 @@ def build(src_dir, tgt_dir):
 export PYTHONIOENCODING=UTF-8
 if [[ "$__OW_EXECUTION_ENV" == "" || "$(cat $0.env)" == "$__OW_EXECUTION_ENV" ]]
 then cd "$(dirname $0)"
-     exec /opt/conda/bin/python exec__.py "$@"
+     source /opt/conda/bin/activate
+     exec python exec__.py "$@"
 else echo "Execution Environment Mismatch"
      echo "Expected: $(cat $0.env)"
      echo "Actual: $__OW_EXECUTION_ENV"
@@ -134,7 +135,9 @@ if __name__ == '__main__':
     src_dir = abspath(sys.argv[2])
     tgt_dir = abspath(sys.argv[3])
     sources(launcher, sys.argv[1], src_dir)
-    build(abspath(sys.argv[2]), tgt_dir)
+    build(src_dir, tgt_dir)
+    # we use the conda env
+    #virtualenv(tgt_dir)
     check(tgt_dir, "main__")
     sys.stdout.flush()
     sys.stderr.flush()
