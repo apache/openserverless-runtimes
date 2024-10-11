@@ -70,7 +70,15 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 			ap.serverProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
 		}
 
-		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, ap.outFile, ap.errFile, ProxyModeNone)
+		outLog, err := os.CreateTemp("", "out-log")
+		if err != nil {
+			outLog = ap.outFile
+		}
+		errLog, err := os.CreateTemp("", "err-log")
+		if err != nil {
+			errLog = ap.errFile
+		}
+		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, outLog, errLog, ProxyModeNone)
 		id, err := innerActionProxy.doInit(r, w)
 		if err != nil {
 			return

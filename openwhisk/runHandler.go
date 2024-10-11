@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type runRequest struct {
@@ -33,6 +34,12 @@ type runRequest struct {
 // ErrResponse is the response when there are errors
 type ErrResponse struct {
 	Error string `json:"error"`
+}
+
+type RemoteRunResponse struct {
+	Response json.RawMessage `json:"response"`
+	Out      string          `json:"out"`
+	Err      string          `json:"err"`
 }
 
 func sendError(w http.ResponseWriter, code int, cause string) {
@@ -71,20 +78,21 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		actionID := runRequest.ProxiedActionID
-
 		innerActionProxy, ok := ap.serverProxyData.actions[actionID]
 		if !ok {
 			Debug("Action %s not found in server proxy data", actionID)
 			sendError(w, http.StatusNotFound, "Action not found in remote runtime. Check logs for details.")
 		}
 
-		innerActionProxy.doProxiedRun(w, &runRequest)
+		innerActionProxy.doServerModeRun(w, &runRequest)
+
 		return
 	}
 
 	ap.doRun(w, r)
 }
-func (ap *ActionProxy) doProxiedRun(w http.ResponseWriter, bodyRequest *runRequest) {
+
+func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRequest) {
 	var bodyBuf bytes.Buffer
 	err := json.NewEncoder(&bodyBuf).Encode(bodyRequest)
 	if err != nil {
@@ -93,7 +101,87 @@ func (ap *ActionProxy) doProxiedRun(w http.ResponseWriter, bodyRequest *runReque
 	}
 	body := bytes.Replace(bodyBuf.Bytes(), []byte("\n"), []byte(""), -1)
 
-	ap.executeAction(w, body)
+	// check if you have an action
+	if ap.theExecutor == nil {
+		sendError(w, http.StatusInternalServerError, "no action defined yet")
+		return
+	}
+
+	// check if the process exited
+	if ap.theExecutor.Exited() {
+		sendError(w, http.StatusInternalServerError, "command exited")
+		return
+	}
+
+	// execute the action
+	response, err := ap.theExecutor.Interact(body)
+
+	// check for early termination
+	if err != nil {
+		Debug("WARNING! Command exited")
+		ap.theExecutor = nil
+		sendError(w, http.StatusBadRequest, "command exited")
+		return
+	}
+	DebugLimit("received:", response, 120)
+
+	// check if the answer is an object map or array
+	var objmap map[string]*json.RawMessage
+	var objarray []interface{}
+	err = json.Unmarshal(response, &objmap)
+	if err != nil {
+		err = json.Unmarshal(response, &objarray)
+		if err != nil {
+			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
+			return
+		}
+	}
+
+	// Get the stdout and stderr from the executor
+	outStr, err := os.ReadFile(ap.outFile.Name())
+	if err != nil {
+		outStr = []byte(fmt.Sprintf("Error reading stdout: %v", err))
+	}
+
+	errStr, err := os.ReadFile(ap.errFile.Name())
+	if err != nil {
+		errStr = []byte(fmt.Sprintf("Error reading stderr: %v", err))
+	}
+
+	// create the response
+	remoteResponse := RemoteRunResponse{
+		Response: response,
+		Out:      string(outStr),
+		Err:      string(errStr),
+	}
+
+	// turn response struct into json
+	responsePayload, err := json.Marshal(remoteResponse)
+	if err != nil {
+		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error marshalling response: %v", err))
+		return
+	}
+
+	// write response
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(responsePayload)))
+	numBytesWritten, err := w.Write(responsePayload)
+
+	// flush output if possible
+	if f, ok := w.(http.Flusher); ok {
+		f.Flush()
+	}
+
+	// handle writing errors
+	if err != nil {
+		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
+		return
+	}
+	if numBytesWritten != len(response) {
+		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
+		return
+	}
+
 }
 
 func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
@@ -107,10 +195,6 @@ func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
 
 	body = bytes.Replace(body, []byte("\n"), []byte(""), -1)
 
-	ap.executeAction(w, body)
-}
-
-func (ap *ActionProxy) executeAction(w http.ResponseWriter, body []byte) {
 	// check if you have an action
 	if ap.theExecutor == nil {
 		sendError(w, http.StatusInternalServerError, "no action defined yet")

@@ -65,13 +65,13 @@ func Example_forwardInitRequest() {
 }
 
 func Example_forwardRunRequest() {
+	clientLog, _ := os.CreateTemp("", "log")
 	// create a client ActionProxy
-	clientAP := NewActionProxy("", "", nil, nil, ProxyModeClient)
+	clientAP := NewActionProxy("", "", clientLog, clientLog, ProxyModeClient)
 
 	// create a server ActionProxy
 	compiler, _ := filepath.Abs("common/gobuild.py")
-	log, _ := os.CreateTemp("", "log")
-	serverAP := NewActionProxy("./action", compiler, log, log, ProxyModeServer)
+	serverAP := NewActionProxy("./action", compiler, nil, nil, ProxyModeServer)
 
 	// start the server
 	ts := httptest.NewServer(serverAP)
@@ -95,8 +95,9 @@ func Example_forwardRunRequest() {
 	// wait 2 seconds before declaring a test done
 	time.Sleep(2 * time.Second)
 	ts.Close()
-	dump(log)
+	dump(clientLog)
 	fmt.Println(runW.Body.String())
+	os.Remove(clientLog.Name())
 
 	// Output:
 	// {"ok":true}
