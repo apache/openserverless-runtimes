@@ -65,7 +65,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
-
+		req.Host = ap.clientProxyData.ProxyURL.Host
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
@@ -123,6 +123,7 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 
 		req.URL.Scheme = ap.clientProxyData.ProxyURL.Scheme
 		req.URL.Host = ap.clientProxyData.ProxyURL.Host
+		req.Host = ap.clientProxyData.ProxyURL.Host
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
