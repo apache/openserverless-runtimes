@@ -33,7 +33,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const OW_CODE_HASH = "OW_CODE_HASH"
+const OW_CODE_HASH = "__OW_CODE_HASH"
 
 func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request) {
 	if ap.clientProxyData == nil {
