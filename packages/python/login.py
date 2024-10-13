@@ -39,7 +39,9 @@ def login(args, status):
 def setup(args, status):
     status.append("installing huggingface_hub")
     run(["pip", "install", "huggingface_hub"])
-    login(args, status)
+    if login(args, status):
+        status.append("logged in")
+    
 
 def main(args):
     if "setup_status" in args:

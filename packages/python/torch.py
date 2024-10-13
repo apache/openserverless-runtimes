@@ -21,7 +21,7 @@
 from subprocess import run
 
 def setup(args, status):
-    status.append("installing pytorch")
+    status.write("installing torch\n")
     run(["pip", "install", "torch"])
 
 def main(args):

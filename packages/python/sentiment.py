@@ -21,18 +21,19 @@
 from subprocess import run
 
 def setup(args, status):
-    status.append("installing torch")
-    run(["pip", "install", "torch"])
-    status.append("installing transformers")
-    run(["pip", "install", "transformers"])
-    status.append("loading transformers")
+    status.write("installing torch\n")
+    run(["pip", "install", "torch", "--upgrade"])
+    status.write("installing torchvision\n")
+    run(["pip", "install", "torchvision", "--upgrade"])
+    status.write("installing transformers\n")
+    run(["pip", "install", "transformers", "--upgrade"])
+    status.append("loading transformers\n")
     from transformers import pipeline
     pipeline("sentiment-analysis")
 
 def main(args):
     if "setup_status" in args:
-        res = "\n".join(args['setup_status'])
-        return { "body": res }
+        return { "body": args['setup_status'] }
     
     from transformers import pipeline
     sentiment = pipeline('sentiment-analysis')

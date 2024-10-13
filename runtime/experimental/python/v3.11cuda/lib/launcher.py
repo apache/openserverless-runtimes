@@ -21,6 +21,8 @@ from sys import stderr
 from os import fdopen
 import sys, os, json, traceback, warnings
 import threading, collections
+from pathlib import Path
+import traceback
 
 try:
   # if the directory 'virtualenv' is extracted out of a zip file
@@ -44,16 +46,23 @@ except Exception:
 # now import the action as process input/output
 import main__
 
-
 out = fdopen(3, "wb")
 if os.getenv("__OW_WAIT_FOR_ACK", "") != "":
     out.write(json.dumps({"ok": True}, ensure_ascii=False).encode('utf-8'))
     out.write(b'\n')
     out.flush()
 
+# lanched as a htread to execute the setup
+def setup_thread(setup, payload):
+  with open('_setup', 'w', buffering=1) as file:
+    file.write("Setup thread started.\n")
+    try:
+      setup(payload, file)
+    except:
+      traceback.print_exc(file=file)
+  Path("_setup_done").touch(exist_ok=True)
+ 
 env = os.environ
-setup_deque = collections.deque()
-setup_thread = None
 
 while True:
   line = stdin.readline()
@@ -67,14 +76,18 @@ while True:
     else:
       env["__OW_%s" % key.upper()]= args[key]
 
-  if setup_thread: 
-     if setup_thread.is_alive():    
-        payload['setup_status'] = list(setup_deque)
-  elif hasattr(main__, 'setup'):
-    setup_thread = threading.Thread(target=main__.setup, args=(payload, setup_deque,))
-    setup_thread.start()
-    payload['setup_status'] = ["setup thread started"]
-    print("started setup", file=sys.stderr)
+  # if there is a setup
+  if hasattr(main__, 'setup'):
+    # if setup is not complete
+    if not os.path.exists("_setup_done"):
+      # if setup is running
+      if os.path.exists("_setup"):
+         payload['setup_status'] = Path("_setup").read_text()
+      else:
+        payload['setup_status'] = ["Setup thread started.\n"]
+        thread = threading.Thread(target=setup_thread, args=(main__.setup, payload,))
+        thread.start()
+        print("started setup", file=sys.stderr)
 
   res = {}
   try:
