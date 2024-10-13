@@ -74,6 +74,31 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 		sendError(w, http.StatusBadGateway, "Error forwarding run request. Check logs for details.")
 	}
 
+	proxy.ModifyResponse = func(response *http.Response) error {
+		if response.StatusCode == http.StatusOK {
+			// Decode the response
+			var remoteReponse RemoteRunResponse
+			err := json.NewDecoder(response.Body).Decode(&remoteReponse)
+			if err != nil {
+				Debug("Error decoding remote response: %v", err)
+				return err
+			}
+
+			// Write the logs to the client logs
+			if _, err := ap.outFile.WriteString(remoteReponse.Out); err != nil {
+				Debug("Error writing remote response out to client: %v", err)
+			}
+			if _, err := ap.errFile.WriteString(remoteReponse.Err); err != nil {
+				Debug("Error writing remote response err to client: %v", err)
+			}
+
+			// Keep the response body only
+			response.Body = io.NopCloser(bytes.NewReader(remoteReponse.Response))
+		}
+
+		return nil
+	}
+
 	Debug("Forwarding run request with id %s to %s", newBody.ProxiedActionID, ap.clientProxyData.ProxyURL.String())
 	proxy.ServeHTTP(w, r)
 	if f, ok := w.(http.Flusher); ok {

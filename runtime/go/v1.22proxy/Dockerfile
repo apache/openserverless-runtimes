@@ -19,7 +19,7 @@
 #ARG COMMON=missing:missing
 #FROM ${COMMON} AS builder
 
-FROM apache/openserverless-runtime-common:common1.18.1 AS builder
+FROM apache/openserverless-runtime-common:common1.18.2 AS builder
 
 FROM golang:1.22-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.22
@@ -31,15 +31,15 @@ RUN \
     apt-get upgrade -y --no-install-recommends &&\
     apt-get install -y apt-utils &&\
     apt-get install -y \
-     curl \
-     jq \
-     git \
-     zip \
-     vim && \
-     apt-get -y install \
-     librdkafka1 \
-     librdkafka++1 \
-     librdkafka-dev &&\
+    curl \
+    jq \
+    git \
+    zip \
+    vim && \
+    apt-get -y install \
+    librdkafka1 \
+    librdkafka++1 \
+    librdkafka-dev &&\
     # Cleanup apt data, we do not need them later on.
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
     go install github.com/go-delve/delve/cmd/dlv@latest &&\
