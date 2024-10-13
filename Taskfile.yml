@@ -111,8 +111,6 @@ tasks:
       fi
       echo "Built $RUNTIME"
 
-
-
   build-lang:
     desc: build images for one runtime
     requires: {vars: [RT] }
@@ -168,6 +166,17 @@ tasks:
       -e OW_COMPILER=/mnt/bin/compile
       "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       
+  debug-experimental:
+    desc: debug a runtime
+    requires: { vars: [RT, VER] } 
+    dir: "runtime/experimental/{{.RT}}/{{.VER}}"
+    cmds:
+    - >
+      {{.DRY}} docker run -p 8080:8080 -ti 
+      --entrypoint=/bin/bash -v $PWD:/mnt
+      -e OW_COMPILER=/mnt/bin/compile
+      "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+
   init:
     desc: intialize a runtime with a test
     requires: { vars: [RT, VER, T] } 
@@ -249,8 +258,9 @@ tasks:
     dir: "runtime/experimental/{{.RT}}/{{.VER}}"
     cmds:
     - |
+      echo ${MY_DOCKER_HUB_REGISTRY}
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+      RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       PLATFORMS=$(cat platforms.txt)
       if test -n "{{.PUSH}}"
       then 

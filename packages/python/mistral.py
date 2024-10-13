@@ -17,44 +17,49 @@
 
 #--web true
 #--kind python:default
-    
+
 from subprocess import run
 import os
 
-def setup(status):
-    status.append("installing huggingface_hub")
-    run(["pip", "install", "huggingface_hub"])
-    status.append("installing protobuf")
-    run(["pip", "install", "protobuf"])
-    status.append("installing sentencepiece")
-    run(["pip", "install", "sentencepiece"])
-    status.append("downloading mistral model - 14GB be patient!")
-    from transformers import pipeline
-    chatbot = pipeline("text-generation", model="mistralai/Mistral-7B-Instruct-v0.3")
-
-def login(args):
+def login(args, status):
     from huggingface_hub import login, whoami
     try:
         whoami()
-        print("already logged in")
+        status.append("already logged in")
         return True
     except:
        try:
           login(token=args.get("hf_token", ""))
-          print("logged in")
+          status.append("logged in")
           return True
        except:
+          status.append("cannot log in - did you provide a correct hf_token?")
           return False
+
+def setup(args, status):
+    status.append("installing huggingface_hub")
+    run(["pip", "install", "huggingface_hub"])
+    status.append("installing accelerate")  
+    run(["pip", "install", "accelerate"])
+    status.append("installing protobuf")  
+    run(["pip", "install", "protobuf"])
+    status.append("installing sentencepiece")
+    run(["pip", "install", "sentencepiece"])
+    status.append("installing mistral_inference")
+    run(["pip", "install", "mistral_inference"])
+    if login(args, status):
+        status.append("downloading mistral model - it is 14GB be patient!")
+        from transformers import pipeline
+        pipeline("text-generation", model="mistralai/Mistral-7B-Instruct-v0.3")
 
 def main(args):
     if "setup_status" in args:
         res = "\n".join(args['setup_status'])
         return { "body": res }
- 
-    if not login(args):
-        return {"body": "cannot login - is the hf_token provided correctly"}   
-   
+    
+    from huggingface_hub import  whoami 
     return {
-        "body": "ok"
+        "body": whoami()
     }
 
+    

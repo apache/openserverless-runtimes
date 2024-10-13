@@ -19,7 +19,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11
 COPY --from=builder /go/bin/proxy /bin/proxy
 
