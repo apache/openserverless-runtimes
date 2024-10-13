@@ -93,23 +93,8 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRequest) {
-	var bodyBuf bytes.Buffer
-	err := json.NewEncoder(&bodyBuf).Encode(bodyRequest)
-	if err != nil {
-		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error encoding proxied run body: %v", err))
-		return
-	}
-	body := bytes.Replace(bodyBuf.Bytes(), []byte("\n"), []byte(""), -1)
-
-	// check if you have an action
-	if ap.theExecutor == nil {
-		sendError(w, http.StatusInternalServerError, "no action defined yet")
-		return
-	}
-
-	// check if the process exited
-	if ap.theExecutor.Exited() {
-		sendError(w, http.StatusInternalServerError, "command exited")
+	body, ok := prepareRemoteRunBody(ap, w, bodyRequest)
+	if !ok {
 		return
 	}
 
@@ -126,15 +111,9 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 	DebugLimit("received:", response, 120)
 
 	// check if the answer is an object map or array
-	var objmap map[string]*json.RawMessage
-	var objarray []interface{}
-	err = json.Unmarshal(response, &objmap)
-	if err != nil {
-		err = json.Unmarshal(response, &objarray)
-		if err != nil {
-			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
-			return
-		}
+	if ok := isJsonObjOrArray(response); !ok {
+		sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
+		return
 	}
 
 	// Get the stdout and stderr from the executor
@@ -148,7 +127,7 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 		errStr = []byte(fmt.Sprintf("Error reading stderr: %v", err))
 	}
 
-	// create the response
+	// create the response struct
 	remoteResponse := RemoteRunResponse{
 		Response: response,
 		Out:      string(outStr),
@@ -220,15 +199,9 @@ func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
 	DebugLimit("received:", response, 120)
 
 	// check if the answer is an object map or array
-	var objmap map[string]*json.RawMessage
-	var objarray []interface{}
-	err = json.Unmarshal(response, &objmap)
-	if err != nil {
-		err = json.Unmarshal(response, &objarray)
-		if err != nil {
-			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
-			return
-		}
+	if ok := isJsonObjOrArray(response); !ok {
+		sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
+		return
 	}
 
 	// write response
@@ -250,4 +223,42 @@ func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
 		return
 	}
+}
+
+func isJsonObjOrArray(response []byte) bool {
+	var objmap map[string]*json.RawMessage
+	var objarray []interface{}
+	err := json.Unmarshal(response, &objmap)
+	if err != nil {
+		err = json.Unmarshal(response, &objarray)
+		if err != nil {
+			return false
+		}
+	}
+	return true
+}
+
+func prepareRemoteRunBody(ap *ActionProxy, w http.ResponseWriter, bodyRequest *runRequest) ([]byte, bool) {
+	var bodyBuf bytes.Buffer
+	err := json.NewEncoder(&bodyBuf).Encode(bodyRequest)
+	if err != nil {
+		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error encoding proxied run body: %v", err))
+		return nil, false
+	}
+	body := bytes.Replace(bodyBuf.Bytes(), []byte("\n"), []byte(""), -1)
+
+	// check if you have an action
+	if ap.theExecutor == nil {
+		sendError(w, http.StatusInternalServerError, "no action defined yet")
+		return nil, false
+	}
+
+	// check if the process exited
+	if ap.theExecutor.Exited() {
+		sendError(w, http.StatusInternalServerError, "command exited")
+		return nil, false
+	}
+
+	return body, true
+
 }
