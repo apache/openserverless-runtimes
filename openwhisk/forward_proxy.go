@@ -19,6 +19,8 @@ package openwhisk
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -30,6 +32,8 @@ import (
 
 	"github.com/google/uuid"
 )
+
+const OW_CODE_HASH = "__OW_CODE_HASH"
 
 func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request) {
 	if ap.clientProxyData == nil {
@@ -128,6 +132,11 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 	newBody := initRequest
 	newBody.Value.Main = ap.clientProxyData.MainFunc
 	newBody.ProxiedActionID = ap.clientProxyData.ProxyActionID
+	codeHash := calculateCodeHash(initRequest.Value.Code)
+	if newBody.Value.Env == nil {
+		newBody.Value.Env = make(map[string]interface{})
+	}
+	newBody.Value.Env[OW_CODE_HASH] = codeHash
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(newBody)
@@ -206,4 +215,9 @@ func parseMainURL(input string) (*url.URL, error) {
 	}
 
 	return parsedURL, nil
+}
+
+func calculateCodeHash(code string) string {
+	hash := md5.Sum([]byte(code))
+	return hex.EncodeToString(hash[:])
 }

@@ -19,7 +19,9 @@ package openwhisk
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -30,6 +32,37 @@ import (
 
 	"github.com/stretchr/testify/require"
 )
+
+func TestCodeHashForwarded(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var initRequest initRequest
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		err = json.Unmarshal(body, &initRequest)
+		require.NoError(t, err)
+
+		require.Contains(t, initRequest.Value.Env, OW_CODE_HASH)
+
+	}))
+
+	// create a client ActionProxy
+	clientAP := NewActionProxy("", "", nil, nil, ProxyModeClient)
+
+	// create a request body
+	body := initBinary("_test/hello.zip", "@"+ts.URL)
+	initBody := bytes.NewBufferString(body)
+	w := httptest.NewRecorder()
+
+	// run the client init request
+	clientAP.initHandler(w, httptest.NewRequest(http.MethodPost, "/", initBody))
+
+	// stop the server
+	runtime.Gosched()
+	// wait 2 seconds before declaring a test done
+	time.Sleep(2 * time.Second)
+	ts.Close()
+}
 
 func Example_forwardInitRequest() {
 	// create a client ActionProxy
