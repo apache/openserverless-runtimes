@@ -82,10 +82,10 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			Debug("Action %s not found in server proxy data", actionID)
 			sendError(w, http.StatusNotFound, "Action not found in remote runtime. Check logs for details.")
+			return
 		}
 
 		innerActionProxy.doServerModeRun(w, &runRequest)
-
 		return
 	}
 
@@ -108,7 +108,7 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 		sendError(w, http.StatusBadRequest, "command exited")
 		return
 	}
-	DebugLimit("received:", response, 120)
+	DebugLimit("received (remote):", response, 120)
 
 	// check if the answer is an object map or array
 	if ok := isJsonObjOrArray(response); !ok {
@@ -153,14 +153,15 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 
 	// handle writing errors
 	if err != nil {
+		Debug("(remote) Error writing response: %v", err)
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
 		return
 	}
 	if numBytesWritten != len(response) {
+		Debug("(remote) Only wrote %d of %d bytes to response", numBytesWritten, len(response))
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
 		return
 	}
-
 }
 
 func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
@@ -216,10 +217,12 @@ func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
 
 	// handle writing errors
 	if err != nil {
+		Debug("Error writing response: %v", err)
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
 		return
 	}
 	if numBytesWritten != len(response) {
+		Debug("Only wrote %d of %d bytes to response", numBytesWritten, len(response))
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
 		return
 	}
@@ -260,5 +263,4 @@ func prepareRemoteRunBody(ap *ActionProxy, w http.ResponseWriter, bodyRequest *r
 	}
 
 	return body, true
-
 }
