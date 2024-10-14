@@ -17,17 +17,19 @@
 
 #--web true
 #--kind python:default
-import os
+    
+from subprocess import run
+
+def setup(args, status):
+    status.write("installing torch\n")
+    run(["pip", "install", "torch"])
 
 def main(args):
-    print(args)
-    name = args.get("name", "world")
-    hash = os.environ.get("__OW_CODE_HASH", "missing hash")
+    if "setup_status" in args:
+        return { "body": "\n".join(args['setup_status'])  }
+    import torch
+    cuda = torch.cuda.is_available()
     return {
-        "body": f"Hello, {name} {hash}"
+        "body": f"Cuda: {cuda}."
     }
-
-
-
-
 
