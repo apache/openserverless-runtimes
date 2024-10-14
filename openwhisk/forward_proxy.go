@@ -98,6 +98,10 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 
 			// Keep the response body only
 			response.Body = io.NopCloser(bytes.NewReader(remoteReponse.Response))
+
+			// recalculate the content length
+			response.ContentLength = int64(len(remoteReponse.Response))
+			response.Header.Set("Content-Length", strconv.Itoa(len(remoteReponse.Response)))
 		} else {
 			Debug("Remote response status code: %d", response.StatusCode)
 		}
