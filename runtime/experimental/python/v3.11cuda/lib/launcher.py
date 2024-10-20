@@ -91,7 +91,7 @@ while True:
       if os.path.exists(SETUP):
          payload['setup_status'] = Path(SETUP).read_text()
       else:
-        payload['setup_status'] = ["Setup thread started.\n"]
+        payload['setup_status'] = "Setup thread started.\n"
         thread = threading.Thread(target=setup_thread, args=(main__.setup, payload,))
         thread.start()
         print("started setup", file=sys.stderr)
