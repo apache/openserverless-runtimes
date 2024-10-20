@@ -42,6 +42,7 @@ WORKDIR /
 
 ADD bin/compile /bin/compile
 ADD lib/launcher.py /lib/launcher.py
+ADD debug.sh /bin/debug.sh
 
 # log initialization errors
 ENV OW_LOG_INIT_ERROR=1

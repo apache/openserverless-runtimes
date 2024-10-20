@@ -27,7 +27,7 @@ vars:
   BASEIMG: registry.hub.docker.com/{{.REPO_PATH}}
   COMMON_VER: common1.17.1
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
-  EXPERIMENTAL_COMMON_VER: common1.18.0
+  EXPERIMENTAL_COMMON_VER: common1.18.2
   EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
@@ -172,10 +172,11 @@ tasks:
     dir: "runtime/experimental/{{.RT}}/{{.VER}}"
     cmds:
     - >
-      {{.DRY}} docker run -p 8080:8080 -ti 
-      --entrypoint=/bin/bash -v $PWD:/mnt
-      -e OW_COMPILER=/mnt/bin/compile
-      "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+        BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
+        {{.DRY}} docker run -p 8080:8080 -ti 
+        --entrypoint=/bin/bash -v $PWD:/mnt
+        -e OW_COMPILER=/mnt/bin/compile
+        "${BASEIMG}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
 
   init:
     desc: intialize a runtime with a test
@@ -258,7 +259,6 @@ tasks:
     dir: "runtime/experimental/{{.RT}}/{{.VER}}"
     cmds:
     - |
-      echo ${MY_DOCKER_HUB_REGISTRY}
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
       RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       PLATFORMS=$(cat platforms.txt)

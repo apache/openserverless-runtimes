@@ -51,19 +51,26 @@ if os.getenv("__OW_WAIT_FOR_ACK", "") != "":
     out.write(json.dumps({"ok": True}, ensure_ascii=False).encode('utf-8'))
     out.write(b'\n')
     out.flush()
+    
+
+env = os.environ
+
+SETUP="_setup"
+hash = env.get("__OW_CODE_HASH")
+if hash: 
+  SETUP="/tmp/"+hash
+SETUP_DONE=SETUP+"_done"
 
 # lanched as a htread to execute the setup
 def setup_thread(setup, payload):
-  with open('_setup', 'w', buffering=1) as file:
+  with open(SETUP, 'w', buffering=1) as file:
     file.write("Setup thread started.\n")
     try:
       setup(payload, file)
     except:
       traceback.print_exc(file=file)
-  Path("_setup_done").touch(exist_ok=True)
+  Path(SETUP_DONE).touch(exist_ok=True)
  
-env = os.environ
-
 while True:
   line = stdin.readline()
   if not line: break
@@ -79,10 +86,10 @@ while True:
   # if there is a setup
   if hasattr(main__, 'setup'):
     # if setup is not complete
-    if not os.path.exists("_setup_done"):
+    if not os.path.exists(SETUP_DONE):
       # if setup is running
-      if os.path.exists("_setup"):
-         payload['setup_status'] = Path("_setup").read_text()
+      if os.path.exists(SETUP):
+         payload['setup_status'] = Path(SETUP).read_text()
       else:
         payload['setup_status'] = ["Setup thread started.\n"]
         thread = threading.Thread(target=setup_thread, args=(main__.setup, payload,))
