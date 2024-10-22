@@ -31,8 +31,6 @@ vars:
   EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
   TAG:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
-  EXPERIMENTAL_TAG:
-    sh: git describe --tags --abbrev=0|sed 's/experimental-//' 2>/dev/null || echo latest        
   J: "{}"
   RUNTIMES: "go,nodejs,php,python,java"
   EXPERIMENTAL_RUNTIMES: "python"
@@ -270,7 +268,7 @@ tasks:
     cmds:
     - |
       BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.EXPERIMENTAL_TAG}}"
+      RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
       PLATFORMS=$(cat platforms.txt)
       if test -n "{{.PUSH}}"
       then 
@@ -293,19 +291,19 @@ tasks:
 
   build-experimental-runtimes:
     silent: true
-    requires: { vars: [EXPERIMENTAL_TAG,EXPERIMENTAL_RUNTIMES] } 
+    requires: { vars: [TAG,EXPERIMENTAL_RUNTIMES] } 
     vars:
       RT_REGEX:
         sh: echo "{{.EXPERIMENTAL_RUNTIMES}}" | tr ',' '|'
       SPECIFIC_RT:
-        sh: echo "{{.EXPERIMENTAL_TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
+        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
     cmds:
       - |        
         if [ -z "{{.SPECIFIC_RT}}" ];
         then
           echo "==> BUILDING RUNTIMES {{.EXPERIMENTAL_RUNTIMES}}"
           for ITEM in `echo {{.EXPERIMENTAL_RUNTIMES}} | tr ',' ' '`; do
-            echo "==> BUILDING $ITEM:{{.EXPERIMENTAL_TAG}}"
+            echo "==> BUILDING $ITEM:{{.TAG}}"
             task build-experimental-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}}            
           done
         else echo "Build {{.SPECIFIC_RT}}"
