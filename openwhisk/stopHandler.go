@@ -61,13 +61,16 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 		sendError(w, http.StatusNotFound, "Action to be removed in remote runtime not found. Check logs for details.")
 	}
 
-	innerAP.theExecutor.Stop()
 	Debug("Action '%s' executor stopped", actionID)
-	if err := os.RemoveAll(filepath.Join(innerAP.baseDir, strconv.Itoa(innerAP.currentDir))); err != nil {
-		Debug("Error removing action directory: %v", err)
-	}
-
+	cleanUpAP(innerAP)
 	delete(ap.serverProxyData.actions, actionID)
 
 	sendOK(w)
+}
+
+func cleanUpAP(ap *ActionProxy) {
+	ap.theExecutor.Stop()
+	if err := os.RemoveAll(filepath.Join(ap.baseDir, strconv.Itoa(ap.currentDir))); err != nil {
+		Debug("Error removing action directory: %v", err)
+	}
 }

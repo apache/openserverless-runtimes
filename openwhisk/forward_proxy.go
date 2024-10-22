@@ -111,7 +111,6 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 
 	Debug("Forwarding run request with id %s to %s", newBody.ProxiedActionID, ap.clientProxyData.ProxyURL.String())
 	proxy.ServeHTTP(w, r)
-	Debug("Run request forwarded. Response received: %s", w)
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
 	}

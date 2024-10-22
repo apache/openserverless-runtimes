@@ -14,7 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package openwhisk
 
-// Version number - internal
-var Version = "1.18.3"
+import (
+	"net/http"
+)
+
+func (ap *ActionProxy) resetHandler(w http.ResponseWriter, _ *http.Request) {
+	if ap.proxyMode != ProxyModeServer {
+		sendError(w, http.StatusMethodNotAllowed, "Reset allowed only in server mode")
+		return
+	}
+
+	for _, ap := range ap.serverProxyData.actions {
+		cleanUpAP(ap)
+	}
+
+	ap.serverProxyData.actions = make(map[string]*ActionProxy)
+
+	sendOK(w)
+}
