@@ -15,14 +15,12 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-name: Build Runtime Common Image
+name: Build Experimental Runtimes
 on: 
   push:
     tags:       
       - '*experimental*'
     branches-ignore: '*'
-  #pull_request:
-  #  branches: [main]
 
 permissions:
   contents: write
@@ -30,7 +28,7 @@ permissions:
 
 jobs:
   common:
-    name: Build Experimental Runtime Common
+    name: Build Experimental Runtimes
     runs-on: ubuntu-latest   
     steps:
       - name: Checkout recursive
