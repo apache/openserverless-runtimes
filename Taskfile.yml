@@ -66,7 +66,15 @@ tasks:
       - git tag -d $(git tag) 
       - git tag -f common-$(date +%y%m%d%H%M)
         
-      - env PAGER= git tag      
+      - env PAGER= git tag
+
+  experimental-tag:
+    silent: true
+    cmds:
+      - git tag -d $(git tag)
+      - git tag -f experimental-$(date +%y%m%d%H%M)
+        
+      - env PAGER= git tag            
 
   compile: go build -o proxy
 
