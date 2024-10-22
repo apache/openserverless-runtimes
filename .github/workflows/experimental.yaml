@@ -57,4 +57,4 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Image
-        run: task build-experimental-runtimes PUSH=true TAG=${{ env.IMG_TAG }}
+        run: task build-experimental-runtimes PUSH=true
