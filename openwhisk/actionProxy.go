@@ -204,6 +204,10 @@ func (ap *ActionProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/stop":
 		ap.stopHandler(w, r)
 	}
+
+	if Debugging && r.URL.Path == "/reset" {
+		ap.resetHandler(w, r)
+	}
 }
 
 // Start creates a proxy to execute actions
