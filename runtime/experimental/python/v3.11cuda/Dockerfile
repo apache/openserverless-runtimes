@@ -19,26 +19,30 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11
 COPY --from=builder /go/bin/proxy /bin/proxy
 
 # install zip
-RUN apt-get update && apt-get install -y python3-lxml python3-psycopg2 zip xpdf\
-    build-essential g++ ninja-build\
+RUN apt-get update && apt-get install -y zip xpdf\
+    build-essential g++ ninja-build \
     && rm -rf /var/lib/apt/lists/*  
 
-# Install common modules for python
 COPY requirements.txt requirements.txt
 
-RUN pip3 install --upgrade pip six wheel virtualenv
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN \
+    /opt/conda/bin/conda init ;\
+    source /opt/conda/bin/activate ;\
+    conda install lxml psycopg2 -y ;\
+    pip3 install --upgrade pip six wheel virtualenv ;\
+    pip3 install --no-cache-dir -r requirements.txt
 
 RUN mkdir -p /action
 WORKDIR /
 
 ADD bin/compile /bin/compile
 ADD lib/launcher.py /lib/launcher.py
+ADD debug.sh /bin/debug.sh
 
 # log initialization errors
 ENV OW_LOG_INIT_ERROR=1
@@ -52,12 +56,12 @@ ENV OW_COMPILER=/bin/compile
 # ENV OW_ACTIVATE_PROXY_SERVER=1
 
 # home directory
-ENV HOME=/tmp
 
-RUN mkdir /nonexistent; chown nobody:root /nonexistent; chmod 0775 /nonexistent
-
+ENV HOME=/workspace
 WORKDIR /action
-RUN chown nobody:root /action ; chmod 0775 /action
+RUN mkdir -p /action ;\
+    chmod 0775 /action /workspace ;\
+    useradd -m -d /workspace -s /bin/bash -g root workspace ;\
+    chown workspace:root /action /workspace 
 
-USER nobody
 ENTRYPOINT ["/bin/proxy"]

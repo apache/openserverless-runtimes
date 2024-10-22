@@ -17,17 +17,31 @@
 
 #--web true
 #--kind python:default
-import os
+    
+from subprocess import run
+
+def setup(args, status):
+    status.write("installing torch\n")
+    run(["pip", "install", "torch", "--upgrade"])
+    status.write("installing torchvision\n")
+    run(["pip", "install", "torchvision", "--upgrade"])
+    status.write("installing transformers\n")
+    run(["pip", "install", "transformers", "--upgrade"])
+    status.append("loading transformers\n")
+    from transformers import pipeline
+    pipeline("sentiment-analysis")
 
 def main(args):
-    print(args)
-    name = args.get("name", "world")
-    hash = os.environ.get("__OW_CODE_HASH", "missing hash")
+    if "setup_status" in args:
+        return { "body": args['setup_status'] }
+    
+    from transformers import pipeline
+    sentiment = pipeline('sentiment-analysis')
+    input = args.get("input", "")
+    if input == "":
+        return { "body": "please provide some input"}
+    output = sentiment(input)
     return {
-        "body": f"Hello, {name} {hash}"
+        "body": output
     }
-
-
-
-
 
