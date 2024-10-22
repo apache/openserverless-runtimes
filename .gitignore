@@ -95,3 +95,4 @@ pkg/
 openserverless-runtimes
 
 runtimes.json
+action/**/*
