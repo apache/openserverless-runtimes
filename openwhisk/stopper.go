@@ -65,6 +65,7 @@ func SendStopRequest(ap *ActionProxy) error {
 
 	stopRequest := stopRequest{
 		ProxiedActionID: ap.clientProxyData.ProxyActionID,
+		ActionCodeHash:  ap.clientProxyData.ActionCodeHash,
 	}
 
 	var buf bytes.Buffer

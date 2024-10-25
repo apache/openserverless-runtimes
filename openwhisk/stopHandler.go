@@ -29,6 +29,7 @@ import (
 )
 
 type stopRequest struct {
+	ActionCodeHash  string `json:"actionCodeHash,omitempty"`
 	ProxiedActionID string `json:"proxiedActionID,omitempty"`
 }
 
@@ -53,17 +54,34 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	actionID := stopRequest.ProxiedActionID
-
-	innerAP, ok := ap.serverProxyData.actions[actionID]
+	innerAPValue, ok := ap.serverProxyData.actions[stopRequest.ActionCodeHash]
 	if !ok {
-		Debug("Action '%s' not found in server proxy data", actionID)
+		Debug("Action hash '%s' not found in server proxy data", stopRequest.ActionCodeHash)
 		sendError(w, http.StatusNotFound, "Action to be removed in remote runtime not found. Check logs for details.")
+		return
 	}
 
-	Debug("Action '%s' executor stopped", actionID)
-	cleanUpAP(innerAP.remoteProxy)
-	delete(ap.serverProxyData.actions, actionID)
+	connectedIDFound := false
+	for i, connectedID := range innerAPValue.connectedActionIDs {
+		if connectedID == stopRequest.ProxiedActionID {
+			// remove id from the array
+			removeID(innerAPValue.connectedActionIDs, i)
+			connectedIDFound = true
+			break
+		}
+	}
+	if !connectedIDFound {
+		Debug("Action ID '%s' not found in server proxy data", stopRequest.ProxiedActionID)
+		sendError(w, http.StatusNotFound, "Action to be removed in remote runtime not found. Check logs for details.")
+		return
+	}
+
+	if len(innerAPValue.connectedActionIDs) == 0 {
+
+		Debug("Action hash '%s' executor stopped", stopRequest.ActionCodeHash)
+		cleanUpAP(innerAPValue.remoteProxy)
+		delete(ap.serverProxyData.actions, stopRequest.ActionCodeHash)
+	}
 
 	sendOK(w)
 }
@@ -73,4 +91,10 @@ func cleanUpAP(ap *ActionProxy) {
 	if err := os.RemoveAll(filepath.Join(ap.baseDir, strconv.Itoa(ap.currentDir))); err != nil {
 		Debug("Error removing action directory: %v", err)
 	}
+}
+
+func removeID(idArray []string, index int) []string {
+	ret := make([]string, 0)
+	ret = append(ret, idArray[:index]...)
+	return append(ret, idArray[index+1:]...)
 }
