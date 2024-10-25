@@ -43,7 +43,7 @@ func TestStopHandler(t *testing.T) {
 	buf, _ := os.CreateTemp("", "log")
 	rootAP := NewActionProxy(dir, "", buf, buf, ProxyModeServer)
 	rootAP.serverProxyData = &ServerProxyData{
-		actions: make(map[string]*ActionProxy),
+		actions: make(map[RemoteAPKey]*RemoteAPValue),
 	}
 
 	ts := httptest.NewServer(rootAP)
@@ -51,15 +51,17 @@ func TestStopHandler(t *testing.T) {
 	dat, _ := os.ReadFile("_test/hello_message")
 	enc := base64.StdEncoding.EncodeToString(dat)
 	body := initBodyRequest{Binary: true, Code: enc}
+	actionCodeHash := calculateCodeHash(enc)
+	body.Env = map[string]interface{}{OW_CODE_HASH: actionCodeHash}
 	initBody, _ := json.Marshal(initRequest{Value: body, ProxiedActionID: actionID})
 	doInit(ts, string(initBody))
-	require.Contains(t, rootAP.serverProxyData.actions, actionID)
+	require.Contains(t, rootAP.serverProxyData.actions, actionCodeHash)
 	lastAction := highestDir(dir)
 	require.Greater(t, lastAction, 0)
 
-	doStop(ts, actionID)
+	doStop(ts, actionCodeHash)
 
-	require.NotContains(t, rootAP.serverProxyData.actions, actionID)
+	require.NotContains(t, rootAP.serverProxyData.actions, actionCodeHash)
 	require.NoDirExistsf(t, filepath.Join(dir, strconv.Itoa(lastAction)), "lastAction dir should be removed")
 	require.DirExists(t, dir)
 

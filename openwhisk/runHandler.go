@@ -27,8 +27,8 @@ import (
 )
 
 type runRequest struct {
-	ProxiedActionID string                 `json:"proxiedActionID,omitempty"`
-	Value           map[string]interface{} `json:"value,omitempty"`
+	ActionCodeHash string                 `json:"actionCodeHash,omitempty"`
+	Value          map[string]interface{} `json:"value,omitempty"`
 }
 
 // ErrResponse is the response when there are errors
@@ -77,15 +77,15 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		actionID := runRequest.ProxiedActionID
-		innerActionProxy, ok := ap.serverProxyData.actions[actionID]
+		actionHash := runRequest.ActionCodeHash
+		innerActionProxy, ok := ap.serverProxyData.actions[actionHash]
 		if !ok {
-			Debug("Action %s not found in server proxy data", actionID)
+			Debug("Action hash %s not found in server proxy data", actionHash)
 			sendError(w, http.StatusNotFound, "Action not found in remote runtime. Check logs for details.")
 			return
 		}
 
-		innerActionProxy.doServerModeRun(w, &runRequest)
+		innerActionProxy.remoteProxy.doServerModeRun(w, &runRequest)
 		return
 	}
 

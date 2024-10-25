@@ -91,10 +91,12 @@ func Example_forwardInitRequest() {
 	ts.Close()
 	dump(log)
 
-	fmt.Println(w.Body.String())
+	fmt.Print(w.Body.String())
+	fmt.Println(clientAP.clientProxyData.ActionCodeHash != "")
 
 	// Output:
 	// {"ok":true}
+	// true
 }
 
 func Example_forwardRunRequest() {

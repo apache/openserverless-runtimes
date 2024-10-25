@@ -48,7 +48,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 	}
 
 	newBody := runRequest
-	newBody.ProxiedActionID = ap.clientProxyData.ProxyActionID
+	newBody.ActionCodeHash = ap.clientProxyData.ActionCodeHash
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(newBody)
@@ -109,7 +109,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
-	Debug("Forwarding run request with id %s to %s", newBody.ProxiedActionID, ap.clientProxyData.ProxyURL.String())
+	Debug("Forwarding run request with to %s", ap.clientProxyData.ProxyURL.String())
 	proxy.ServeHTTP(w, r)
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
@@ -143,6 +143,7 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 		newBody.Value.Env = make(map[string]interface{})
 	}
 	newBody.Value.Env[OW_CODE_HASH] = codeHash
+	ap.clientProxyData.ActionCodeHash = codeHash
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(newBody)

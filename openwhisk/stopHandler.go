@@ -62,7 +62,7 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Debug("Action '%s' executor stopped", actionID)
-	cleanUpAP(innerAP)
+	cleanUpAP(innerAP.remoteProxy)
 	delete(ap.serverProxyData.actions, actionID)
 
 	sendOK(w)

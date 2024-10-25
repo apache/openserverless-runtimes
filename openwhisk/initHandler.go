@@ -66,36 +66,15 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ap.proxyMode == ProxyModeServer {
-		if ap.serverProxyData == nil {
-			ap.serverProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
-		}
-
-		outLog, err := os.CreateTemp("", "out-log")
-		if err != nil {
-			outLog = ap.outFile
-		}
-		errLog, err := os.CreateTemp("", "err-log")
-		if err != nil {
-			errLog = ap.errFile
-		}
-		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, outLog, errLog, ProxyModeNone)
-		id, err := innerActionProxy.doInit(r, w)
-		if err != nil {
+		ok := doRemoteInit(ap, r, w)
+		if !ok {
 			return
 		}
-		if id == "" {
-			sendError(w, http.StatusBadGateway, "Cannot identify the action in remote runtime.")
-			return
-		}
-
-		ap.serverProxyData.actions[id] = innerActionProxy
-		Debug("Added action %s to the server proxy data", id)
-
 		sendOK(w)
 		return
 	}
 
-	if _, err := ap.doInit(r, w); err != nil {
+	if _, _, err := ap.doInit(r, w); err != nil {
 		Debug("Error initializing action: %v", err)
 		return
 	}
@@ -103,7 +82,50 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 	sendOK(w)
 }
 
-func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, error) {
+// doRemoteInit initializes a remote action.
+// Returns true if the initialization was successful, false otherwise.
+func doRemoteInit(ap *ActionProxy, r *http.Request, w http.ResponseWriter) bool {
+	if ap.serverProxyData == nil {
+		ap.serverProxyData = &ServerProxyData{actions: make(map[RemoteAPKey]*RemoteAPValue)}
+	}
+
+	outLog, err := os.CreateTemp("", "out-log")
+	if err != nil {
+		outLog = ap.outFile
+	}
+	errLog, err := os.CreateTemp("", "err-log")
+	if err != nil {
+		errLog = ap.errFile
+	}
+	innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, outLog, errLog, ProxyModeNone)
+	id, actionHash, err := innerActionProxy.doInit(r, w)
+	if err != nil {
+		return false
+	}
+	if actionHash == "" {
+		sendError(w, http.StatusBadGateway, "Cannot identify the action in remote runtime (missing hash).")
+		return false
+	}
+	if id == "" {
+		sendError(w, http.StatusBadGateway, "Missing action id from client.")
+		return false
+	}
+
+	remoteAP, ok := ap.serverProxyData.actions[actionHash]
+	if !ok {
+		ap.serverProxyData.actions[actionHash] = &RemoteAPValue{
+			remoteProxy:        innerActionProxy,
+			connectedActionIDs: []string{id},
+		}
+	} else {
+		remoteAP.connectedActionIDs = append(remoteAP.connectedActionIDs, id)
+	}
+
+	Debug("Added action id %s to action hash %s", id, actionHash)
+	return true
+}
+
+func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, string, error) {
 	if ap.compiler != "" {
 		Debug("compiler: " + ap.compiler)
 	}
@@ -113,7 +135,7 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 	defer r.Body.Close()
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("%v", err))
-		return "", err
+		return "", "", err
 	}
 
 	// decode request parameters
@@ -125,13 +147,13 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error unmarshaling request: %v", err))
-		return "", err
+		return "", "", err
 	}
 
 	// request with empty code - stop any executor but return ok
 	if request.Value.Code == "" {
 		sendError(w, http.StatusForbidden, "Missing main/no code to execute.")
-		return "", fmt.Errorf("code in body is empty")
+		return "", "", fmt.Errorf("code in body is empty")
 	}
 
 	// passing the env to the action proxy
@@ -150,7 +172,7 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 		buf, err = base64.StdEncoding.DecodeString(request.Value.Code)
 		if err != nil {
 			sendError(w, http.StatusBadRequest, "cannot decode the request: "+err.Error())
-			return "", err
+			return "", "", err
 		}
 	} else {
 		Debug("it is source code")
@@ -168,7 +190,7 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "The action failed to generate or locate a binary. See logs for details.")
 		}
-		return "", err
+		return "", "", err
 	}
 
 	// start an action
@@ -182,12 +204,17 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "Cannot start action. Check logs for details.")
 		}
-		return "", err
+		return "", "", err
 	}
 	ap.initialized = true
 
 	// if it's a forwarded init it won't be empty
-	return request.ProxiedActionID, nil
+	actionHash := ""
+	owActionHash, ok := request.Value.Env[OW_CODE_HASH].(string)
+	if ok {
+		actionHash = owActionHash
+	}
+	return request.ProxiedActionID, actionHash, nil
 }
 
 // ExtractAndCompile decode the buffer and if a compiler is defined, compile it also

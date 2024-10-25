@@ -26,12 +26,9 @@ func (ap *ActionProxy) resetHandler(w http.ResponseWriter, _ *http.Request) {
 		sendError(w, http.StatusMethodNotAllowed, "Reset allowed only in server mode")
 		return
 	}
-
 	for _, ap := range ap.serverProxyData.actions {
-		cleanUpAP(ap)
+		cleanUpAP(ap.remoteProxy)
 	}
-
-	ap.serverProxyData.actions = make(map[string]*ActionProxy)
-
+	ap.serverProxyData.actions = make(map[RemoteAPKey]*RemoteAPValue)
 	sendOK(w)
 }

@@ -32,7 +32,7 @@ func TestSendStopRequest(t *testing.T) {
 
 	t.Run("clientProxyData is nil", func(t *testing.T) {
 		ap := &ActionProxy{}
-		err := ap.SendStopRequest()
+		err := SendStopRequest(ap)
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "runtime not set as client")
 	})
@@ -53,7 +53,7 @@ func TestSendStopRequest(t *testing.T) {
 			},
 		}
 
-		err := ap.SendStopRequest()
+		err := SendStopRequest(ap)
 		require.NoError(t, err)
 	})
 }
