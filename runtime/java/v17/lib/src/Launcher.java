@@ -19,20 +19,21 @@
  import java.lang.reflect.Field;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
+ import java.nio.charset.StandardCharsets;
  import java.util.Collections;
  import java.util.HashMap;
  import java.util.Map;
  import com.google.gson.*;
  import java.security.Permission;
  import java.lang.reflect.InvocationTargetException;
- 
+
  class Launcher {
- 
+
      private static String mainClassName = "Main";
      private static String mainMethodName = "main";
      private static Class mainClass = null;
      private static Method mainMethod = null;
- 
+
      @SuppressWarnings({ "unchecked", "rawtypes" })
      private static void augmentEnv(Map<String, String> newEnv) {
          try {
@@ -47,7 +48,7 @@
              }
          } catch (Exception e) {}
      }
- 
+
      private static void initMain(String[] args) throws Exception {
          if(args.length > 0)
              mainClassName = args[0];
@@ -57,7 +58,7 @@
                  mainMethodName = args[0].substring(pos+1);
              mainClassName = args[0].substring(0,pos);
          }
- 
+
          mainClass = Class.forName(mainClassName);
          Method[] methods = mainClass.getDeclaredMethods();
          Boolean existMain = false;
@@ -71,16 +72,16 @@
              throw new NoSuchMethodException(mainMethodName);
          }
      }
- 
+
      private static Object invokeMain(JsonElement arg, Map<String, String> env) throws Exception {
          augmentEnv(env);
          return mainMethod.invoke(null, arg);
      }
- 
- 
+
+
      /*
      Use of SecurityManager has been Deprrecated from JDK17. Alternatives to prevent System.exit() are not yet available.
-         
+
      private static SecurityManager defaultSecurityManager = null;
      private static void installSecurityManager() {
          defaultSecurityManager = System.getSecurityManager();
@@ -89,12 +90,12 @@
              public void checkPermission(Permission p) {
                  // Not throwing means accepting anything.
              }
- 
+
              @Override
              public void checkPermission(Permission p, Object ctx) {
                  // Not throwing means accepting anything.
              }
- 
+
              @Override
              public void checkExit(int status) {
                  super.checkExit(status);
@@ -102,31 +103,31 @@
              }
          });
      }
- 
+
      private static void uninstallSecurityManager() {
          if(defaultSecurityManager != null) {
              System.setSecurityManager(defaultSecurityManager);
          }
      }
      */
- 
+
      public static void main(String[] args) throws Exception {
- 
+
          initMain(args);
- 
+
          // exit after main class loading if "exit" specified
          // used to check healthy launch after init
          if(args.length >1 && args[1] == "-exit")
              System.exit(0);
- 
+
          // install a security manager to prevent exit
          //installSecurityManager();
- 
+
          BufferedReader in = new BufferedReader(
-                 new InputStreamReader(System.in, "UTF-8"));
+                 new InputStreamReader(System.in, StandardCharsets.UTF_8));
          PrintWriter out = new PrintWriter(
                  new OutputStreamWriter(
-                         new FileOutputStream("/dev/fd/3"), "UTF-8"));
+                         new FileOutputStream("/dev/fd/3"), StandardCharsets.UTF_8));
          JsonParser json = new JsonParser();
          JsonObject emptyForJsonObject = json.parse("{}").getAsJsonObject();
          JsonArray emptyForJsonArray = json.parse("[]").getAsJsonArray();
@@ -140,7 +141,7 @@
                  JsonElement element = json.parse(input);
                  JsonObject payloadForJsonObject = emptyForJsonObject.deepCopy();
                  JsonArray payloadForJsonArray = emptyForJsonArray.deepCopy();
-                 HashMap<String, String> env = new HashMap<String, String>();
+                 Map<String, String> env = new HashMap<>();
                  if (element.isJsonObject()) {
                      // collect payload and environment
                      for (Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
@@ -158,7 +159,7 @@
                      }
                      augmentEnv(env);
                  }
- 
+
                  Method m = null;
                  if (isJsonObjectParam) {
                      m = mainClass.getMethod(mainMethodName, new Class[] { JsonObject.class });
@@ -171,7 +172,7 @@
                      throw new NoSuchMethodException(mainMethodName);
                  }
                  mainMethod = m;
- 
+
                  Object response;
                  if (isJsonObjectParam) {
                      response = invokeMain(payloadForJsonObject, env);
@@ -208,4 +209,4 @@
          }
          //uninstallSecurityManager();
      }
- } 
+ }
