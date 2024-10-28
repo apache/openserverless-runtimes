@@ -37,7 +37,7 @@ def find_with_ext(basedir, ext):
     return result
 
 def javac(sources, classpath, target_dir):
-    cmd = [ "javac", 
+    cmd = [ "javac",
             "-encoding", "UTF-8",
             "-cp", ":".join(classpath),
             "-d", target_dir
@@ -64,7 +64,7 @@ def javac(sources, classpath, target_dir):
     return ok
 
 def build(source_dir, classpath, target_dir, mainClass):
- 
+
     # copy exec to <main>.java if it is there
     src = "%s/exec" % source_dir
     if os.path.isfile(src):
@@ -78,8 +78,8 @@ def build(source_dir, classpath, target_dir, mainClass):
         jars = find_with_ext(source_dir, ".jar")
         logging.info("compiling  %d sources with %d jars", len(sources),len(jars))
         return javac(sources, classpath+jars, source_dir)
-    
-    return True 
+
+    return True
 
 def write_exec(target_dir, classpath, main):
     launcher = "%s/exec" % target_dir
@@ -106,9 +106,9 @@ def assemble(argv):
     logging.info("%s %s", mainClass, mainMethod)
     source_dir = os.path.abspath(argv[2])
     target_dir = os.path.abspath(argv[3])
-    classpath = ["/usr/java/lib/launcher.jar", "/usr/java/lib/gson-2.9.0.jar"]
+    classpath = ["/usr/java/lib/launcher.jar", "/usr/java/lib/gson-2.11.0.jar"]
 
-    # build   
+    # build
     if build(source_dir, classpath, target_dir, mainClass):
         shutil.rmtree(target_dir)
         shutil.move(source_dir, target_dir)
@@ -117,11 +117,11 @@ def assemble(argv):
         write_exec(target_dir, classpath, "%s#%s" % (mainClass, mainMethod))
         # launch it to check it can load with immediate exit - it should not produce any output
         subprocess.call(["%s/exec" % target_dir, "-exit"])
-    
+
     sys.stdout.flush()
     sys.stderr.flush()
-    
-if __name__ == '__main__':    
+
+if __name__ == '__main__':
     if len(sys.argv) < 4:
         sys.stdout.write("usage: <main-class> <source-dir> <target-dir>\n")
         sys.exit(1)

@@ -45,20 +45,20 @@ WORKDIR /javaAction
 
 COPY --from=builder /go/bin/proxy /bin/proxy
 
-ADD https://search.maven.org/remotecontent?filepath=com/google/code/gson/gson/2.9.0/gson-2.9.0.jar /usr/java/lib/gson-2.9.0.jar
+ADD https://search.maven.org/remotecontent?filepath=com/google/code/gson/gson/2.11.0/gson-2.11.0.jar /usr/java/lib/gson-2.11.0.jar
 ADD lib/src/Launcher.java /usr/java/src/Launcher.java
 RUN cd /usr/java/src ;\
-    javac -cp /usr/java/lib/gson-2.9.0.jar Launcher.java ;\
-    jar cvf /usr/java/lib/launcher.jar *.class    
+    javac -cp /usr/java/lib/gson-2.11.0.jar Launcher.java ;\
+    jar cvf /usr/java/lib/launcher.jar *.class
 
 ADD bin/compile /bin/compile
 RUN chmod +x /bin/compile
 
-# log initialization errors 
+# log initialization errors
 ENV OW_LOG_INIT_ERROR=1
 # the compiler
 ENV OW_COMPILER=/bin/compile
 # default name to use when a jar is submitted as action
 ENV OW_SAVE_JAR=exec.jar
 
-ENTRYPOINT ["/bin/proxy"] 
+ENTRYPOINT ["/bin/proxy"]
