@@ -77,10 +77,13 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		actionHash := runRequest.ActionCodeHash
-		innerActionProxy, ok := ap.serverProxyData.actions[actionHash]
+		if runRequest.ActionCodeHash == "" {
+			sendError(w, http.StatusBadRequest, "Action code hash not provided from client")
+			return
+		}
+		innerActionProxy, ok := ap.serverProxyData.actions[runRequest.ActionCodeHash]
 		if !ok {
-			Debug("Action hash %s not found in server proxy data", actionHash)
+			Debug("Action hash %s not found in server proxy data", runRequest.ActionCodeHash)
 			sendError(w, http.StatusNotFound, "Action not found in remote runtime. Check logs for details.")
 			return
 		}
@@ -108,7 +111,7 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 		sendError(w, http.StatusBadRequest, "command exited")
 		return
 	}
-	DebugLimit("received (remote):", response, 120)
+	DebugLimit("received (remote): ", response, 120)
 
 	// check if the answer is an object map or array
 	if ok := isJsonObjOrArray(response); !ok {
@@ -157,7 +160,7 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
 		return
 	}
-	if numBytesWritten != len(response) {
+	if numBytesWritten < len(response) {
 		Debug("(remote) Only wrote %d of %d bytes to response", numBytesWritten, len(response))
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
 		return

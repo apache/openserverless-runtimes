@@ -65,7 +65,7 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	for i, connectedID := range innerAPValue.connectedActionIDs {
 		if connectedID == stopRequest.ProxiedActionID {
 			// remove id from the array
-			removeID(innerAPValue.connectedActionIDs, i)
+			innerAPValue.connectedActionIDs = removeID(innerAPValue.connectedActionIDs, i)
 			connectedIDFound = true
 			break
 		}
@@ -76,8 +76,8 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	Debug("Removed action ID. Length of connectedActionIDs: %d", len(innerAPValue.connectedActionIDs))
 	if len(innerAPValue.connectedActionIDs) == 0 {
-
 		Debug("Action hash '%s' executor stopped", stopRequest.ActionCodeHash)
 		cleanUpAP(innerAPValue.remoteProxy)
 		delete(ap.serverProxyData.actions, stopRequest.ActionCodeHash)

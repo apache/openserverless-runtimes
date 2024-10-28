@@ -139,7 +139,6 @@ func Example_forwardRunRequest() {
 	// Main
 	// Hello, Mike
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
-	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// {"greetings":"Hello, Mike"}
 }
 
