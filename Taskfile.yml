@@ -307,3 +307,20 @@ tasks:
         else echo "Build {{.SPECIFIC_RT}}"
           task build-experimental-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
         fi
+
+  debug-experimental-proxied-runtime:
+    desc: debug a runtime
+    requires: { vars: [RT, VER] }
+    cmds:
+      - >
+        BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
+        {{.DRY}} docker run -p 8081:8080 -e OW_ACTIVATE_PROXY_SERVER=1 -ti 
+        --entrypoint=/mnt/proxy-experimental -v $PWD:/mnt        
+        "${BASEIMG}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}" -debug
+
+  debug-experimental-proxy:
+    desc: debug a runtime
+    requires: { vars: [RT, VER] }
+    cmds:
+      - export GOOS=linux; go build -o proxy-experimental
+      - task: debug-experimental-proxied-runtime
