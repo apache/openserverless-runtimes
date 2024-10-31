@@ -188,6 +188,9 @@ func (ap *ActionProxy) doServerModeRun(bodyRequest *runRequest) (RemoteRunRespon
 	if err != nil {
 		errStr = []byte(fmt.Sprintf("Error reading stderr: %v", err))
 	}
+	// clear out the files
+	os.Truncate(ap.outFile.Name(), 0)
+	os.Truncate(ap.errFile.Name(), 0)
 
 	// create the response struct
 	remoteResponse := RemoteRunResponse{
