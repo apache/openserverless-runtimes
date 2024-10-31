@@ -79,6 +79,7 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	Debug("Removed action ID. Length of connectedActionIDs: %d", len(innerAPValue.connectedActionIDs))
 	if len(innerAPValue.connectedActionIDs) == 0 {
 		Debug("Action hash '%s' executor stopped", stopRequest.ActionCodeHash)
+		close(innerAPValue.runRequestQueue)
 		cleanUpAP(innerAPValue.remoteProxy)
 		delete(ap.serverProxyData.actions, stopRequest.ActionCodeHash)
 	}

@@ -56,6 +56,7 @@ type RemoteAPKey = string
 type RemoteAPValue struct {
 	remoteProxy        *ActionProxy
 	connectedActionIDs []string
+	runRequestQueue    chan *remoteRunChanPayload
 }
 
 // ActionProxy is the container of the data specific to a server

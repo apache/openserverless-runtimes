@@ -154,7 +154,11 @@ func doRemoteInit(ap *ActionProxy, request initRequest, w http.ResponseWriter) b
 	ap.serverProxyData.actions[actionCodeHash] = &RemoteAPValue{
 		remoteProxy:        innerActionProxy,
 		connectedActionIDs: []string{request.ProxiedActionID},
+		runRequestQueue:    make(chan *remoteRunChanPayload, 50), // size could be determined empirically
 	}
+
+	Debug("Started listening to run requests for AP with code hash %s...", actionCodeHash)
+	go startListenToRunRequests(innerActionProxy, ap.serverProxyData.actions[actionCodeHash].runRequestQueue)
 
 	Debug("Added action id %s to action hash %s", request.ProxiedActionID, actionCodeHash)
 	return true

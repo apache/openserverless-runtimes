@@ -36,6 +36,16 @@ type ErrResponse struct {
 	Error string `json:"error"`
 }
 
+type remoteRunChanPayload struct {
+	runRequest *runRequest
+	respChan   chan *ServerRunResponseChanPayload
+}
+type ServerRunResponseChanPayload struct {
+	runResp *RemoteRunResponse
+	status  int
+	err     error
+}
+
 type RemoteRunResponse struct {
 	Response json.RawMessage `json:"response"`
 	Out      string          `json:"out"`
@@ -56,6 +66,11 @@ func sendError(w http.ResponseWriter, code int, cause string) {
 }
 
 func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
+	if ap.proxyMode == ProxyModeNone {
+		ap.doRun(w, r)
+		return
+	}
+
 	if ap.proxyMode == ProxyModeClient {
 		ap.ForwardRunRequest(w, r)
 		return
@@ -88,17 +103,63 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		innerActionProxy.remoteProxy.doServerModeRun(w, &runRequest)
-		return
-	}
+		// Enqueue the request to be processed by the inner proxy one at a time
+		responseChan := make(chan *ServerRunResponseChanPayload)
 
-	ap.doRun(w, r)
+		innerActionProxy.runRequestQueue <- &remoteRunChanPayload{runRequest: &runRequest, respChan: responseChan}
+
+		res := <-responseChan
+		if res.err != nil {
+			sendError(w, res.status, res.err.Error())
+			return
+		}
+
+		// write response
+		// turn response struct into json
+		responsePayload, err := json.Marshal(res.runResp)
+		if err != nil {
+			sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error marshalling response: %v", err))
+			return
+		}
+
+		// write response
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(responsePayload)))
+		numBytesWritten, err := w.Write(responsePayload)
+
+		// handle writing errors
+		if err != nil {
+			Debug("(remote) Error writing response: %v", err)
+			sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
+			return
+		}
+		if numBytesWritten < len(responsePayload) {
+			Debug("(remote) Only wrote %d of %d bytes to response", numBytesWritten, len(responsePayload))
+			sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(responsePayload)))
+			return
+		}
+
+		// flush output if possible
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+
+		close(responseChan)
+	}
 }
 
-func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRequest) {
-	body, ok := prepareRemoteRunBody(ap, w, bodyRequest)
-	if !ok {
-		return
+func startListenToRunRequests(ap *ActionProxy, runRequestQueue chan *remoteRunChanPayload) {
+	for runReq := range runRequestQueue {
+		remoteResponse, status, err := ap.doServerModeRun(runReq.runRequest)
+		runReq.respChan <- &ServerRunResponseChanPayload{runResp: &remoteResponse, status: status, err: err}
+	}
+}
+
+func (ap *ActionProxy) doServerModeRun(bodyRequest *runRequest) (RemoteRunResponse, int, error) {
+	Debug("Executing run request in server mode")
+	body, status, err := prepareRemoteRunBody(ap, bodyRequest)
+	if err != nil {
+		return RemoteRunResponse{}, status, err
 	}
 
 	// execute the action
@@ -108,15 +169,13 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 	if err != nil {
 		Debug("WARNING! Command exited")
 		ap.theExecutor = nil
-		sendError(w, http.StatusBadRequest, "command exited")
-		return
+		return RemoteRunResponse{}, http.StatusBadRequest, fmt.Errorf("command exited")
 	}
 	DebugLimit("received (remote): ", response, 120)
 
 	// check if the answer is an object map or array
 	if ok := isJsonObjOrArray(response); !ok {
-		sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
-		return
+		return RemoteRunResponse{}, http.StatusBadGateway, fmt.Errorf("the action did not return a dictionary or array")
 	}
 
 	// Get the stdout and stderr from the executor
@@ -137,34 +196,7 @@ func (ap *ActionProxy) doServerModeRun(w http.ResponseWriter, bodyRequest *runRe
 		Err:      string(errStr),
 	}
 
-	// turn response struct into json
-	responsePayload, err := json.Marshal(remoteResponse)
-	if err != nil {
-		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error marshalling response: %v", err))
-		return
-	}
-
-	// write response
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(responsePayload)))
-	numBytesWritten, err := w.Write(responsePayload)
-
-	// flush output if possible
-	if f, ok := w.(http.Flusher); ok {
-		f.Flush()
-	}
-
-	// handle writing errors
-	if err != nil {
-		Debug("(remote) Error writing response: %v", err)
-		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
-		return
-	}
-	if numBytesWritten < len(response) {
-		Debug("(remote) Only wrote %d of %d bytes to response", numBytesWritten, len(response))
-		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
-		return
-	}
+	return remoteResponse, 0, nil
 }
 
 func (ap *ActionProxy) doRun(w http.ResponseWriter, r *http.Request) {
@@ -244,26 +276,23 @@ func isJsonObjOrArray(response []byte) bool {
 	return true
 }
 
-func prepareRemoteRunBody(ap *ActionProxy, w http.ResponseWriter, bodyRequest *runRequest) ([]byte, bool) {
+func prepareRemoteRunBody(ap *ActionProxy, bodyRequest *runRequest) ([]byte, int, error) {
 	var bodyBuf bytes.Buffer
 	err := json.NewEncoder(&bodyBuf).Encode(bodyRequest)
 	if err != nil {
-		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error encoding proxied run body: %v", err))
-		return nil, false
+		return nil, http.StatusBadRequest, fmt.Errorf("error encoding proxied run body: %v", err)
 	}
 	body := bytes.Replace(bodyBuf.Bytes(), []byte("\n"), []byte(""), -1)
 
 	// check if you have an action
 	if ap.theExecutor == nil {
-		sendError(w, http.StatusInternalServerError, "no action defined yet")
-		return nil, false
+		return nil, http.StatusInternalServerError, fmt.Errorf("no action defined yet")
 	}
 
 	// check if the process exited
 	if ap.theExecutor.Exited() {
-		sendError(w, http.StatusInternalServerError, "command exited")
-		return nil, false
+		return nil, http.StatusInternalServerError, fmt.Errorf("command exited")
 	}
 
-	return body, true
+	return body, 0, nil
 }
