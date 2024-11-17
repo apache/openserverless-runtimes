@@ -20,8 +20,10 @@ package openwhisk
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -32,6 +34,8 @@ type stopRequest struct {
 	ActionCodeHash  string `json:"actionCodeHash,omitempty"`
 	ProxiedActionID string `json:"proxiedActionID,omitempty"`
 }
+
+var setupActionPath = "tmp"
 
 func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	if ap.proxyMode != ProxyModeServer {
@@ -77,6 +81,13 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Debug("Removed action ID. Length of connectedActionIDs: %d", len(innerAPValue.connectedActionIDs))
+
+	if isSetupActionRunning(stopRequest.ActionCodeHash) {
+		// start timer
+		// TODO
+		sendOK(w)
+		return
+	}
 	if len(innerAPValue.connectedActionIDs) == 0 {
 		Debug("Action hash '%s' executor stopped", stopRequest.ActionCodeHash)
 		close(innerAPValue.runRequestQueue)
@@ -98,4 +109,20 @@ func removeID(idArray []string, index int) []string {
 	ret := make([]string, 0)
 	ret = append(ret, idArray[:index]...)
 	return append(ret, idArray[index+1:]...)
+}
+
+func isSetupActionRunning(actionCodeHash string) bool {
+	// A setup action is running if
+	// - the file "/tmp/{hash}" exists
+	// - the file "/tmp/{hash}_done" does not exist
+
+	path := filepath.Join(setupActionPath, actionCodeHash)
+	_, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false
+	}
+
+	setupDoneFile := path + "_done"
+	_, err = os.Stat(setupDoneFile)
+	return errors.Is(err, fs.ErrNotExist)
 }
