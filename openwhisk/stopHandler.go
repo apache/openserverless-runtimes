@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 type stopRequest struct {
@@ -82,20 +83,22 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 
 	Debug("Removed action ID. Length of connectedActionIDs: %d", len(innerAPValue.connectedActionIDs))
 
-	if isSetupActionRunning(stopRequest.ActionCodeHash) {
-		// start timer
-		// TODO
-		sendOK(w)
-		return
-	}
 	if len(innerAPValue.connectedActionIDs) == 0 {
-		Debug("Action hash '%s' executor stopped", stopRequest.ActionCodeHash)
-		close(innerAPValue.runRequestQueue)
-		cleanUpAP(innerAPValue.remoteProxy)
-		delete(ap.serverProxyData.actions, stopRequest.ActionCodeHash)
+		if isSetupActionRunning(stopRequest.ActionCodeHash) {
+			go ap.timedDelete(stopRequest.ActionCodeHash)
+		} else {
+			stopAndDelete(ap, innerAPValue, stopRequest.ActionCodeHash)
+		}
 	}
 
 	sendOK(w)
+}
+
+func stopAndDelete(ap *ActionProxy, innerAPValue *RemoteAPValue, actionCodeHash string) {
+	Debug("Action hash '%s' executor stopped", actionCodeHash)
+	close(innerAPValue.runRequestQueue)
+	cleanUpAP(innerAPValue.remoteProxy)
+	delete(ap.serverProxyData.actions, actionCodeHash)
 }
 
 func cleanUpAP(ap *ActionProxy) {
@@ -125,4 +128,23 @@ func isSetupActionRunning(actionCodeHash string) bool {
 	setupDoneFile := path + "_done"
 	_, err = os.Stat(setupDoneFile)
 	return errors.Is(err, fs.ErrNotExist)
+}
+
+var timerToDeletion = 10 * time.Minute
+
+func (serverAp *ActionProxy) timedDelete(actionCodeHash string) {
+	innerAPValue, ok := serverAp.serverProxyData.actions[actionCodeHash]
+	if !ok {
+		return
+	}
+
+	if len(innerAPValue.connectedActionIDs) > 0 {
+		return
+	}
+
+	<-time.After(timerToDeletion)
+
+	if len(innerAPValue.connectedActionIDs) == 0 {
+		stopAndDelete(serverAp, innerAPValue, actionCodeHash)
+	}
 }
