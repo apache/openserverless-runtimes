@@ -164,14 +164,14 @@ func (serverAp *ActionProxy) timedDelete(actionCodeHash string) {
 		}
 	}
 
-	Debug("Starting wait cycle for hash '%s'", actionCodeHash)
+	Debug("Starting wait cycle for stopping hash '%s'", actionCodeHash)
 	<-time.After(timerDuration)
-	Debug("Ended wait cycle for hash '%s'", actionCodeHash)
+	Debug("Ended wait cycle for stopping hash '%s'", actionCodeHash)
 
 	if len(innerAPValue.connectedActionIDs) == 0 {
 		stopAndDelete(serverAp, innerAPValue, actionCodeHash)
 		return
 	}
 
-	Debug("Skipped deletion for hash '%s' as new actions joined.", actionCodeHash)
+	Debug("Stopping request for hash '%s' skipped, as new actions joined.", actionCodeHash)
 }
