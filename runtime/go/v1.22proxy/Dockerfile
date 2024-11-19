@@ -19,7 +19,7 @@
 #ARG COMMON=missing:missing
 #FROM ${COMMON} AS builder
 
-FROM apache/openserverless-runtime-common:common1.18.3 AS builder
+FROM apache/openserverless-runtime-common:common1.18.4 AS builder
 
 FROM golang:1.22-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.22
