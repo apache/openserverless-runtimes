@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-version: '3'
+version: "3"
 
 dotenv: [.env]
 
@@ -34,26 +34,25 @@ vars:
   J: "{}"
   RUNTIMES: "go,nodejs,php,python,java"
   EXPERIMENTAL_RUNTIMES: "python"
-  COMMIT_ID: 
+  COMMIT_ID:
     sh: git rev-parse --short HEAD
 
 tasks:
-
   default:
-  - task --list-all
+    - task --list-all
 
   setup:
-  # check we are running in ubuntu 
-  - grep '^ID=' /etc/os-release | grep -i ubuntu
-  - if ! which python3 | grep python3 ; then echo "python3 not found" ; exit 1; fi
-  - sudo apt-get -y install python3-pip python3-virtualenv
-  - python3 -m pip install ipython watchdog requests cram
-  
+    # check we are running in ubuntu
+    - grep '^ID=' /etc/os-release | grep -i ubuntu
+    - if ! which python3 | grep python3 ; then echo "python3 not found" ; exit 1; fi
+    - sudo apt-get -y install python3-pip python3-virtualenv
+    - python3 -m pip install ipython watchdog requests cram
+
   image-tag:
     silent: true
     cmds:
-      - git tag -d $(git tag) 
-      - | 
+      - git tag -d $(git tag)
+      - |
         if test -n "{{.RT}}"
         then git tag -f {{.RT}}.$(date +%y%m%d%H%M)
         else git tag -f $(date +%y%m%d%H%M)
@@ -63,9 +62,9 @@ tasks:
   common-tag:
     silent: true
     cmds:
-      - git tag -d $(git tag) 
+      - git tag -d $(git tag)
       - git tag -f common-$(date +%y%m%d%H%M)
-        
+
       - env PAGER= git tag
 
   experimental-tag:
@@ -73,55 +72,55 @@ tasks:
     cmds:
       - git tag -d $(git tag)
       - git tag -f experimental-$(date +%y%m%d%H%M)
-        
-      - env PAGER= git tag            
+
+      - env PAGER= git tag
 
   compile: go build -o proxy
 
-  test: 
+  test:
     dir: openwhisk
     cmds:
-    - go test -v
+      - go test -v
 
-  docker-login: 
+  docker-login:
     ignore_error: true
     cmds:
-    - echo ${MY_DOCKER_HUB_TOKEN:-$DOCKER_HUB_TOKEN} | docker login -u ${MY_DOCKER_HUB_USER:-$DOCKER_HUB_USER} --password-stdin registry.hub.docker.com
-    - >
-      {{.DRY}} docker run -it --rm --privileged tonistiigi/binfmt --install all
-    - >
-      {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
+      - echo ${MY_DOCKER_HUB_TOKEN:-$DOCKER_HUB_TOKEN} | docker login -u ${MY_DOCKER_HUB_USER:-$DOCKER_HUB_USER} --password-stdin registry.hub.docker.com
+      - >
+        {{.DRY}} docker run -it --rm --privileged tonistiigi/binfmt --install all
+      - >
+        {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
 
   clean-images:
-    - docker images -a | grep ghcr.io/nuvolaris | awk '{print $3}' | xargs docker rmi -f 
+    - docker images -a | grep ghcr.io/nuvolaris | awk '{print $3}' | xargs docker rmi -f
     - yes | docker buildx prune
 
   build-common:
     dir: "runtime/common/{{.COMMON_VER}}"
     cmds:
-    - |
-      if test -n "{{.PUSH}}"
-      then {{.DRY}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-      else {{.DRY}} docker buildx build -t "{{.COMMON}}" . --load
-      fi
+      - |
+        if test -n "{{.PUSH}}"
+        then {{.DRY}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+        else {{.DRY}} docker buildx build -t "{{.COMMON}}" . --load
+        fi
 
   build-runtime:
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - |
-      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-      if test -n "{{.PUSH}}"
-      then 
-        {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push    
-      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
-      fi
-      echo "Built $RUNTIME"
+      - |
+        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+        RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+        if test -n "{{.PUSH}}"
+        then 
+          {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push    
+        else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
+        fi
+        echo "Built $RUNTIME"
 
   build-lang:
     desc: build images for one runtime
-    requires: {vars: [RT] }
+    requires: { vars: [RT] }
     vars:
       DIRS:
         sh: ls -d  runtime/{{.RT}}/v* || echo ""
@@ -133,14 +132,14 @@ tasks:
 
   build:
     silent: true
-    requires: { vars: [TAG,RUNTIMES] } 
+    requires: { vars: [TAG, RUNTIMES] }
     vars:
       RT_REGEX:
         sh: echo "{{.RUNTIMES}}" | tr ',' '|'
       SPECIFIC_RT:
         sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
     cmds:
-      - |        
+      - |
         if [ -z "{{.SPECIFIC_RT}}" ];
         then
           echo "==> BUILDING RUNTIMES {{.RUNTIMES}}"
@@ -153,33 +152,33 @@ tasks:
         fi
 
   build-and-push:
-  - task build PUSH=y DRY={{.DRY}}
+    - task build PUSH=y DRY={{.DRY}}
 
   run:
     desc: run a runtime
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - >
-      {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-         
+      - >
+        {{.DRY}} docker run -p 8080:8080 -ti "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+
   debug:
     desc: debug a runtime
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - >
-      {{.DRY}} docker run -p 8080:8080 -ti 
-      --entrypoint=/bin/bash -v $PWD:/mnt
-      -e OW_COMPILER=/mnt/bin/compile
-      "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-      
+      - >
+        {{.DRY}} docker run -p 8080:8080 -ti 
+        --entrypoint=/bin/bash -v $PWD:/mnt
+        -e OW_COMPILER=/mnt/bin/compile
+        "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+
   debug-experimental:
     desc: debug a runtime
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/experimental/{{.RT}}/{{.VER}}"
     cmds:
-    - >
+      - >
         BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
         {{.DRY}} docker run -p 8080:8080 -ti 
         --entrypoint=/bin/bash -v $PWD:/mnt
@@ -188,35 +187,34 @@ tasks:
 
   init:
     desc: intialize a runtime with a test
-    requires: { vars: [RT, VER, T] } 
+    requires: { vars: [RT, VER, T] }
     cmds:
-    - python3 packages/invoke.py init packages/{{.RT}}/{{.T}}.zip
+      - python3 packages/invoke.py init packages/{{.RT}}/{{.T}}.zip
 
   invoke:
     desc: invoke a runtime listening in port 8080, optionally with J=<json>
     cmds:
-    - python3 packages/invoke.py run '{{.J}}'
-
+      - python3 packages/invoke.py run '{{.J}}'
 
   render-runtime:
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
-    - |
-      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-      ENVVER=$(echo "{{.VER}}" | tr '.' '_' | tr '[:upper:][:lower:]' '[:lower:][:upper:]')
-      ENVRT=$(echo "{{.RT}}" | tr '[a-zA-Z]' '[A-Za-z]')    
-      if test -n "{{.PUSH}}"
-      then 
-        {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"  >> {{.BASE_DIR}}/runtimes.env
-      else {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"
-      fi
-      echo "Rendered $RUNTIME"
+      - |
+        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+        RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+        ENVVER=$(echo "{{.VER}}" | tr '.' '_' | tr '[:upper:][:lower:]' '[:lower:][:upper:]')
+        ENVRT=$(echo "{{.RT}}" | tr '[a-zA-Z]' '[A-Za-z]')    
+        if test -n "{{.PUSH}}"
+        then 
+          {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"  >> {{.BASE_DIR}}/runtimes.env
+        else {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"
+        fi
+        echo "Rendered $RUNTIME"
 
   render-lang:
     desc: render images for one runtime
-    requires: {vars: [RT,BASE_DIR] }
+    requires: { vars: [RT, BASE_DIR] }
     vars:
       DIRS:
         sh: ls -d  runtime/{{.RT}}/v* || echo ""
@@ -229,16 +227,16 @@ tasks:
 
   render:
     silent: true
-    requires: { vars: [TAG,RUNTIMES] } 
+    requires: { vars: [TAG, RUNTIMES] }
     vars:
       RT_REGEX:
         sh: echo "{{.RUNTIMES}}" | tr ',' '|'
       SPECIFIC_RT:
         sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
       BASE_DIR:
-        sh: pwd  
+        sh: pwd
     cmds:
-      - |      
+      - |
         rm -f runtimes.env
         echo "OPS_RUNTIME_PREFIX={{.REPO_PATH}}" >> runtimes.env
         echo "==> RENDERING RUNTIMES {{.RUNTIMES}}"
@@ -249,7 +247,7 @@ tasks:
 
   generate-runtimes:
     silent: true
-    dotenv: 
+    dotenv:
       - runtimes.env
     cmds:
       - cat runtimes.json.tpl | envsubst  > runtimes.json
@@ -263,23 +261,23 @@ tasks:
         task generate-runtimes
 
   build-experimental-runtime:
-    requires: { vars: [RT, VER] } 
+    requires: { vars: [RT, VER] }
     dir: "runtime/experimental/{{.RT}}/{{.VER}}"
     cmds:
-    - |
-      BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-      RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-      PLATFORMS=$(cat platforms.txt)
-      if test -n "{{.PUSH}}"
-      then 
-        {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" --platform "$PLATFORMS" . --push
-      else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" . --load
-      fi
-      echo "Built $RUNTIME on platforms $PLATFORMS"        
+      - |
+        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
+        RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
+        PLATFORMS=$(cat platforms.txt)
+        if test -n "{{.PUSH}}"
+        then 
+          {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" --platform "$PLATFORMS" . --push
+        else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" . --load
+        fi
+        echo "Built $RUNTIME on platforms $PLATFORMS"
 
   build-experimental-lang:
     desc: build images for experimental runtimes
-    requires: {vars: [RT] }
+    requires: { vars: [RT] }
     vars:
       DIRS:
         sh: ls -d runtime/experimental/{{.RT}}/v* || echo ""
@@ -291,14 +289,14 @@ tasks:
 
   build-experimental-runtimes:
     silent: true
-    requires: { vars: [TAG,EXPERIMENTAL_RUNTIMES] } 
+    requires: { vars: [TAG, EXPERIMENTAL_RUNTIMES] }
     vars:
       RT_REGEX:
         sh: echo "{{.EXPERIMENTAL_RUNTIMES}}" | tr ',' '|'
       SPECIFIC_RT:
         sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
     cmds:
-      - |        
+      - |
         if [ -z "{{.SPECIFIC_RT}}" ];
         then
           echo "==> BUILDING RUNTIMES {{.EXPERIMENTAL_RUNTIMES}}"
@@ -308,4 +306,21 @@ tasks:
           done
         else echo "Build {{.SPECIFIC_RT}}"
           task build-experimental-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
-        fi                        
+        fi
+
+  debug-experimental-proxied-runtime:
+    desc: debug a runtime
+    requires: { vars: [RT, VER] }
+    cmds:
+      - >
+        BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
+        {{.DRY}} docker run -p 8081:8080 -e OW_ACTIVATE_PROXY_SERVER=1 -ti 
+        --entrypoint=/mnt/proxy-experimental -v $PWD:/mnt        
+        "${BASEIMG}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}" -debug
+
+  debug-experimental-proxy:
+    desc: debug a runtime
+    requires: { vars: [RT, VER] }
+    cmds:
+      - export GOOS=linux; go build -o proxy-experimental
+      - task: debug-experimental-proxied-runtime

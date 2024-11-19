@@ -91,10 +91,12 @@ func Example_forwardInitRequest() {
 	ts.Close()
 	dump(log)
 
-	fmt.Println(w.Body.String())
+	fmt.Print(w.Body.String())
+	fmt.Println(clientAP.clientProxyData.ActionCodeHash != "")
 
 	// Output:
 	// {"ok":true}
+	// true
 }
 
 func Example_forwardRunRequest() {
@@ -137,8 +139,59 @@ func Example_forwardRunRequest() {
 	// Main
 	// Hello, Mike
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
-	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// {"greetings":"Hello, Mike"}
+}
+
+func Example_multipleForwardRunRequest() {
+	clientLog, _ := os.CreateTemp("", "log")
+	// create a client ActionProxy
+	clientAP := NewActionProxy("", "", clientLog, clientLog, ProxyModeClient)
+
+	// create a server ActionProxy
+	compiler, _ := filepath.Abs("common/gobuild.py")
+	serverAP := NewActionProxy("./action", compiler, nil, nil, ProxyModeServer)
+
+	// start the server
+	ts := httptest.NewServer(serverAP)
+
+	// create a request body
+	body := initBinary("_test/hello.zip", "@"+ts.URL)
+	initBody := bytes.NewBufferString(body)
+	w := httptest.NewRecorder()
+
+	// run the client init request
+	clientAP.initHandler(w, httptest.NewRequest(http.MethodPost, "/init", initBody))
+	fmt.Print(w.Body.String())
+
+	results := make([]string, 2)
+	// run the client run request
+	go func() {
+		runW := httptest.NewRecorder()
+		runBody1 := bytes.NewBufferString(`{"value": {"name": "Mike1"}}`)
+		clientAP.runHandler(runW, httptest.NewRequest(http.MethodPost, "/run", runBody1))
+		results[0] = runW.Body.String()
+	}()
+
+	go func() {
+		runW := httptest.NewRecorder()
+		runBody2 := bytes.NewBufferString(`{"value": {"name": "Mike2"}}`)
+		clientAP.runHandler(runW, httptest.NewRequest(http.MethodPost, "/run", runBody2))
+		results[1] = runW.Body.String()
+	}()
+
+	// stop the server
+	runtime.Gosched()
+	// wait 2 seconds before declaring a test done
+	time.Sleep(2 * time.Second)
+	ts.Close()
+	os.Remove(clientLog.Name())
+
+	fmt.Println(results[0])
+	fmt.Println(results[1])
+	// Output:
+	// {"ok":true}
+	// {"greetings":"Hello, Mike1"}
+	// {"greetings":"Hello, Mike2"}
 }
 
 func TestParseMainFlag(t *testing.T) {

@@ -48,7 +48,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 	}
 
 	newBody := runRequest
-	newBody.ProxiedActionID = ap.clientProxyData.ProxyActionID
+	newBody.ActionCodeHash = ap.clientProxyData.ActionCodeHash
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(newBody)
@@ -88,12 +88,15 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 				return err
 			}
 
-			// Write the logs to the client logs
+			// Write the logs to the client logs.
 			if _, err := ap.outFile.WriteString(remoteReponse.Out); err != nil {
 				Debug("Error writing remote response out to client: %v", err)
 			}
-			if _, err := ap.errFile.WriteString(remoteReponse.Err); err != nil {
-				Debug("Error writing remote response err to client: %v", err)
+			// Avoid spamming just the output guard if there is no error string
+			if remoteReponse.Err != OutputGuard {
+				if _, err := ap.errFile.WriteString(remoteReponse.Err); err != nil {
+					Debug("Error writing remote response err to client: %v", err)
+				}
 			}
 
 			// Keep the response body only
@@ -109,7 +112,7 @@ func (ap *ActionProxy) ForwardRunRequest(w http.ResponseWriter, r *http.Request)
 		return nil
 	}
 
-	Debug("Forwarding run request with id %s to %s", newBody.ProxiedActionID, ap.clientProxyData.ProxyURL.String())
+	Debug("Forwarding run request with to %s", ap.clientProxyData.ProxyURL.String())
 	proxy.ServeHTTP(w, r)
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
@@ -138,11 +141,14 @@ func (ap *ActionProxy) ForwardInitRequest(w http.ResponseWriter, r *http.Request
 	newBody := initRequest
 	newBody.Value.Main = ap.clientProxyData.MainFunc
 	newBody.ProxiedActionID = ap.clientProxyData.ProxyActionID
+
 	codeHash := calculateCodeHash(initRequest.Value.Code)
 	if newBody.Value.Env == nil {
 		newBody.Value.Env = make(map[string]interface{})
 	}
 	newBody.Value.Env[OW_CODE_HASH] = codeHash
+	ap.clientProxyData.ActionCodeHash = codeHash
+	Debug("Set code hash: %s", codeHash)
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(newBody)

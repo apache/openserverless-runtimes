@@ -41,13 +41,22 @@ const (
 )
 
 type ClientProxyData struct {
-	ProxyActionID string
-	MainFunc      string
-	ProxyURL      url.URL
+	ProxyActionID  string
+	ActionCodeHash string
+	MainFunc       string
+	ProxyURL       url.URL
 }
 
 type ServerProxyData struct {
-	actions map[string]*ActionProxy
+	actions map[RemoteAPKey]*RemoteAPValue
+}
+
+type RemoteAPKey = string
+
+type RemoteAPValue struct {
+	remoteProxy        *ActionProxy
+	connectedActionIDs []string
+	runRequestQueue    chan *remoteRunChanPayload
 }
 
 // ActionProxy is the container of the data specific to a server

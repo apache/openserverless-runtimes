@@ -100,8 +100,11 @@ func doInit(ts *httptest.Server, message string) {
 	}
 }
 
-func doStop(ts *httptest.Server, actionID string) {
-	resp, status, err := doPost(ts.URL+"/stop", fmt.Sprintf(`{"proxiedActionID":"%s"}`, actionID))
+func doStop(ts *httptest.Server, actionCodeHash string, actionID string) {
+	resp, status, err := doPost(
+		ts.URL+"/stop",
+		fmt.Sprintf(`{"proxiedActionID":"%s", "actionCodeHash":"%s"}`, actionID, actionCodeHash),
+	)
 	if err != nil {
 		fmt.Println(err)
 	} else {

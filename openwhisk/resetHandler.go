@@ -27,11 +27,14 @@ func (ap *ActionProxy) resetHandler(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	for _, ap := range ap.serverProxyData.actions {
-		cleanUpAP(ap)
+	if ap.serverProxyData.actions == nil {
+		sendOK(w)
+		return
 	}
 
-	ap.serverProxyData.actions = make(map[string]*ActionProxy)
-
+	for _, nestedAP := range ap.serverProxyData.actions {
+		cleanUpAP(nestedAP.remoteProxy)
+	}
+	ap.serverProxyData.actions = make(map[RemoteAPKey]*RemoteAPValue)
 	sendOK(w)
 }

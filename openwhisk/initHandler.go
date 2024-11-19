@@ -65,45 +65,6 @@ func (ap *ActionProxy) initHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ap.proxyMode == ProxyModeServer {
-		if ap.serverProxyData == nil {
-			ap.serverProxyData = &ServerProxyData{actions: make(map[string]*ActionProxy)}
-		}
-
-		outLog, err := os.CreateTemp("", "out-log")
-		if err != nil {
-			outLog = ap.outFile
-		}
-		errLog, err := os.CreateTemp("", "err-log")
-		if err != nil {
-			errLog = ap.errFile
-		}
-		innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, outLog, errLog, ProxyModeNone)
-		id, err := innerActionProxy.doInit(r, w)
-		if err != nil {
-			return
-		}
-		if id == "" {
-			sendError(w, http.StatusBadGateway, "Cannot identify the action in remote runtime.")
-			return
-		}
-
-		ap.serverProxyData.actions[id] = innerActionProxy
-		Debug("Added action %s to the server proxy data", id)
-
-		sendOK(w)
-		return
-	}
-
-	if _, err := ap.doInit(r, w); err != nil {
-		Debug("Error initializing action: %v", err)
-		return
-	}
-
-	sendOK(w)
-}
-
-func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, error) {
 	if ap.compiler != "" {
 		Debug("compiler: " + ap.compiler)
 	}
@@ -113,7 +74,7 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 	defer r.Body.Close()
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("%v", err))
-		return "", err
+		return
 	}
 
 	// decode request parameters
@@ -125,13 +86,89 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("Error unmarshaling request: %v", err))
-		return "", err
+		return
 	}
 
+	if ap.proxyMode == ProxyModeServer {
+		if ap.serverProxyData == nil {
+			ap.serverProxyData = &ServerProxyData{actions: make(map[RemoteAPKey]*RemoteAPValue)}
+		}
+		if ok := doRemoteInit(ap, request, w); !ok {
+			return
+		}
+
+		sendOK(w)
+		return
+	}
+
+	if err := ap.doInit(request, w); err != nil {
+		Debug("Error initializing action: %v", err)
+		return
+	}
+
+	sendOK(w)
+}
+
+// doRemoteInit initializes a remote action.
+// Returns true if the initialization was successful, false otherwise.
+func doRemoteInit(ap *ActionProxy, request initRequest, w http.ResponseWriter) bool {
+	Debug("Remote initialization started.")
+
+	// Get the action code hash from the client request
+	actionCodeHash, ok := request.Value.Env[OW_CODE_HASH].(string)
+	if !ok {
+		sendError(w, http.StatusBadGateway, "Cannot identify the action in remote runtime (missing hash).")
+		return false
+	}
+
+	if request.ProxiedActionID == "" {
+		sendError(w, http.StatusBadGateway, "Missing action id from client.")
+		return false
+	}
+
+	Debug("Action code hash extracted: %s", actionCodeHash)
+
+	// check if the action is already initialized
+	if nestedAP, ok := ap.serverProxyData.actions[actionCodeHash]; ok {
+		Debug("Action already initialized. Added action ID %s to action hash %s", request.ProxiedActionID, actionCodeHash)
+		nestedAP.connectedActionIDs = append(nestedAP.connectedActionIDs, request.ProxiedActionID)
+		sendOK(w)
+		return true
+	}
+
+	outLog, err := os.CreateTemp("", "out-log")
+	if err != nil {
+		outLog = ap.outFile
+	}
+	errLog, err := os.CreateTemp("", "err-log")
+	if err != nil {
+		errLog = ap.errFile
+	}
+
+	Debug("Creating nested action proxy...")
+	innerActionProxy := NewActionProxy(ap.baseDir, ap.compiler, outLog, errLog, ProxyModeNone)
+	if err := innerActionProxy.doInit(request, w); err != nil {
+		return false
+	}
+
+	ap.serverProxyData.actions[actionCodeHash] = &RemoteAPValue{
+		remoteProxy:        innerActionProxy,
+		connectedActionIDs: []string{request.ProxiedActionID},
+		runRequestQueue:    make(chan *remoteRunChanPayload, 50), // size could be determined empirically
+	}
+
+	Debug("Started listening to run requests for AP with code hash %s...", actionCodeHash)
+	go startListenToRunRequests(innerActionProxy, ap.serverProxyData.actions[actionCodeHash].runRequestQueue)
+
+	Debug("Added action id %s to action hash %s", request.ProxiedActionID, actionCodeHash)
+	return true
+}
+
+func (ap *ActionProxy) doInit(request initRequest, w http.ResponseWriter) error {
 	// request with empty code - stop any executor but return ok
 	if request.Value.Code == "" {
 		sendError(w, http.StatusForbidden, "Missing main/no code to execute.")
-		return "", fmt.Errorf("code in body is empty")
+		return fmt.Errorf("code in body is empty")
 	}
 
 	// passing the env to the action proxy
@@ -147,18 +184,19 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 	var buf []byte
 	if request.Value.Binary {
 		Debug("it is binary code")
-		buf, err = base64.StdEncoding.DecodeString(request.Value.Code)
+		b, err := base64.StdEncoding.DecodeString(request.Value.Code)
 		if err != nil {
 			sendError(w, http.StatusBadRequest, "cannot decode the request: "+err.Error())
-			return "", err
+			return err
 		}
+		buf = b
 	} else {
 		Debug("it is source code")
 		buf = []byte(request.Value.Code)
 	}
 
 	// if a compiler is defined try to compile
-	_, err = ap.ExtractAndCompile(&buf, main)
+	_, err := ap.ExtractAndCompile(&buf, main)
 	if err != nil {
 		if os.Getenv("OW_LOG_INIT_ERROR") == "" {
 			sendError(w, http.StatusBadGateway, err.Error())
@@ -168,7 +206,7 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "The action failed to generate or locate a binary. See logs for details.")
 		}
-		return "", err
+		return err
 	}
 
 	// start an action
@@ -182,12 +220,11 @@ func (ap *ActionProxy) doInit(r *http.Request, w http.ResponseWriter) (string, e
 			ap.errFile.Write([]byte(OutputGuard))
 			sendError(w, http.StatusBadGateway, "Cannot start action. Check logs for details.")
 		}
-		return "", err
+		return err
 	}
 	ap.initialized = true
 
-	// if it's a forwarded init it won't be empty
-	return request.ProxiedActionID, nil
+	return nil
 }
 
 // ExtractAndCompile decode the buffer and if a compiler is defined, compile it also

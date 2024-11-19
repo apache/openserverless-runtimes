@@ -52,19 +52,20 @@ func listenOnExitSignals(ap *ActionProxy, captureSignalChan chan os.Signal) {
 func signalHandler(signal os.Signal, ap *ActionProxy) {
 	Debug("Caught signal: %v", signal)
 
-	_ = ap.SendStopRequest()
+	_ = SendStopRequest(ap)
 
 	Debug("Finished remote action cleanup. Exiting.")
 }
 
-func (ap *ActionProxy) SendStopRequest() error {
+func SendStopRequest(ap *ActionProxy) error {
 	if ap.clientProxyData == nil {
-		Debug("Nothing to stop")
+		Debug("Nothing to stop, runtime not set as client")
 		return fmt.Errorf("runtime not set as client")
 	}
 
 	stopRequest := stopRequest{
 		ProxiedActionID: ap.clientProxyData.ProxyActionID,
+		ActionCodeHash:  ap.clientProxyData.ActionCodeHash,
 	}
 
 	var buf bytes.Buffer
