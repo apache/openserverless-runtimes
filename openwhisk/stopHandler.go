@@ -36,7 +36,7 @@ type stopRequest struct {
 	ProxiedActionID string `json:"proxiedActionID,omitempty"`
 }
 
-var setupActionPath = "tmp"
+var setupActionPath = "/tmp"
 
 func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 	if ap.proxyMode != ProxyModeServer {
@@ -119,8 +119,12 @@ func isSetupActionRunning(actionCodeHash string) bool {
 	// - the file "/tmp/{hash}" exists
 	// - the file "/tmp/{hash}_done" does not exist
 
-	path := filepath.Join(setupActionPath, actionCodeHash)
-	_, err := os.Stat(path)
+	path, err := filepath.Abs(filepath.Join(setupActionPath, actionCodeHash))
+	if err != nil {
+		Debug("Error getting 'setup check file' absolute path: %v", err)
+		return false
+	}
+	_, err = os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return false
 	}
@@ -130,8 +134,15 @@ func isSetupActionRunning(actionCodeHash string) bool {
 	return errors.Is(err, fs.ErrNotExist)
 }
 
-var timerToDeletion = 10 * time.Minute
+var timeToDeletion = 10 * time.Minute
 
+// timedDelete waits for a certain amount of time before deleting the action.
+// The deletion is only done if no new actions have joined.
+// The timer duration can be set using the OW_DELETE_DURATION environment variable.
+//
+// A duration string is a possibly signed sequence of decimal numbers,
+// each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m".
+// Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 func (serverAp *ActionProxy) timedDelete(actionCodeHash string) {
 	innerAPValue, ok := serverAp.serverProxyData.actions[actionCodeHash]
 	if !ok {
@@ -142,9 +153,25 @@ func (serverAp *ActionProxy) timedDelete(actionCodeHash string) {
 		return
 	}
 
-	<-time.After(timerToDeletion)
+	timerDuration := timeToDeletion
+	deleleTimerMs := os.Getenv("OW_DELETE_DURATION")
+	if deleleTimerMs != "" {
+		dur, err := time.ParseDuration(deleleTimerMs)
+		if err != nil {
+			Debug("Error parsing OW_DELETE_DURATION: %v", err)
+		} else {
+			timerDuration = dur
+		}
+	}
+
+	Debug("Starting wait cycle for hash '%s'", actionCodeHash)
+	<-time.After(timerDuration)
+	Debug("Ended wait cycle for hash '%s'", actionCodeHash)
 
 	if len(innerAPValue.connectedActionIDs) == 0 {
 		stopAndDelete(serverAp, innerAPValue, actionCodeHash)
+		return
 	}
+
+	Debug("Skipped deletion for hash '%s' as new actions joined.", actionCodeHash)
 }

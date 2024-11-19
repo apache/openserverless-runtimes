@@ -276,8 +276,8 @@ func TestStopHandler(t *testing.T) {
 		err := os.WriteFile(setupCheckFile, []byte("setup"), 0644)
 		require.NoError(t, err)
 
-		oldtimerToDeletion := timerToDeletion
-		timerToDeletion = 100 * time.Millisecond
+		oldtimerToDeletion := timeToDeletion
+		timeToDeletion = 100 * time.Millisecond
 		doStop(ts, actionCodeHash, actionID)
 
 		require.Contains(t, rootAP.serverProxyData.actions, actionCodeHash)
@@ -292,7 +292,7 @@ func TestStopHandler(t *testing.T) {
 
 		stopTestServer(ts, oldCurrentDir, buf)
 
-		timerToDeletion = oldtimerToDeletion
+		timeToDeletion = oldtimerToDeletion
 		setupActionPath = oldSetupActionPath
 	})
 }
