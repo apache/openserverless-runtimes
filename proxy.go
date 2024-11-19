@@ -86,7 +86,6 @@ func main() {
 	if useProxyClient == "1" {
 		// hook exit signals for remote action cleanup
 		go ap.HookExitSignals()
-		openwhisk.Debug("OpenWhisk ActionLoop Proxy HookExitSignals() disabled")
 	}
 
 	// start the balls rolling
