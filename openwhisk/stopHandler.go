@@ -44,6 +44,12 @@ func (ap *ActionProxy) stopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ap.serverProxyData == nil {
+		Debug("Server proxy data not initialized... a restart might have happened!")
+		sendError(w, http.StatusInternalServerError, "Server proxy data not initialized")
+		return
+	}
+
 	// parse the request
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
