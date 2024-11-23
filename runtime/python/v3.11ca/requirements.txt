@@ -29,3 +29,8 @@ ollama==0.1.9
 soccerdata==1.6.1
 ScraperFC==2.9.2
 azure-search-documents==11.4.0
+joblib==1.4.2
+lightgbm==4.5.0
+feedparser==6.0.11
+numpy==1.26.4
+scikit-learn==1.5.2

@@ -21,3 +21,8 @@ farm-haystack==1.23.0
 nltk==3.8.1
 langdetect==1.0.9
 ollama==0.1.9
+joblib==1.4.2
+lightgbm==4.5.0
+feedparser==6.0.11
+numpy==1.26.4
+scikit-learn==1.5.2
