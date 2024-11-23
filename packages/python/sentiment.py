@@ -27,7 +27,7 @@ def setup(args, status):
     run(["pip", "install", "torchvision", "--upgrade"])
     status.write("installing transformers\n")
     run(["pip", "install", "transformers", "--upgrade"])
-    status.append("loading transformers\n")
+    status.write("loading transformers\n")
     from transformers import pipeline
     pipeline("sentiment-analysis")
 

@@ -24,7 +24,7 @@ def setup(args, status):
     n = int(args.get("count", "10"))
     for i in range(1,n):
         print(f"setup {i}", file=sys.stderr)
-        status.append(f"setup level {i}")
+        status.write(f"setup level {i}")
         time.sleep(5)
 
 def main(args):
