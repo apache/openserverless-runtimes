@@ -25,30 +25,30 @@ def login(args, status):
     from huggingface_hub import login, whoami
     try:
         whoami()
-        status.append("already logged in")
+        status.write("already logged in")
         return True
     except:
        try:
           login(token=args.get("hf_token", ""))
-          status.append("logged in")
+          status.write("logged in")
           return True
        except:
-          status.append("cannot log in - did you provide a correct hf_token?")
+          status.write("cannot log in - did you provide a correct hf_token?")
           return False
 
 def setup(args, status):
-    status.append("installing huggingface_hub")
+    status.write("installing huggingface_hub")
     run(["pip", "install", "huggingface_hub"])
-    status.append("installing accelerate")  
+    status.write("installing accelerate")  
     run(["pip", "install", "accelerate"])
-    status.append("installing protobuf")  
+    status.write("installing protobuf")  
     run(["pip", "install", "protobuf"])
-    status.append("installing sentencepiece")
+    status.write("installing sentencepiece")
     run(["pip", "install", "sentencepiece"])
-    status.append("installing mistral_inference")
+    status.write("installing mistral_inference")
     run(["pip", "install", "mistral_inference"])
     if login(args, status):
-        status.append("downloading mistral model - it is 14GB be patient!")
+        status.write("downloading mistral model - it is 14GB be patient!")
         from transformers import pipeline
         pipeline("text-generation", model="mistralai/Mistral-7B-Instruct-v0.3")
 

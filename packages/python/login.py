@@ -30,17 +30,17 @@ def login(args, status):
     except:
        try:
           login(token=args.get("hf_token", ""))
-          status.append("logged in")
+          status.write("logged in")
           return True
        except:
-          status.append("cannot log in - did you provide a correct hf_token?")
+          status.write("cannot log in - did you provide a correct hf_token?")
           return False
 
 def setup(args, status):
     status.append("installing huggingface_hub")
     run(["pip", "install", "huggingface_hub"])
     if login(args, status):
-        status.append("logged in")
+        status.write("logged in")
     
 
 def main(args):

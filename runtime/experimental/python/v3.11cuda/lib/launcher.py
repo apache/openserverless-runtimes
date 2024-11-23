@@ -61,15 +61,16 @@ if hash:
   SETUP="/tmp/"+hash
 SETUP_DONE=SETUP+"_done"
 
-# lanched as a htread to execute the setup
+# lanched as a thread to execute the setup
 def setup_thread(setup, payload):
   with open(SETUP, 'w', buffering=1) as file:
     file.write("Setup thread started.\n")
     try:
       setup(payload, file)
+      Path(SETUP_DONE).touch(exist_ok=True)
+      file.write("Setup thread ended successfully.\n")
     except:
       traceback.print_exc(file=file)
-  Path(SETUP_DONE).touch(exist_ok=True)
  
 while True:
   line = stdin.readline()
