@@ -19,43 +19,48 @@
 #--kind python:default
 
 from subprocess import run
-import os
+import os, io
 
-def login(args, status):
+def login(args, status: io.TextIOWrapper):
     from huggingface_hub import login, whoami
     try:
         whoami()
-        status.write("already logged in")
+        status.write("already logged in\n")
         return True
     except:
        try:
           login(token=args.get("hf_token", ""))
-          status.write("logged in")
+          status.write("logged in\n")
           return True
        except:
-          status.write("cannot log in - did you provide a correct hf_token?")
+          status.write("cannot log in - did you provide a correct hf_token?\n")
           return False
 
-def setup(args, status):
-    status.write("installing huggingface_hub")
-    run(["pip", "install", "huggingface_hub"])
-    status.write("installing accelerate")  
-    run(["pip", "install", "accelerate"])
-    status.write("installing protobuf")  
-    run(["pip", "install", "protobuf"])
-    status.write("installing sentencepiece")
-    run(["pip", "install", "sentencepiece"])
-    status.write("installing mistral_inference")
-    run(["pip", "install", "mistral_inference"])
+def setup(args, status: io.TextIOWrapper):
+    #status.write("installing huggingface_hub")
+    #run(["pip", "install", "huggingface_hub"])
+    #status.write("installing accelerate")  
+    #run(["pip", "install", "accelerate"])
+    #status.write("installing protobuf")  
+    #run(["pip", "install", "protobuf"])
+    #status.write("installing sentencepiece")
+    #run(["pip", "install", "sentencepiece"])
+    #status.write("installing mistral_inference")
+    #run(["pip", "install", "mistral_inference"])
     if login(args, status):
-        status.write("downloading mistral model - it is 14GB be patient!")
+        status.write("downloading mistral model - it is 14GB be patient!\n")
         from transformers import pipeline
         pipeline("text-generation", model="mistralai/Mistral-7B-Instruct-v0.3")
+        status.write("mistral model - downloaded\n")
 
 def main(args):
+    
+    print(repr(args))
+
     if "setup_status" in args:
-        res = "\n".join(args['setup_status'])
-        return { "body": res }
+        res = str(args['setup_status']).split("\n")
+        print(repr(res))
+        return { "body": "setup in progress", "statusCode": 202 }
     
     from huggingface_hub import  whoami 
     return {
