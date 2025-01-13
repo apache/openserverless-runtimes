@@ -35,7 +35,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [v1.20,v1.21,v1.22,v1.22proxy]      
+        version: [v1.21,v1.22,v1.22proxy]      
     steps:
       - name: Checkout recursive
         uses: actions/checkout@v2
