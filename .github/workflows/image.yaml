@@ -49,7 +49,7 @@ jobs:
       - name: Assign TAG from push
         if:  ${{ github.event_name != 'pull_request' }}
         run: |
-          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"registry.hub.docker.com/apache/openserverless-runtime-common:common1.17.1
+          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
       - name: Use non ASF docker hub repo
         if:  ${{ github.repository_owner != 'apache'}}
         run: |
