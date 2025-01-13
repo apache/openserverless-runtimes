@@ -29,7 +29,7 @@ permissions:
 jobs:
   common:
     name: Build Experimental Runtimes
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-22.04  
     steps:
       - name: Checkout recursive
         uses: actions/checkout@v2
