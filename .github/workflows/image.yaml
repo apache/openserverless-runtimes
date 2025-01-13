@@ -31,7 +31,7 @@ permissions:
 jobs:
   golang:
     name: Build Golang
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 1
       matrix:
@@ -97,7 +97,7 @@ jobs:
   python:
       name: Build Python
       needs: golang
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
       strategy:
         max-parallel: 1
         matrix:
@@ -163,7 +163,7 @@ jobs:
   nodejs:
     name: Build NodeJs
     needs: python
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 1
       matrix:
@@ -229,7 +229,7 @@ jobs:
   php:
       name: Build Php
       needs: nodejs
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
       strategy:
         max-parallel: 1
         matrix:
@@ -295,7 +295,7 @@ jobs:
   java:
       name: Build Java
       needs: php
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
       strategy:
         max-parallel: 1
         matrix:

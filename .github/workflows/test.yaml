@@ -25,7 +25,7 @@ on:
 jobs:
     test:
         name: Test Go Proxy
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         steps:
           - name: Checkout recursive
             uses: actions/checkout@v2
