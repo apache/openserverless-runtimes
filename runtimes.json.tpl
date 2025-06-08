@@ -127,6 +127,20 @@
                 }
             },
             {
+                "kind": "python:3.13",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-python",
+                    "tag": "$OPS_RUNTIME_TAG_PYTHON_V3_13"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
+            },
+            {
                 "kind": "python:3.11ca",
                 "default": false,
                 "image": {
