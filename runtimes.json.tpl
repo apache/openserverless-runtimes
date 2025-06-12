@@ -228,7 +228,7 @@
             },
             {
                 "kind": "go:1.22proxy",
-                "default": true,
+                "default": false,
                 "deprecated": false,
                 "attached": {
                     "attachmentName": "codefile",
