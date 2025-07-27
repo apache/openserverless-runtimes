@@ -13,6 +13,35 @@
         "This file is meant to list all stable runtimes supported by the Apache Openwhisk community."
     ],
     "runtimes": {
+        "bun": [
+            {
+                "kind": "bun:1.2.19",
+                "default": true,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-bun",
+                    "tag": "$OPS_RUNTIME_TAG_BUN_V1_2_19"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },                
+                "stemCells": [
+                    {
+                        "initialCount": 1,
+                        "memory": "256 MB",
+                        "reactive": {
+                            "minCount": 1,
+                            "maxCount": 4,
+                            "ttl": "2 minutes",
+                            "threshold": 1,
+                            "increment": 1
+                        }
+                    }
+                ]
+            }
+        ],
         "nodejs": [
             {
                 "kind": "nodejs:21",
