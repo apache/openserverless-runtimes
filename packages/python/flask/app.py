@@ -1,3 +1,6 @@
+#--web true
+#--docker https://registry.hub.docker.com/94lama/python:flask
+
 import json
 from flask import Flask, request
 from hello import hello
