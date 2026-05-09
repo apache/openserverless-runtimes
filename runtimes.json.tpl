@@ -26,7 +26,7 @@
                 "attached": {
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
-                },                
+                },
                 "stemCells": [
                     {
                         "initialCount": 1,
@@ -40,7 +40,7 @@
                         }
                     }
                 ]
-            },            
+            },
             {
                 "kind": "nodejs:20",
                 "default": false,
@@ -68,7 +68,7 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
-            }           
+            }
         ],
         "python": [
             {
@@ -139,34 +139,6 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
-            },
-            {
-                "kind": "python:3.11ca",
-                "default": false,
-                "image": {
-                    "prefix": "$OPS_RUNTIME_PREFIX",
-                    "name": "openserverless-runtime-python",
-                    "tag": "$OPS_RUNTIME_TAG_PYTHON_V3_11CA"
-                },
-                "deprecated": false,
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
-            },
-            {
-                "kind": "python:310",
-                "default": false,
-                "image": {
-                    "prefix": "$OPS_RUNTIME_PREFIX",
-                    "name": "openserverless-runtime-python",
-                    "tag": "$OPS_RUNTIME_TAG_PYTHON_V3_10"
-                },
-                "deprecated": false,
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
             }
         ],
         "go": [
@@ -211,20 +183,6 @@
                     "name": "openserverless-runtime-go",
                     "tag": "$OPS_RUNTIME_TAG_GO_V1_20"
                 }
-            },            
-            {
-                "kind": "go:1.20mf",
-                "default": false,
-                "deprecated": false,
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                },
-                "image": {
-                    "prefix": "ghcr.io/nuvolaris",
-                    "name": "go-nuvolaris-metaflow",
-                    "tag": "bc86ab6"
-                }
             },
             {
                 "kind": "go:1.22proxy",
@@ -239,7 +197,7 @@
                     "name": "openserverless-runtime-go",
                     "tag": "$OPS_RUNTIME_TAG_GO_V1_22PROXY"
                 }
-            }            
+            }
         ],
         "java": [
             {
@@ -301,7 +259,7 @@
                     "attachmentType": "text/plain"
                 },
                 "requireMain": true
-            }            
+            }
         ],
         "php": [
             {
@@ -317,7 +275,7 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
-            },            
+            },
             {
                 "kind": "php:8.2",
                 "default": false,
@@ -331,106 +289,8 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
-            },
-            {
-                "kind": "php:8.1",
-                "default": false,
-                "deprecated": false,
-                "image": {
-                    "prefix": "$OPS_RUNTIME_PREFIX",
-                    "name": "openserverless-runtime-php",
-                    "tag": "$OPS_RUNTIME_TAG_PHP_V8_1"
-                },
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
-            },
-            {
-                "kind": "php:8.0",
-                "default": false,
-                "deprecated": false,
-                "image": {
-                    "prefix": "$OPS_RUNTIME_PREFIX",
-                    "name": "openserverless-runtime-php",
-                    "tag": "$OPS_RUNTIME_TAG_PHP_V8_0"
-                },
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
-            }
-        ],
-        "ruby": [
-            {
-                "kind": "ruby:2.5",
-                "default": true,
-                "deprecated": false,
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                },
-                "image": {
-                    "prefix": "openwhisk",
-                    "name": "action-ruby-v2.5",
-                    "tag": "nightly"
-                }
-            }
-        ],
-        "dotnet": [
-            {
-                "kind": "dotnet:2.2",
-                "default": true,
-                "deprecated": false,
-                "requireMain": true,
-                "image": {
-                    "prefix": "openwhisk",
-                    "name": "action-dotnet-v2.2",
-                    "tag": "nightly"
-                },
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
-            },
-            {
-                "kind": "dotnet:3.1",
-                "default": false,
-                "deprecated": false,
-                "requireMain": true,
-                "image": {
-                    "prefix": "openwhisk",
-                    "name": "action-dotnet-v3.1",
-                    "tag": "nightly"
-                },
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
-            }
-        ],
-        "rust": [
-            {
-                "kind": "rust:1.34",
-                "default": true,
-                "image": {
-                    "prefix": "openwhisk",
-                    "name": "action-rust-v1.34",
-                    "tag": "nightly"
-                },
-                "deprecated": false,
-                "attached": {
-                    "attachmentName": "codefile",
-                    "attachmentType": "text/plain"
-                }
             }
         ]
     },
-    "blackboxes": [
-        {
-            "prefix": "openwhisk",
-            "name": "dockerskeleton",
-            "tag": "nightly"
-        }
-    ]
+    "blackboxes": [ ]
 }

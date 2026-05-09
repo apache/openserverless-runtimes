@@ -19,7 +19,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 FROM golang:1.20-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.20
-COPY --from=builder /go/bin/proxy /bin/proxy 
+COPY --from=builder /go/bin/proxy /bin/proxy
 
 RUN \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections &&\
@@ -37,7 +37,6 @@ RUN \
     librdkafka++1 \
     librdkafka-dev &&\
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
-    go install github.com/go-delve/delve/cmd/dlv@latest &&\
     mkdir /action
 
 ADD bin/compile /bin/compile

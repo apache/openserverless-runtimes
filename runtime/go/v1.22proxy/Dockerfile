@@ -23,7 +23,7 @@ FROM apache/openserverless-runtime-common:common1.18.4 AS builder
 
 FROM golang:1.22-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.22
-COPY --from=builder /go/bin/proxy /bin/proxy 
+COPY --from=builder /go/bin/proxy /bin/proxy
 
 RUN \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections &&\
@@ -42,7 +42,6 @@ RUN \
     librdkafka-dev &&\
     # Cleanup apt data, we do not need them later on.
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
-    go install github.com/go-delve/delve/cmd/dlv@latest &&\
     mkdir /action
 
 ADD bin/compile /bin/compile
