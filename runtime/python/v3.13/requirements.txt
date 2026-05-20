@@ -39,4 +39,4 @@ chess==1.11.1
 uvicorn==0.34.2
 fastapi==0.115.12
 starlette==0.46.2
-mcp==1.6.0
+mcp==1.23.0
