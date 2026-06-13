@@ -31,13 +31,12 @@ RUN \
       jq \
       git \
       zip \
-      vim && \
-    apt-get -y install \
+      vim \
     librdkafka1 \
     librdkafka++1 \
     librdkafka-dev &&\
     apt-get clean && rm -rf /var/lib/apt/lists/* &&\
-    go install github.com/go-delve/delve/cmd/dlv@latest &&\
+    go install github.com/go-delve/delve/cmd/dlv@v1.23.0 &&\
     mkdir /action
 
 ADD bin/compile /bin/compile
