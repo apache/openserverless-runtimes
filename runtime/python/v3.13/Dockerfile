@@ -45,7 +45,8 @@ ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.4 \
     HOME=/tmp \
     OW_LOG_INIT_ERROR=1 \
     OW_WAIT_FOR_ACK=1 \
-    OW_COMPILER=/bin/compile
+    OW_COMPILER=/bin/compile \
+    PYTHONPYCACHEPREFIX=/tmp/pycache
 
 # Install only runtime deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -60,6 +61,7 @@ COPY --from=build-env /usr/local/lib/python3.13 /usr/local/lib/python3.13
 # Copy OpenWhisk runtime and proxy binary
 COPY --from=builder /go/bin/proxy /bin/proxy
 ADD bin/compile /bin/compile
+ADD bin/extend /bin/extend
 ADD lib/launcher.py /lib/launcher.py
 
 # Prepare /action
