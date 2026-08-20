@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ -f /tmp/composer.json ]; then
+    echo "Extending runtime with requested packages"
+    cd /tmp
+    jq -r '.require | keys[]' composer.json | while read pkg; do
+        composer global require "$pkg"
+    done
+    echo "Global packages"
+    composer global show
+    rm -f composer.json
+fi

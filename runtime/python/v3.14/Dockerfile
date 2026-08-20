@@ -18,7 +18,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM python:3.13.15-slim-bookworm AS build-env
+FROM python:3.14.7-slim-bookworm AS build-env
 
 # Set environment for uv installation
 ENV UV_CACHE_DIR=/tmp/uv-cache \
@@ -38,10 +38,10 @@ RUN uv pip install --python python3 --system six wheel virtualenv
 RUN uv pip install --python python3 --system --no-cache-dir -r requirements.txt
 
 # Final minimal runtime
-FROM python:3.13.4-slim-bookworm
+FROM python:3.14.7-slim-bookworm
 
 # Set runtime environment
-ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.4 \
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.14.7 \
     HOME=/tmp \
     OW_LOG_INIT_ERROR=1 \
     OW_WAIT_FOR_ACK=1 \
@@ -56,7 +56,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy uv binary and Python packages from builder
 COPY --from=build-env /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
-COPY --from=build-env /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=build-env /usr/local/lib/python3.14 /usr/local/lib/python3.14
 
 # Copy OpenWhisk runtime and proxy binary
 COPY --from=builder /go/bin/proxy /bin/proxy

@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ -f /tmp/go.mod ]; then
+    echo "WARNING: Extension in go is unnecessary. Use go.mod inside action folder"    
+    rm -rf $WORKSPACE /tmp/go.mod
+fi

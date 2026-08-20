@@ -33,7 +33,7 @@ vars:
     sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
   J: "{}"
   #RUNTIMES: "go,nodejs,php,python,java" temp disabled php
-  RUNTIMES: "go,nodejs,python,java"
+  RUNTIMES: "go,nodejs,python,java,php"
   EXPERIMENTAL_RUNTIMES: "python"
   COMMIT_ID:
     sh: git rev-parse --short HEAD
@@ -247,11 +247,12 @@ tasks:
         done
 
   generate-runtimes:
+    desc: render runtimes.json.tpl and enrich it with runtime folder / endoflife.date metadata
     silent: true
     dotenv:
       - runtimes.env
     cmds:
-      - cat runtimes.json.tpl | envsubst  > runtimes.json
+      - python3 generate-runtimes.py
 
   render-runtimes:
     silent: true

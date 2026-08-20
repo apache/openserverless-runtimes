@@ -1,0 +1,16 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "nodejs action",
+  "author": "Nuvolaris",
+  "keywords": [],
+  "license": "ISC",
+  "main": "index.js",
+  "dependencies": {
+    "openwhisk": "^3.21.8",
+    "pg": "^8.16.3",
+    "plotly": "^1.0.6",
+    "redis": "^5.10.0",
+    "uuid": "^13.0.0"
+  }
+}

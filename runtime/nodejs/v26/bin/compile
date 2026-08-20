@@ -1,0 +1,126 @@
+#!/usr/local/bin/node
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+// write a file creating intermediate directories
+function writeFile(file, body, executable = false) {
+    try {
+        fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o755 });
+    } catch (e) {
+        // Directory already exists
+    }
+    fs.writeFileSync(file, body, 'utf-8');
+    if (executable) {
+        fs.chmodSync(file, 0o755);
+    }
+}
+
+// copy a file eventually replacing a substring
+function copyAndExport(src, dst, main) {
+    let out = '';
+    const pattern = new RegExp(`module\\.exports\\s*=\\s*${main}`);
+    let found = false;
+
+    const content = fs.readFileSync(src, 'utf-8');
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+        found = found || pattern.test(line);
+        out += line + '\n';
+    }
+
+    // Remove trailing newline to match original behavior
+    out = out.slice(0, -1);
+
+    if (!found) {
+        out += `\nmodule.exports = ${main}\n`;
+    }
+
+    writeFile(dst, out);
+}
+
+function copyReplace(src, dst, match = null, replacement = '') {
+    let body = fs.readFileSync(src, 'utf-8');
+    if (match) {
+        body = body.replace(match, replacement);
+    }
+    writeFile(dst, body);
+}
+
+// assemble sources
+function sources(launcher, mainFunc, srcDir) {
+    // single file actions are uploaded as exec so rename them
+    if (fs.existsSync(`${srcDir}/exec`)) {
+        fs.renameSync(`${srcDir}/exec`, `${srcDir}/index.js`);
+    }
+
+    // the main file should be replaced by the launcher
+    copyAndExport(`${srcDir}/index.js`, `${srcDir}/index__.js`, mainFunc);
+
+    // write the boilerplate in a temp dir
+    copyReplace(launcher, `${srcDir}/exec__.js`);
+}
+
+// compile sources
+function build(srcDir, tgtDir) {
+    // in general, compile your program into an executable format
+    // for scripting languages, move sources and create a launcher
+    // move away the action dir and replace with the new
+    if (fs.existsSync(tgtDir)) {
+        fs.rmSync(tgtDir, { recursive: true, force: true });
+    }
+    fs.renameSync(srcDir, tgtDir);
+
+    const tgtFile = `${tgtDir}/exec`;
+    const execScript = `#!/bin/bash
+if [ "$(cat $0.env)" != "$__OW_EXECUTION_ENV" ]
+then
+   echo "Execution Environment Mismatch"
+   echo "Expected: $(cat $0.env)"
+   echo "Actual: $__OW_EXECUTION_ENV"
+   exit 1
+fi
+cd "$(dirname $0)"
+node exec__.js
+`;
+
+    writeFile(tgtFile, execScript, true);
+
+    if (process.env.__OW_EXECUTION_ENV) {
+        writeFile(`${tgtFile}.env`, process.env.__OW_EXECUTION_ENV);
+    }
+
+    return tgtFile;
+}
+
+// Main execution
+if (process.argv.length < 5) {
+    process.stdout.write('usage: <main-function> <source-dir> <target-dir>\n');
+    process.exit(1);
+}
+
+const curDir = path.dirname(path.dirname(process.argv[1]));
+const launcher = `${curDir}/lib/launcher.js`;
+const mainFunc = process.argv[2];
+const srcDir = path.resolve(process.argv[3]);
+const tgtDir = path.resolve(process.argv[4]);
+
+sources(launcher, mainFunc, srcDir);
+build(path.resolve(process.argv[3]), tgtDir);

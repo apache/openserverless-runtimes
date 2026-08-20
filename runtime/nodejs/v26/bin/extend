@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -f /tmp/package.json ]; then
+    echo "Extending runtime with requested packages"
+    cd /tmp
+    jq -r '.dependencies | keys[]' package.json | xargs npm install -g
+    echo "Global packages"
+    npm list -g --depth=0 
+    rm -f package.json
+fi
