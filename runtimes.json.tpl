@@ -391,6 +391,34 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
+            },
+            {
+                "kind": "php:8.4",
+                "default": false,
+                "deprecated": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-php",
+                    "tag": "$OPS_RUNTIME_TAG_PHP_V8_4"
+                },
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
+            },
+            {
+                "kind": "php:8.5",
+                "default": false,
+                "deprecated": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-php",
+                    "tag": "$OPS_RUNTIME_TAG_PHP_V8_5"
+                },
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
             }
         ]
     },

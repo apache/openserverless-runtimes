@@ -1,0 +1,12 @@
+{
+    "config": {
+        "platform": {
+            "php": "8.4"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.10.0",
+        "ramsey/uuid": "^4.9.2",
+        "aws/aws-sdk-php": "^3.369.2"
+    }
+}
