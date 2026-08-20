@@ -10,7 +10,10 @@
         "runtime families or runtime kinds, mark all affected runtime kinds as deprecated (deprecated: true) and",
         "perform a manual migration of all affected actions.",
         "",
-        "This file is meant to list all stable runtimes supported by the Apache Openwhisk community."
+        "This file is meant to list all stable runtimes supported by the Apache Openwhisk community.",
+        "",
+        "The 'openserverless' key on each entry carries OpenServerless-specific metadata (lts, extendible,",
+        "current, releaseDate, latest) used e.g. to resolve '--docker <kind>:extend:<auto|version>' annotations."
     ],
     "runtimes": {
         "nodejs": [

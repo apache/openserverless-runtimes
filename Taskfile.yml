@@ -247,11 +247,12 @@ tasks:
         done
 
   generate-runtimes:
+    desc: render runtimes.json.tpl and enrich it with runtime folder / endoflife.date metadata
     silent: true
     dotenv:
       - runtimes.env
     cmds:
-      - cat runtimes.json.tpl | envsubst  > runtimes.json
+      - python3 generate-runtimes.py
 
   render-runtimes:
     silent: true
