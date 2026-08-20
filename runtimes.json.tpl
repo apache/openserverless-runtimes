@@ -200,6 +200,34 @@
                     "name": "openserverless-runtime-go",
                     "tag": "$OPS_RUNTIME_TAG_GO_V1_22PROXY"
                 }
+            },
+            {
+                "kind": "go:1.25",
+                "default": false,
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-go",
+                    "tag": "$OPS_RUNTIME_TAG_GO_V1_25"
+                }
+            },
+            {
+                "kind": "go:1.26",
+                "default": false,
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-go",
+                    "tag": "$OPS_RUNTIME_TAG_GO_V1_26"
+                }
             }
         ],
         "java": [
