@@ -71,6 +71,48 @@
                     "attachmentName": "codefile",
                     "attachmentType": "text/plain"
                 }
+            },
+            {
+                "kind": "nodejs:22",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-nodejs",
+                    "tag": "$OPS_RUNTIME_TAG_NODEJS_V22"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
+            },
+            {
+                "kind": "nodejs:24",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-nodejs",
+                    "tag": "$OPS_RUNTIME_TAG_NODEJS_V24"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
+            },
+            {
+                "kind": "nodejs:26",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-nodejs",
+                    "tag": "$OPS_RUNTIME_TAG_NODEJS_V26"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                }
             }
         ],
         "python": [
