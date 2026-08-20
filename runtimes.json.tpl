@@ -332,6 +332,21 @@
                     "attachmentType": "text/plain"
                 },
                 "requireMain": true
+            },
+            {
+                "kind": "java:25",
+                "default": false,
+                "image": {
+                    "prefix": "$OPS_RUNTIME_PREFIX",
+                    "name": "openserverless-runtime-java",
+                    "tag": "$OPS_RUNTIME_TAG_JAVA_V25"
+                },
+                "deprecated": false,
+                "attached": {
+                    "attachmentName": "codefile",
+                    "attachmentType": "text/plain"
+                },
+                "requireMain": true
             }
         ],
         "php": [

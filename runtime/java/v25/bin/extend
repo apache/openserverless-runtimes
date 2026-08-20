@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ -f /tmp/pom.xml ]; then
+    echo "Extending runtime with requested dependencies"
+    cd /tmp
+    mvn dependency:copy-dependencies -DoutputDirectory=/javaAction/.m2/repository
+    echo "Installed dependencies in local repository"
+    du -sh /javaAction/.m2/repository
+    find /javaAction/.m2/repository -name "*.jar"
+    rm -f pom.xml
+fi
