@@ -22,6 +22,7 @@ dotenv: [.env]
 vars:
   DRY: ""
   PUSH: ""
+  RC: "-RC" # remove then no more Relese Candidate
   BASETAG: ""
   REPO_PATH: apache
   BASEIMG: docker.io/{{.REPO_PATH}}
@@ -30,7 +31,7 @@ vars:
   EXPERIMENTAL_COMMON_VER: common1.18.4
   EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
   TAG:
-    sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
+    sh: git describe --tags --abbrev=0 2>/dev/null || echo nightly
   J: "{}"
   #RUNTIMES: "go,nodejs,php,python,java" temp disabled php
   RUNTIMES: "go,nodejs,python,java"
@@ -55,7 +56,7 @@ tasks:
       - git tag -d $(git tag)
       - |
         if test -n "{{.RT}}"
-        then git tag -f {{.RT}}.$(date +%y%m%d%H%M)
+        then git tag -f {{.RT}}.$(date +%y%m%d%H%M){{.RC}}
         else git tag -f $(date +%y%m%d%H%M)
         fi
       - env PAGER= git tag
@@ -64,8 +65,7 @@ tasks:
     silent: true
     cmds:
       - git tag -d $(git tag)
-      - git tag -f common-$(date +%y%m%d%H%M)
-
+      - git tag -f common.$(date +%y%m%d%H%M){{.RC}}
       - env PAGER= git tag
 
   experimental-tag:
