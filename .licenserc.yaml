@@ -37,6 +37,7 @@ header:
     - '**/*.service'
     - 'update/update.ps1' 
     - '**/mime.types'
+    - '**/*.md'
     - '**/*.txt'
     - '.env.src'
     - 'go.sum'
