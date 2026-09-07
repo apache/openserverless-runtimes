@@ -182,15 +182,16 @@ jobs:
       # so entries for every language can stay listed here all the time.
       matrix:
         include:
-          - { rt: go,     ver: v1.25 }
-          - { rt: go,     ver: v1.26 }
-          - { rt: go,     ver: v1.27 }
-          - { rt: nodejs, ver: v20 }
-          - { rt: nodejs, ver: v22 }
-          - { rt: nodejs, ver: v24 }
+          - { rt: python, ver: sys }
           - { rt: python, ver: v3.11 }
           - { rt: python, ver: v3.12 }
           - { rt: python, ver: v3.13 }
+          - { rt: nodejs, ver: v20 }
+          - { rt: nodejs, ver: v22 }
+          - { rt: nodejs, ver: v24 }
+          - { rt: go,     ver: v1.25 }
+          - { rt: go,     ver: v1.26 }
+          - { rt: go,     ver: v1.27 }
           - { rt: java,   ver: v8 }
           - { rt: java,   ver: v11 }
           - { rt: java,   ver: v17 }

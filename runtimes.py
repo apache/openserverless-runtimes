@@ -19,9 +19,11 @@
 
   Each runtime/<language>/<version> directory becomes one kind: the language
   directory gives the kind family, the version subdir gives both the kind
-  version and the image tag, with -<tag> appended. A merge.json in a version
-  directory is merged into that entry, which is how defaults, stemCells and
-  requireMain are declared.
+  version and the image tag, with -<tag> appended. A leading `v` is optional
+  and stripped from the kind, so runtime/python/v3.12 yields python:3.12 and
+  runtime/python/sys yields python:sys. A merge.json in a version directory is
+  merged into that entry, which is how defaults, stemCells and requireMain are
+  declared.
 
   Example:
      ./runtime.py all_26i06r36-snapshot
@@ -71,8 +73,18 @@ def strip_prefix(tag):
 
 
 def version_key(version):
-    """Sort v3.11/v1.27/v8 numerically, newest first, so ordering is stable."""
-    return [int(p) if p.isdigit() else p for p in version.lstrip("v").split(".")]
+    """Sort v3.11/v1.27/v8 numerically, newest first, so ordering is stable.
+
+    Named variants such as `sys` carry no version number; they sort after the
+    numbered ones. Every component is compared as a (rank, value) pair so a
+    numbered part never has to compare against a textual one.
+    """
+    numbered = version.startswith("v")
+    parts = [
+        (0, p.zfill(8)) if p.isdigit() else (1, p)
+        for p in version.lstrip("v").split(".")
+    ]
+    return [(0,) if numbered else (1,), parts]
 
 
 def kind_entry(language, version, tag, prefix):
@@ -102,7 +114,8 @@ def walk(runtime_dir, tag, prefix):
             (
                 d
                 for d in os.listdir(lang_dir)
-                if d.startswith("v") and os.path.isdir(os.path.join(lang_dir, d))
+                if not d.startswith(".")
+                and os.path.isdir(os.path.join(lang_dir, d))
             ),
             key=version_key,
             reverse=True,
