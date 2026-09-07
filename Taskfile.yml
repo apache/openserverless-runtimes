@@ -157,7 +157,7 @@ tasks:
     requires: { vars: [RT] }
     vars:
       DIRS:
-        sh: ls -d  runtime/{{.RT}}/v* || echo ""
+        sh: ls -d  runtime/{{.RT}}/* || echo ""
     cmds:
       - for: { var: DIRS }
         task: build-runtime
