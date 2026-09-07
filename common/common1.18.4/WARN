@@ -1,0 +1,59 @@
+==============================================================================
+WARN -- Apache License 2.0 incompatibilities
+Container image: apache/openserverless-runtime-common:common1.18.4
+==============================================================================
+
+This file lists third-party components bundled by the Dockerfile beside
+it whose licenses are NOT compatible with the Apache License, Version 2.0,
+together with components that require special handling.
+
+Classification follows the ASF third-party licensing policy:
+
+    https://www.apache.org/legal/resolved.html
+
+  Category A  Apache-2.0 compatible. May be included in a release.
+  Category B  May be included in BINARY form only, unmodified and as a
+              separate file, with the reciprocal license disclosed.
+  Category X  MUST NOT be included in an Apache release artifact.
+
+IMPORTANT SCOPE NOTE
+------------------------------------------------------------------------------
+The Apache release artifact for OpenServerless is the SOURCE distribution,
+which contains this Dockerfile and the files beside it -- all Apache-2.0
+licensed. The published container image is a CONVENIENCE BINARY assembled
+at build time from third-party base images and package repositories.
+Category X components inherited from a base operating system image are
+disclosed below but are not redistributed by the ASF in source form.
+Category X components that this Dockerfile ADDS on purpose must be removed.
+
+
+==============================================================================
+CATEGORY X (as bundled)
+==============================================================================
+
+  Component : Debian/Ubuntu/Alpine base image userland
+  License   : mixed, incl. GPL-2.0/GPL-3.0
+  Category  : X (as bundled)
+  Action    :
+      The base image contains GPL-licensed operating-system components. The Apache release
+      artifact is the SOURCE (this Dockerfile and the files beside it); the published
+      container image is a convenience binary assembled from third-party base images.
+      No action required beyond this disclosure.
+
+
+==============================================================================
+SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
+==============================================================================
+
+  None. This image adds no Category X component of its own.
+
+==============================================================================
+ADDITIONAL NOTES
+==============================================================================
+
+This image is a BUILDER stage only: the language runtime images copy
+/go/bin/proxy out of it and never ship its filesystem. The proxy binary is
+statically linked (CGO_ENABLED=0) from Apache-2.0 and BSD/MIT sources.
+The golang base image supplies the Go toolchain (BSD-3-Clause) over a
+Debian userland; none of that userland reaches the runtime images.
+

@@ -1,0 +1,127 @@
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+------------------------------------------------------------------------------
+Container image: apache/openserverless-runtime-python:v3.11
+------------------------------------------------------------------------------
+
+This image bundles third-party software. The components below are
+redistributed under the licenses recorded in the LICENSE file that
+accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
+listed in the WARN file as incompatible with the Apache License 2.0.
+
+Python packages preinstalled in the image (requirements.in)
+-----------------------------------------------------------
+  * beautifulsoup4 (4.15.0)
+      License: MIT
+  * httplib2 (0.32.0)
+      License: MIT
+  * kafka_python (3.0.11)
+      License: Apache-2.0
+  * python-dateutil (2.9.0.post0)
+      License: Apache-2.0 OR BSD-3-Clause
+  * requests (2.34.2)
+      License: Apache-2.0
+  * scrapy (2.18.0)
+      License: BSD-3-Clause
+  * simplejson (4.1.2)
+      License: MIT OR AFL-2.1
+      Dual-licensed; the MIT option is elected. See WARN.
+  * twisted (26.4.0)
+      License: MIT
+  * netifaces (0.11.0)
+      License: MIT
+  * pyyaml (6.0.3)
+      License: MIT
+  * redis (8.1.0)
+      License: MIT
+  * boto3 (1.43.89)
+      License: Apache-2.0
+  * pg8000 (1.31.5)
+      License: BSD-3-Clause
+  * pymongo (4.18.0)
+      License: Apache-2.0
+  * minio (7.2.20)
+      License: Apache-2.0
+  * openai (3.8.0)
+      License: Apache-2.0
+  * langchain (1.4.0)
+      License: MIT
+  * farm-haystack (1.18.0)
+      License: Apache-2.0
+  * nltk (3.10.3)
+      License: Apache-2.0
+  * langdetect (1.0.9)
+      License: Apache-2.0
+  * plotly (7.0.0)
+      License: MIT
+  * ollama (0.6.2)
+      License: MIT
+  * joblib (1.6.0)
+      License: BSD-3-Clause
+  * lightgbm (4.7.0)
+      License: MIT
+  * feedparser (6.0.14)
+      License: BSD-2-Clause
+  * numpy (2.4.6)
+      License: BSD-3-Clause
+  * scikit-learn (1.9.0)
+      License: BSD-3-Clause
+  * bcrypt (5.0.0)
+      License: Apache-2.0
+
+Operating-system packages installed by the Dockerfile
+-----------------------------------------------------
+  * python3-lxml ((Debian bookworm))
+      License: BSD-3-Clause
+  * zip ((Debian bookworm))
+      License: Info-ZIP
+
+Action proxy (copied from the common builder image)
+---------------------------------------------------
+  * github.com/google/uuid (v1.6.0)
+      License: BSD-3-Clause
+  * github.com/rs/zerolog (v1.33.0)
+      License: MIT
+  * github.com/stretchr/testify (v1.9.0)
+      License: MIT
+      Test-only dependency.
+  * github.com/davecgh/go-spew (v1.1.1)
+      License: ISC
+      Transitive.
+  * github.com/mattn/go-colorable (v0.1.13)
+      License: MIT
+      Transitive.
+  * github.com/mattn/go-isatty (v0.0.20)
+      License: MIT
+      Transitive.
+  * github.com/pmezard/go-difflib (v1.0.0)
+      License: BSD-3-Clause
+      Transitive.
+  * golang.org/x/sys (v0.26.0)
+      License: BSD-3-Clause
+      Transitive.
+  * gopkg.in/yaml.v3 (v3.0.1)
+      License: Apache-2.0 AND MIT
+      Transitive.
+
+Base operating system image
+---------------------------
+  * (see the FROM line of the Dockerfile) (-)
+      License: mixed; see WARN
+      Operating-system components are supplied by the upstream base image and are not
+      redistributed by the ASF in source form.
+
+------------------------------------------------------------------------------
+Attribution required by bundled components
+------------------------------------------------------------------------------
+
+This product includes software developed by the Apache Software
+Foundation (http://www.apache.org/), including Apache OpenWhisk
+components and Apache-2.0 licensed libraries listed above.
+
+This product includes software developed by third parties under the
+MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.

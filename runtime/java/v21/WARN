@@ -1,0 +1,77 @@
+==============================================================================
+WARN -- Apache License 2.0 incompatibilities
+Container image: apache/openserverless-runtime-java:v21
+==============================================================================
+
+This file lists third-party components bundled by the Dockerfile beside
+it whose licenses are NOT compatible with the Apache License, Version 2.0,
+together with components that require special handling.
+
+Classification follows the ASF third-party licensing policy:
+
+    https://www.apache.org/legal/resolved.html
+
+  Category A  Apache-2.0 compatible. May be included in a release.
+  Category B  May be included in BINARY form only, unmodified and as a
+              separate file, with the reciprocal license disclosed.
+  Category X  MUST NOT be included in an Apache release artifact.
+
+IMPORTANT SCOPE NOTE
+------------------------------------------------------------------------------
+The Apache release artifact for OpenServerless is the SOURCE distribution,
+which contains this Dockerfile and the files beside it -- all Apache-2.0
+licensed. The published container image is a CONVENIENCE BINARY assembled
+at build time from third-party base images and package repositories.
+Category X components inherited from a base operating system image are
+disclosed below but are not redistributed by the ASF in source form.
+Category X components that this Dockerfile ADDS on purpose must be removed.
+
+
+==============================================================================
+CATEGORY X (as bundled)
+==============================================================================
+
+  Component : ibm-semeru-runtimes base image (OpenJDK class library)
+  License   : GPL-2.0 WITH Classpath-exception-2.0
+  Category  : X (as bundled)
+  Action    :
+      The JDK class library is GPL-2.0; the Classpath Exception permits linking but the
+      ASF does not release GPL binaries. Treat the JDK as an EXTERNAL base image that the
+      user pulls, not as part of the Apache release artifact: the ASF source release must
+      contain only the Dockerfile. Alternatively switch to an Eclipse Temurin or Amazon
+      Corretto image and state the same disclaimer.
+
+  Component : glibc / locales
+  License   : GPL-2.0-or-later AND LGPL-2.1-or-later
+  Category  : X (as bundled)
+  Action    :
+      Part of the base operating system image. Not distributed by the ASF as source;
+      the ASF release is the Dockerfile only. No action required beyond this disclosure.
+
+  Component : Debian/Ubuntu/Alpine base image userland
+  License   : mixed, incl. GPL-2.0/GPL-3.0
+  Category  : X (as bundled)
+  Action    :
+      The base image contains GPL-licensed operating-system components. The Apache release
+      artifact is the SOURCE (this Dockerfile and the files beside it); the published
+      container image is a convenience binary assembled from third-party base images.
+      No action required beyond this disclosure.
+
+
+==============================================================================
+SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
+==============================================================================
+
+  None. This Dockerfile adds no Category X component.
+
+==============================================================================
+ADDITIONAL NOTES
+==============================================================================
+
+Base image: ibm-semeru-runtimes:open-21.0.4.1_7-jdk-focal.
+Google Gson 2.11.0 (Apache-2.0) is downloaded from Maven Central at build
+time and linked into /usr/java/lib/launcher.jar. Downloading a dependency
+at build time does not place it in the Apache source release, but it IS
+redistributed inside the published convenience binary, so it is disclosed
+in NOTICE and LICENSE.
+

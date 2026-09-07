@@ -1,0 +1,78 @@
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+------------------------------------------------------------------------------
+Container image: apache/openserverless-runtime-java:v17
+------------------------------------------------------------------------------
+
+This image bundles third-party software. The components below are
+redistributed under the licenses recorded in the LICENSE file that
+accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
+listed in the WARN file as incompatible with the Apache License 2.0.
+
+Java libraries bundled in the image
+-----------------------------------
+  * com.google.code.gson:gson (2.11.0)
+      License: Apache-2.0
+      Downloaded from Maven Central at build time.
+
+Operating-system packages and base runtime
+------------------------------------------
+  * IBM Semeru Runtimes (OpenJDK + Eclipse OpenJ9) ((base image))
+      License: GPL-2.0 WITH Classpath-exception-2.0; OpenJ9 under EPL-2.0 / Apache-2.0
+      *** SEE WARN ***
+  * locales (glibc) ((Ubuntu focal))
+      License: GPL-2.0-or-later AND LGPL-2.1-or-later
+      *** SEE WARN ***
+  * python ((Ubuntu focal))
+      License: PSF-2.0
+
+Action proxy (copied from the common builder image)
+---------------------------------------------------
+  * github.com/google/uuid (v1.6.0)
+      License: BSD-3-Clause
+  * github.com/rs/zerolog (v1.33.0)
+      License: MIT
+  * github.com/stretchr/testify (v1.9.0)
+      License: MIT
+      Test-only dependency.
+  * github.com/davecgh/go-spew (v1.1.1)
+      License: ISC
+      Transitive.
+  * github.com/mattn/go-colorable (v0.1.13)
+      License: MIT
+      Transitive.
+  * github.com/mattn/go-isatty (v0.0.20)
+      License: MIT
+      Transitive.
+  * github.com/pmezard/go-difflib (v1.0.0)
+      License: BSD-3-Clause
+      Transitive.
+  * golang.org/x/sys (v0.26.0)
+      License: BSD-3-Clause
+      Transitive.
+  * gopkg.in/yaml.v3 (v3.0.1)
+      License: Apache-2.0 AND MIT
+      Transitive.
+
+Base operating system image
+---------------------------
+  * (see the FROM line of the Dockerfile) (-)
+      License: mixed; see WARN
+      Operating-system components are supplied by the upstream base image and are not
+      redistributed by the ASF in source form.
+
+------------------------------------------------------------------------------
+Attribution required by bundled components
+------------------------------------------------------------------------------
+
+This product includes software developed by the Apache Software
+Foundation (http://www.apache.org/), including Apache OpenWhisk
+components and Apache-2.0 licensed libraries listed above.
+
+This product includes software developed by third parties under the
+MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.
+

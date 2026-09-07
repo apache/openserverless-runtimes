@@ -15,345 +15,241 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 name: Build Images
-on: 
+
+on:
   push:
     tags:
-      - '[0-9]*'
-    branches-ignore: '*'
-  #pull_request:
-  #  branches: [main]
-
-permissions:
-  contents: write
-  packages: write
-
+    - '*_*'
+    branches-ignore:
+    - '*'
+  workflow_dispatch:
+    inputs:
+      runtime:
+        description: 'Runtimes to build'
+        type: choice
+        required: true
+        default: all
+        options:
+        - all
+        - common
+        - python
+        - nodejs
+        - java
+        - php
+        - experimental
 jobs:
-  golang:
-    name: Build Golang
+  # 0. Fail fast, once, before any build work starts: pushing these images
+  #    needs a PAT because their names do not match the repository.
+  check:
+    name: Check secrets
     runs-on: ubuntu-22.04
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [v1.21,v1.22,v1.22proxy]      
     steps:
-      - name: Checkout recursive
-        uses: actions/checkout@v2
-      - name: License check
-        uses: apache/skywalking-eyes@main
-      #  continue-on-error: true
-      - name: Assign TAG from pull request
-        if:  ${{ github.event_name == 'pull_request' }}
-        run: |
-          echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
-      - name: Assign TAG from push
-        if:  ${{ github.event_name != 'pull_request' }}
-        run: |
-          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"
-      - name: Use non ASF docker hub repo
-        if:  ${{ github.repository_owner != 'apache'}}
-        run: |
-          echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
-      - name: Use ASF docker hub repo
-        if:  ${{ github.repository_owner == 'apache'}}
-        run: |
-          echo "BASE_REPO=apache" >> "$GITHUB_ENV"                    
-      - name: Task
-        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
-      - name: Load DockerHub secrets
-        uses: 1password/load-secrets-action@v2
-        with:
-          # Export loaded secrets as environment variables
-          export-env: true
+      - name: Check GHCR_TOKEN is set
+        if: ${{ github.repository_owner != 'apache' }}
         env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
-          OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
-          OPS_BASE_COMMON_IMAGE: op://OpenServerless/ops_github_dockerhub/base_common_image
-      - name: Registry login
-        uses: docker/login-action@v3
-        with:
-          #registry: registry.hub.docker.com
-          username: ${{ env.OPS_DOCKERHUB_USER }}
-          password: ${{ env.OPS_DOCKERHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "sciabarracom/openserverless-builder"
-          use: true    
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./runtime/go/${{ matrix.version }}
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ env.BASE_REPO }}/openserverless-runtime-go:${{ matrix.version }}-${{ env.IMG_TAG }}
-          build-args: COMMON=${{ env.OPS_BASE_COMMON_IMAGE }}
-          # For pull requests, export results to the build cache.
-          # Otherwise, push to a registry.
-          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}
-
-  python:
-      name: Build Python
-      needs: golang
-      runs-on: ubuntu-22.04
-      strategy:
-        max-parallel: 1
-        matrix:
-          version: [v3.10,v3.11,v3.12,v3.13]      
-      steps:
-        - name: Checkout recursive
-          uses: actions/checkout@v2
-        - name: License check
-          uses: apache/skywalking-eyes@main
-        #  continue-on-error: true
-        - name: Assign TAG from pull request
-          if:  ${{ github.event_name == 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
-        - name: Assign TAG from push
-          if:  ${{ github.event_name != 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
-        - name: Use non ASF docker hub repo
-          if:  ${{ github.repository_owner != 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
-        - name: Use ASF docker hub repo
-          if:  ${{ github.repository_owner == 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
-        - name: Task
-          run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
-        - name: Load DockerHub secrets
-          uses: 1password/load-secrets-action@v2
-          with:
-            # Export loaded secrets as environment variables
-            export-env: true
-          env:
-            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
-            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
-            OPS_BASE_COMMON_IMAGE: op://OpenServerless/ops_github_dockerhub/base_common_image
-        - name: Registry login
-          uses: docker/login-action@v3
-          with:
-            #registry: registry.hub.docker.com
-            username: ${{ env.OPS_DOCKERHUB_USER }}
-            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-            version: "lab:latest"
-            driver: cloud
-            endpoint: "sciabarracom/openserverless-builder"
-            use: true        
-        - name: Build and push
-          uses: docker/build-push-action@v5
-          with:
-            context: ./runtime/python/${{ matrix.version }}
-            platforms: linux/amd64,linux/arm64
-            tags: ${{ env.BASE_REPO }}/openserverless-runtime-python:${{ matrix.version }}-${{ env.IMG_TAG }}
-            build-args: COMMON=${{ env.OPS_BASE_COMMON_IMAGE }}
-            # For pull requests, export results to the build cache.
-            # Otherwise, push to a registry.
-            outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}          
-
-  nodejs:
-    name: Build NodeJs
-    needs: python
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          if [ -z "$GHCR_TOKEN" ]; then
+            {
+              echo "## Missing required secret: GHCR_TOKEN"
+              echo
+              echo "This repository publishes multiple images whose names do not"
+              echo "match the repository (openserverless-runtime-common, -go,"
+              echo "-python, -nodejs, -java, -php). The built-in GITHUB_TOKEN only"
+              echo "has write access to packages owned by this repository, so it"
+              echo "cannot push them: the push would fail with"
+              echo '`denied: permission_denied: write_package`.'
+              echo
+              echo "To fix this, create a Personal Access Token and add it as a secret:"
+              echo
+              echo "1. Go to https://github.com/settings/tokens"
+              echo "   -> Generate new token (classic)"
+              echo "2. Select the **write:packages** scope"
+              echo "3. Copy the generated token"
+              echo "4. In this repository go to"
+              echo "   Settings -> Secrets and variables -> Actions -> New repository secret"
+              echo "5. Name it exactly **GHCR_TOKEN** and paste the token as the value"
+              echo
+              echo "Then re-run this workflow."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error title=Missing GHCR_TOKEN::This repository publishes multiple images and needs a PAT with write:packages stored as the secret GHCR_TOKEN. See the job summary for step-by-step instructions."
+            exit 1
+          fi
+  # 1. Build and push the common base image, and decide what the matrix
+  #    should build. Every runtime image FROMs common, so this job must
+  #    finish before any matrix shard starts.
+  common:
+    name: Common image and matrix
+    needs: check
     runs-on: ubuntu-22.04
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [v18,v20,v21]  
+    permissions:
+      contents: write
+      packages: write
+    outputs:
+      # "all", "common", or a single language: the scope encoded in the tag
+      scope: ${{ steps.scope.outputs.scope }}
+      tag: ${{ steps.scope.outputs.tag }}
     steps:
-      - name: Checkout recursive
-        uses: actions/checkout@v2
-      - name: License check
-        uses: apache/skywalking-eyes@main
-      #  continue-on-error: true
-      - name: Assign TAG from pull request
-        if:  ${{ github.event_name == 'pull_request' }}
-        run: |
-          echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
-      - name: Assign TAG from push
-        if:  ${{ github.event_name != 'pull_request' }}
-        run: |
-          echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
-      - name: Use non ASF docker hub repo
-        if:  ${{ github.repository_owner != 'apache'}}
-        run: |
-          echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
-      - name: Use ASF docker hub repo
-        if:  ${{ github.repository_owner == 'apache'}}
-        run: |
-          echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
-      - name: Task
-        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
-      - name: Load DockerHub secrets
-        uses: 1password/load-secrets-action@v2
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Export loaded secrets as environment variables
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
-          OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
-          OPS_BASE_COMMON_IMAGE: op://OpenServerless/ops_github_dockerhub/base_common_image
+          submodules: recursive
+          # full history and tags: "task tag" replaces the existing tags
+          # and "git describe" needs them to be present
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.25'
+      - name: License
+        uses: apache/skywalking-eyes@a196742f472feaffafea537ce5a2a4c3c53a8de4 # v0.9.0
+      - name: Setup CI
+        run: bash .github/cisetup.sh
+      - name: Use ghcr.io repo
+        if: ${{ github.repository_owner != 'apache' }}
+        run: |
+          echo "REPO_URL=ghcr.io" >> "$GITHUB_ENV"
+          echo "REGISTRY_USER=${{ github.actor }}" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_REGISTRY=ghcr.io" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_USER=${{ github.repository_owner }}" >> "$GITHUB_ENV"
+      - name: Use docker.io repo
+        if: ${{ github.repository_owner == 'apache' }}
+        run: |
+          echo "REPO_URL=docker.io" >> "$GITHUB_ENV"
+          echo "REGISTRY_USER=${{ secrets.DOCKERHUB_USER }}" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_REGISTRY=docker.io" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_USER=apache" >> "$GITHUB_ENV"
+      # the Taskfile reads DOCKERHUB_REGISTRY and DOCKERHUB_USER from .env
+      - name: Create .env
+        run: |
+          {
+            echo "DOCKERHUB_REGISTRY=$DOCKERHUB_REGISTRY"
+            echo "DOCKERHUB_USER=$DOCKERHUB_USER"
+          } > .env
+          cat .env
       - name: Registry login
-        uses: docker/login-action@v3
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
-          #registry: registry.hub.docker.com
-          username: ${{ env.OPS_DOCKERHUB_USER }}
-          password: ${{ env.OPS_DOCKERHUB_TOKEN }}
+          registry: ${{ env.REPO_URL }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ github.repository_owner == 'apache' && secrets.DOCKERHUB_TOKEN || secrets.GHCR_TOKEN }}
+      # Manual run: create a new snapshot tag on the current HEAD for the
+      # selected runtimes. The tag is not pushed, so no second run is started:
+      # this same run goes on and builds it.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+        with:
+          image: tonistiigi/binfmt:qemu-v7.0.0-28
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "sciabarracom/openserverless-builder"
-          use: true
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./runtime/nodejs/${{ matrix.version }}
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ env.BASE_REPO }}/openserverless-runtime-nodejs:${{ matrix.version }}-${{ env.IMG_TAG }}
-          build-args: COMMON=${{ env.OPS_BASE_COMMON_IMAGE }}
-          # For pull requests, export results to the build cache.
-          # Otherwise, push to a registry.
-          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }} 
-          
-  php:
-      name: Build Php
-      needs: nodejs
-      runs-on: ubuntu-22.04
-      strategy:
-        max-parallel: 1
-        matrix:
-          version: [v8.0,v8.1,v8.2,v8.3]      
-      steps:
-        - name: Checkout recursive
-          uses: actions/checkout@v2
-        - name: License check
-          uses: apache/skywalking-eyes@main
-        #  continue-on-error: true
-        - name: Assign TAG from pull request
-          if:  ${{ github.event_name == 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
-        - name: Assign TAG from push
-          if:  ${{ github.event_name != 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
-        - name: Use ASF docker hub repo
-          if:  ${{ github.repository_owner == 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
-        - name: Use non ASF docker hub repo
-          if:  ${{ github.repository_owner != 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
-        - name: Task
-          run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-        - name: Load DockerHub secrets
-          uses: 1password/load-secrets-action@v2
-          with:
-            # Export loaded secrets as environment variables
-            export-env: true
-          env:
-            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
-            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
-            OPS_BASE_COMMON_IMAGE: op://OpenServerless/ops_github_dockerhub/base_common_image
-        - name: Registry login
-          uses: docker/login-action@v3
-          with:
-            #registry: registry.hub.docker.com
-            username: ${{ env.OPS_DOCKERHUB_USER }}
-            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-            version: "lab:latest"
-            driver: cloud
-            endpoint: "sciabarracom/openserverless-builder"
-            use: true
-        - name: Build and push
-          uses: docker/build-push-action@v5
-          with:
-            context: ./runtime/php/${{ matrix.version }}
-            platforms: linux/amd64,linux/arm64
-            tags: ${{ env.BASE_REPO }}/openserverless-runtime-php:${{ matrix.version }}-${{ env.IMG_TAG }}
-            build-args: COMMON=${{ env.OPS_BASE_COMMON_IMAGE }}
-            # For pull requests, export results to the build cache.
-            # Otherwise, push to a registry.
-            outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}  
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      # A manual run tags HEAD here, once. The matrix shards never tag:
+      # they check out this exact tag, so every image in the run carries
+      # the same timestamp.
+      - name: Tag HEAD (manual run)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          task tag RT="${{ inputs.runtime }}"
+      - name: Build and push common
+        run: task buildx FILTER=runtime-common:1.18.4
+      # The tag looks like <scope>_<timestamp>; the runtime shards use the
+      # scope to decide whether they apply to this run.
+      - name: Read tag scope
+        id: scope
+        run: |
+          TAG=$(git for-each-ref --sort=-creatordate --count=1 \
+                  --format='%(refname:short)' refs/tags)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "scope=${TAG%%_*}" >> "$GITHUB_OUTPUT"
 
-  java:
-      name: Build Java
-      needs: php
-      runs-on: ubuntu-22.04
-      strategy:
-        max-parallel: 1
-        matrix:
-          version: [v8,v11,v17,v21]      
-      steps:
-        - name: Checkout recursive
-          uses: actions/checkout@v2
-        - name: License check
-          uses: apache/skywalking-eyes@main
-        #  continue-on-error: true
-        - name: Assign TAG from pull request
-          if:  ${{ github.event_name == 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
-        - name: Assign TAG from push
-          if:  ${{ github.event_name != 'pull_request' }}
-          run: |
-            echo "IMG_TAG=$(git describe --tags --abbrev=0)" >> "$GITHUB_ENV"          
-        - name: Use ASF docker hub repo
-          if:  ${{ github.repository_owner == 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"             
-        - name: Use non ASF docker hub repo
-          if:  ${{ github.repository_owner != 'apache'}}
-          run: |
-            echo "BASE_REPO=apache" >> "$GITHUB_ENV"        
-        - name: Task
-          run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin    
-        - name: Load DockerHub secrets
-          uses: 1password/load-secrets-action@v2
-          with:
-            # Export loaded secrets as environment variables
-            export-env: true
-          env:
-            OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-            OPS_DOCKERHUB_USER: op://OpenServerless/ops_github_dockerhub/username
-            OPS_DOCKERHUB_TOKEN: op://OpenServerless/ops_github_dockerhub/password
-            OPS_BASE_COMMON_IMAGE: op://OpenServerless/ops_github_dockerhub/base_common_image
-        - name: Registry login
-          uses: docker/login-action@v3
-          with:
-            #registry: registry.hub.docker.com
-            username: ${{ env.OPS_DOCKERHUB_USER }}
-            password: ${{ env.OPS_DOCKERHUB_TOKEN }}
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-          with:
-            version: "lab:latest"
-            driver: cloud
-            endpoint: "sciabarracom/openserverless-builder"
-            use: true
-        - name: Build and push
-          uses: docker/build-push-action@v5
-          with:
-            context: ./runtime/java/${{ matrix.version }}
-            platforms: linux/amd64,linux/arm64
-            tags: ${{ env.BASE_REPO }}/openserverless-runtime-java:${{ matrix.version }}-${{ env.IMG_TAG }}
-            build-args: COMMON=${{ env.OPS_BASE_COMMON_IMAGE }}
-            # For pull requests, export results to the build cache.
-            # Otherwise, push to a registry.
-            outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry,push=true' }}                  
+  # 2. One job per runtime image, built in parallel.
+  runtimes:
+    name: ${{ matrix.rt }}:${{ matrix.ver }}
+    needs: [check, common]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      # One job per image. Edit this list by hand when a runtime version is
+      # added or dropped: each entry runs "task buildx FILTER=<rt>:<ver>".
+      # A shard is skipped unless the tag scope selects it (see "if" below),
+      # so entries for every language can stay listed here all the time.
+      matrix:
+        include:
+          - { rt: python, ver: sys }
+          - { rt: python, ver: v3.11 }
+          - { rt: python, ver: v3.12 }
+          - { rt: python, ver: v3.13 }
+          - { rt: nodejs, ver: v20 }
+          - { rt: nodejs, ver: v22 }
+          - { rt: nodejs, ver: v24 }
+          - { rt: go,     ver: v1.25 }
+          - { rt: go,     ver: v1.26 }
+          - { rt: go,     ver: v1.27 }
+          - { rt: java,   ver: v8 }
+          - { rt: java,   ver: v11 }
+          - { rt: java,   ver: v17 }
+          - { rt: java,   ver: v21 }
+          # php is currently disabled in the Taskfile's RUNTIMES variable
+          #- { rt: php,    ver: v8.2 }
+          #- { rt: php,    ver: v8.3 }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          # build the exact tag the common job created/selected
+          ref: ${{ needs.common.outputs.tag }}
+          fetch-depth: 0
+      - name: Setup CI
+        run: bash .github/cisetup.sh
+      - name: Use ghcr.io repo
+        if: ${{ github.repository_owner != 'apache' }}
+        run: |
+          echo "REPO_URL=ghcr.io" >> "$GITHUB_ENV"
+          echo "REGISTRY_USER=${{ github.actor }}" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_REGISTRY=ghcr.io" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_USER=${{ github.repository_owner }}" >> "$GITHUB_ENV"
+      - name: Use docker.io repo
+        if: ${{ github.repository_owner == 'apache' }}
+        run: |
+          echo "REPO_URL=docker.io" >> "$GITHUB_ENV"
+          echo "REGISTRY_USER=${{ secrets.DOCKERHUB_USER }}" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_REGISTRY=docker.io" >> "$GITHUB_ENV"
+          echo "DOCKERHUB_USER=apache" >> "$GITHUB_ENV"
+      # the Taskfile reads DOCKERHUB_REGISTRY and DOCKERHUB_USER from .env
+      - name: Create .env
+        run: |
+          {
+            echo "DOCKERHUB_REGISTRY=$DOCKERHUB_REGISTRY"
+            echo "DOCKERHUB_USER=$DOCKERHUB_USER"
+          } > .env
+          cat .env
+      - name: Registry login
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ env.REPO_URL }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ github.repository_owner == 'apache' && secrets.DOCKERHUB_TOKEN || secrets.GHCR_TOKEN }}
+      # Manual run: create a new snapshot tag on the current HEAD for the
+      # selected runtimes. The tag is not pushed, so no second run is started:
+      # this same run goes on and builds it.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+        with:
+          image: tonistiigi/binfmt:qemu-v7.0.0-28
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      # build this shard only when the tag selects it: "all_*" builds every
+      # runtime, "<lang>_*" builds just that language, "common_*" builds none.
+      # This gate is on the step, not the job: "matrix" is not available in a
+      # job-level "if", which GitHub rejects as an invalid workflow file.
+      - name: Build and push ${{ matrix.rt }}:${{ matrix.ver }}
+        if: ${{ needs.common.outputs.scope == 'all' || needs.common.outputs.scope == matrix.rt }}
+        run: task buildx FILTER="${{ matrix.rt }}:${{ matrix.ver }}"

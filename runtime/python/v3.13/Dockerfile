@@ -18,7 +18,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM python:3.13.4-slim-bookworm AS build-env
+FROM python:3.13.15-slim-bookworm AS build-env
 
 # Set environment for uv installation
 ENV UV_CACHE_DIR=/tmp/uv-cache \
@@ -26,7 +26,7 @@ ENV UV_CACHE_DIR=/tmp/uv-cache \
 
 # Install build tools and install uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates build-essential python3-dev && \
+    curl ca-certificates build-essential && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     apt-get purge -y curl && \
     rm -rf /var/lib/apt/lists/*
@@ -41,7 +41,7 @@ RUN uv pip install --python python3 --system --no-cache-dir -r requirements.txt
 FROM python:3.13.4-slim-bookworm
 
 # Set runtime environment
-ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.4 \
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.15 \
     HOME=/tmp \
     OW_LOG_INIT_ERROR=1 \
     OW_WAIT_FOR_ACK=1 \
@@ -49,7 +49,7 @@ ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.4 \
 
 # Install only runtime deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-psycopg2 zip xpdf ca-certificates && \
+    zip ca-certificates && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
@@ -67,4 +67,7 @@ WORKDIR /action
 RUN chown nobody:root /action && chmod 0775 /action
 
 USER nobody
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
+COPY DISCLAIMER LICENSE NOTICE WARN /
+
 ENTRYPOINT ["/bin/proxy"]

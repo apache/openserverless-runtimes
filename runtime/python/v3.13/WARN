@@ -1,0 +1,106 @@
+==============================================================================
+WARN -- Apache License 2.0 incompatibilities
+Container image: apache/openserverless-runtime-python:v3.13
+==============================================================================
+
+This file lists third-party components bundled by the Dockerfile beside
+it whose licenses are NOT compatible with the Apache License, Version 2.0,
+together with components that require special handling.
+
+Classification follows the ASF third-party licensing policy:
+
+    https://www.apache.org/legal/resolved.html
+
+  Category A  Apache-2.0 compatible. May be included in a release.
+  Category B  May be included in BINARY form only, unmodified and as a
+              separate file, with the reciprocal license disclosed.
+  Category X  MUST NOT be included in an Apache release artifact.
+
+IMPORTANT SCOPE NOTE
+------------------------------------------------------------------------------
+The Apache release artifact for OpenServerless is the SOURCE distribution,
+which contains this Dockerfile and the files beside it -- all Apache-2.0
+licensed. The published container image is a CONVENIENCE BINARY assembled
+at build time from third-party base images and package repositories.
+Category X components inherited from a base operating system image are
+disclosed below but are not redistributed by the ASF in source form.
+Category X components that this Dockerfile ADDS on purpose must be removed.
+
+
+==============================================================================
+CATEGORY X (AS BUNDLED)
+==============================================================================
+
+  Component : Debian/Ubuntu/Alpine base image userland
+  License   : mixed, incl. GPL-2.0/GPL-3.0
+  Category  : X (as bundled)
+  Action    :
+      The base image contains GPL-licensed operating-system components. The Apache release
+      artifact is the SOURCE (this Dockerfile and the files beside it); the published
+      container image is a convenience binary assembled from third-party base images.
+      No action required beyond this disclosure.
+
+
+==============================================================================
+CATEGORY A
+==============================================================================
+
+  Component : zip / unzip (Info-ZIP)
+  License   : Info-ZIP License
+  Category  : A
+  Action    :
+      BSD-like and Apache-compatible. No action required.
+
+
+==============================================================================
+CATEGORY X (BUILD ONLY)
+==============================================================================
+
+  Component : build-essential / gcc
+  License   : GPL-3.0-or-later WITH GCC-exception-3.1
+  Category  : X (build only)
+  Action    :
+      Present in the build stage only and not copied into the final image. The GCC Runtime
+      Library Exception covers the compiled output. No action required.
+
+
+==============================================================================
+CATEGORY B
+==============================================================================
+
+  Component : certifi / ca-certificates
+  License   : MPL-2.0
+  Category  : B
+  Action    :
+      Category B: MPL-2.0 may be included in binary form only, unmodified and as a
+      separate file. That is satisfied here. No action required.
+
+
+==============================================================================
+CATEGORY A (UNDER MIT)
+==============================================================================
+
+  Component : simplejson
+  License   : MIT OR AFL-2.1
+  Category  : A (under MIT)
+  Action    :
+      Dual-licensed. Elect the MIT option, which is Category A. No action required.
+
+
+==============================================================================
+SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
+==============================================================================
+
+  None. This Dockerfile adds no Category X component.
+
+==============================================================================
+ADDITIONAL NOTES
+==============================================================================
+
+Base image: python:3.13.15-slim-bookworm (build) / python:3.13.4-slim-bookworm (final) (CPython under the PSF License 2.0).
+The `chess`, `xpdf` and `python3-psycopg2` components flagged in earlier
+revisions of this file are no longer installed by this runtime.
+The pip dependency tree resolved from requirements.txt is far larger than
+the direct requirements listed here; requirements.txt records the full
+pinned closure. Run `pip-licenses` inside the built image for the
+complete inventory before a release audit.

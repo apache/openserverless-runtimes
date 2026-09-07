@@ -1,0 +1,114 @@
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+------------------------------------------------------------------------------
+Container image: apache/openserverless-runtime-php:v8.3
+------------------------------------------------------------------------------
+
+This image bundles third-party software. The components below are
+redistributed under the licenses recorded in the LICENSE file that
+accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
+listed in the WARN file as incompatible with the Apache License 2.0.
+
+Composer dependencies preinstalled in the image (composer.json)
+---------------------------------------------------------------
+  * guzzlehttp/guzzle (7.8.1)
+      License: MIT
+  * ramsey/uuid (4.7.5)
+      License: MIT
+  * openai-php/client (v0.8.5)
+      License: MIT
+  * aws/aws-sdk-php (3.380.3)
+      License: Apache-2.0
+
+PHP extensions and operating-system packages
+--------------------------------------------
+  * PHP ((base image))
+      License: PHP License v3.01
+      Category A (Apache-compatible).
+  * docker-php-extension-installer (latest)
+      License: MIT
+      Downloaded from GitHub at build time.
+  * composer (latest)
+      License: MIT
+      Downloaded from getcomposer.org at build time.
+  * ext-mongodb ((PECL))
+      License: Apache-2.0
+  * ext-redis (phpredis) ((PECL))
+      License: PHP License v3.01
+  * ext-gd, ext-intl, ext-bcmath, ext-opcache, ext-soap, ext-zip,
+  ext-mysqli, ext-pdo_mysql, ext-pgsql, ext-pdo_pgsql ((bundled with PHP))
+      License: PHP License v3.01
+  * libfreetype6 ((Debian))
+      License: FTL OR GPL-2.0-or-later
+      Dual-licensed; FTL (BSD-like) is Category A.
+  * libicu72 ((Debian))
+      License: Unicode-ICU (MIT-like)
+  * libjpeg62-turbo ((Debian))
+      License: IJG AND BSD-3-Clause AND zlib
+  * libpng16-16 ((Debian))
+      License: libpng-2.0
+  * libssl3 ((Debian))
+      License: Apache-2.0 (OpenSSL 3) / OpenSSL+SSLeay (OpenSSL 1.1)
+      OpenSSL 1.1 dual licence is *** SEE WARN ***
+  * libxml2 ((Debian))
+      License: MIT
+  * libzip4 ((Debian))
+      License: BSD-3-Clause
+  * libpq5 ((Debian))
+      License: PostgreSQL License (BSD-like)
+  * zip, unzip ((Debian))
+      License: Info-ZIP
+  * postgresql-server-dev-15 ((Debian))
+      License: PostgreSQL License (BSD-like)
+      Build stage only; purged from the final image.
+
+Action proxy (copied from the common builder image)
+---------------------------------------------------
+  * github.com/google/uuid (v1.6.0)
+      License: BSD-3-Clause
+  * github.com/rs/zerolog (v1.33.0)
+      License: MIT
+  * github.com/stretchr/testify (v1.9.0)
+      License: MIT
+      Test-only dependency.
+  * github.com/davecgh/go-spew (v1.1.1)
+      License: ISC
+      Transitive.
+  * github.com/mattn/go-colorable (v0.1.13)
+      License: MIT
+      Transitive.
+  * github.com/mattn/go-isatty (v0.0.20)
+      License: MIT
+      Transitive.
+  * github.com/pmezard/go-difflib (v1.0.0)
+      License: BSD-3-Clause
+      Transitive.
+  * golang.org/x/sys (v0.26.0)
+      License: BSD-3-Clause
+      Transitive.
+  * gopkg.in/yaml.v3 (v3.0.1)
+      License: Apache-2.0 AND MIT
+      Transitive.
+
+Base operating system image
+---------------------------
+  * (see the FROM line of the Dockerfile) (-)
+      License: mixed; see WARN
+      Operating-system components are supplied by the upstream base image and are not
+      redistributed by the ASF in source form.
+
+------------------------------------------------------------------------------
+Attribution required by bundled components
+------------------------------------------------------------------------------
+
+This product includes software developed by the Apache Software
+Foundation (http://www.apache.org/), including Apache OpenWhisk
+components and Apache-2.0 licensed libraries listed above.
+
+This product includes software developed by third parties under the
+MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.
+

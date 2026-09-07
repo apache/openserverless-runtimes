@@ -98,3 +98,4 @@ openserverless-runtimes
 
 runtimes.json
 action/**/*
+out.json

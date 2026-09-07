@@ -1,0 +1,51 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ARG COMMON=missing:missing
+FROM ${COMMON} AS builder
+FROM golang:1.27-bookworm
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.27
+COPY --from=builder /go/bin/proxy /bin/proxy
+
+RUN \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections &&\
+    apt-get update &&\
+    apt-get upgrade -y --no-install-recommends &&\
+    apt-get install -y \
+      curl \
+      jq \
+      zip \
+      && \
+    apt-get -y install \
+    librdkafka1 \
+    librdkafka++1 \
+    librdkafka-dev &&\
+    apt-get clean && rm -rf /var/lib/apt/lists/* &&\
+    mkdir /action
+
+ADD bin/compile /bin/compile
+ADD lib/launcher.go /lib/launcher.go
+ENV OW_COMPILER=/bin/compile
+ENV OW_LOG_INIT_ERROR=1
+ENV OW_WAIT_FOR_ACK=1
+WORKDIR /action
+RUN chown nobody:root /action ; chmod 0775 /action
+USER nobody
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
+COPY DISCLAIMER LICENSE NOTICE WARN /
+
+ENTRYPOINT [ "/bin/proxy" ]

@@ -48,6 +48,8 @@ def sources(launcher, source_dir, main):
         with codecs.open(dst, 'w', 'utf-8') as d:
             with codecs.open(launcher, 'r', 'utf-8') as e:
                 code = e.read()
+                # strip the build tag that keeps this template out of `go build ./...`
+                code = re.sub(r"^//go:build .*\n", "", code, flags=re.MULTILINE)
                 code = code.replace("Main", func)
                 d.write(code)
 

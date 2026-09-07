@@ -18,7 +18,7 @@
 -->
 
 export NUV_ROOT=/workspaces/all/olaris
-cd /workspaces/all/nuvolaris-runtimes-ng
+cd /workspaces/all/openserverless-runtimes-ng
 
 nuv ide python
 

@@ -144,7 +144,7 @@ func Example_badcompile() {
 
 }
 
-func Example_SetEnv() {
+func Example_setEnv() {
 	ap := NewActionProxy("", "", nil, nil, ProxyModeNone)
 	fmt.Println(ap.env)
 	var m map[string]interface{}

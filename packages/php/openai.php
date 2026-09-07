@@ -30,7 +30,7 @@ function main(array $args): array
   $model = "gpt-35-turbo";
 
   if (empty($openaiHost)) {
-    $openaiHost = 'openai.nuvolaris.io';
+    $openaiHost = 'openai.openserverless.io';
   }
   if (empty($openaiKey)) {
     return ['error'=>"OpenAI Key is not set"];

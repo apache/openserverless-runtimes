@@ -1,0 +1,16 @@
+{
+"default": true,
+"stemCells": [
+    {
+        "initialCount": 1,
+        "memory": "256 MB",
+        "reactive": {
+            "minCount": 1,
+            "maxCount": 4,
+            "ttl": "2 minutes",
+            "threshold": 1,
+            "increment": 1
+        }
+    }
+]
+}

@@ -20,7 +20,7 @@ FROM ${COMMON} AS builder
 
 FROM node:20.11.1-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/nodejs-20.11.1
-COPY --from=builder /go/bin/proxy /bin/proxy 
+COPY --from=builder /go/bin/proxy /bin/proxy
 
 ENV OW_COMPILER=/bin/compile
 ENV OW_LOG_INIT_ERROR=1
@@ -47,5 +47,8 @@ COPY lib/launcher.js /lib/launcher.js
 
 EXPOSE 8080
 USER nobody
+
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
+COPY DISCLAIMER LICENSE NOTICE WARN /
 
 ENTRYPOINT ["/bin/proxy"]

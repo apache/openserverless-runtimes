@@ -21,22 +21,32 @@ dotenv: [.env]
 
 vars:
   DRY: ""
+  DRY2: ""
   PUSH: ""
   BASETAG: ""
-  REPO_PATH: apache
-  BASEIMG: docker.io/{{.REPO_PATH}}
-  COMMON_VER: common1.17.1
-  COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}"
-  EXPERIMENTAL_COMMON_VER: common1.18.4
-  EXPERIMENTAL_COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.EXPERIMENTAL_COMMON_VER}}"
-  TAG:
-    sh: git describe --tags --abbrev=0 2>/dev/null || echo latest
+  FILTER: ""
   J: "{}"
-  #RUNTIMES: "go,nodejs,php,python,java" temp disabled php
-  RUNTIMES: "go,nodejs,python,java"
-  EXPERIMENTAL_RUNTIMES: "python"
   COMMIT_ID:
     sh: git rev-parse --short HEAD
+  SUFFIX: "-snapshot"
+  # register
+  REGISTRY: ${DOCKERHUB_REGISTRY:-docker.io}
+  REPO_PATH: ${DOCKERHUB_USER:-apache}
+  BASEIMG: '{{.REGISTRY}}/{{.REPO_PATH}}'
+  # if you change this, change also the task build FILTER=common:1.18.4 in workflow image.yml
+  COMMON_VER: 1.18.4
+  # pick the most recently created tag (tags are annotated, so they carry their
+  # own creation date and sort correctly even when they share a commit)
+  TAG:
+    sh: git for-each-ref --sort=-creatordate --count=1 --format='%(refname:short)' refs/tags 2>/dev/null | grep . || echo snapshot
+  COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}-{{.TAG}}"
+  # if you cahange this change also the filter in workflow image.yml
+  #RUNTIMES: "go,nodejs,php,python,java" temp disabled php
+  RUNTIMES: "go,nodejs,python,java"
+
+includes:
+  x:
+    TaskfileExperimental.yml
 
 tasks:
   default:
@@ -49,77 +59,100 @@ tasks:
     - sudo apt-get -y install python3-pip python3-virtualenv
     - python3 -m pip install ipython watchdog requests cram
 
-  image-tag:
+  tag:
+    desc: 'tag to build, specify RT  to restrict to <language> or common, experimental'
     silent: true
+    vars:
+      TS:
+        sh: date '+%y %m %d %H %M' | awk '{printf "%s%s%02d%s%02d\n", $1, substr("abcdefghijkl",$2+0,1), $3, substr("abcdefghijklmnopqrstuvwx",$4+1,1), $5}'
     cmds:
-      - git tag -d $(git tag)
+      - git tag | xargs -L1 git tag -d
       - |
-        if test -n "{{.RT}}"
-        then git tag -f {{.RT}}.$(date +%y%m%d%H%M)
-        else git tag -f $(date +%y%m%d%H%M)
+        if test -z "{{.RT}}"
+        then RT=all
+        else RT="{{.RT}}"
         fi
-      - env PAGER= git tag
+        TAG="${RT}_{{.TS}}{{.SUFFIX}}"
+        git tag -a -m "build $TAG" "$TAG"
+        echo Tag $TAG, you can now 'task build'
 
-  common-tag:
-    silent: true
-    cmds:
-      - git tag -d $(git tag)
-      - git tag -f common-$(date +%y%m%d%H%M)
-
-      - env PAGER= git tag
-
-  experimental-tag:
-    silent: true
-    cmds:
-      - git tag -d $(git tag)
-      - git tag -f experimental-$(date +%y%m%d%H%M)
-
-      - env PAGER= git tag
+  ci:
+    - git push --tags
 
   compile: go build -o proxy
+
+  test-prep: ln -sf $(which python3) /usr/local/bin/python
 
   test:
     dir: openwhisk
     cmds:
+      - |
+        if ! /usr/local/bin/python --version | grep 'Python 3'
+        then  echo 'you need to link a python 3 to /usr/local/bin/python to run the tests (do not ask why)'
+              echo tast test-init does it for you if you have a python3 and sudo
+              exit 1
+        fi
       - go test -v
 
   docker-login:
     ignore_error: true
     cmds:
-      - echo ${MY_DOCKER_HUB_TOKEN:-$DOCKER_HUB_TOKEN} | docker login -u ${MY_DOCKER_HUB_USER:-$DOCKER_HUB_USER} --password-stdin registry.hub.docker.com
       - >
-        {{.DRY}} docker run -it --rm --privileged tonistiigi/binfmt --install all
+        echo ${$DOCKERHUB_TOKEN}
+        | docker login -u $DOCKERHUB_USER
+        --password-stdin {{.REGISTRY}}
+      - >
+        {{.DRY}} docker run -it --rm --privileged
+        tonistiigi/binfmt:qemu-v7.0.0-28 --install all
       - >
         {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
 
   clean-images:
-    - docker images -a | grep ghcr.io/nuvolaris | awk '{print $3}' | xargs docker rmi -f
+    - docker images -a | grep openserverless | awk '{print $3}' | xargs docker rmi -f
     - yes | docker buildx prune
 
   build-common:
-    dir: "runtime/common/{{.COMMON_VER}}"
+    silent: true
+    # use the toplevel for common
+    # dir: "runtime/common/{{.COMMON_VER}}"
     cmds:
       - |
-        if test -n "{{.PUSH}}"
-        then {{.DRY}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-        else {{.DRY}} docker buildx build -t "{{.COMMON}}" . --load
+        if echo '{{.COMMON}}' | grep '{{.FILTER}}'
+        then
+          if test -n "{{.PUSH}}"
+          then
+                echo ">>> Building arm/amd and pushing {{.COMMON}}"
+                {{.DRY2}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+          else
+              echo ">>> Building {{.COMMON}}"
+              {{.DRY2}} docker buildx build -t "{{.COMMON}}" . --load
+          fi
+          echo "<<< Built {{.COMMON}}"
         fi
 
   build-runtime:
+    silent: true
     requires: { vars: [RT, VER] }
+    vars:
+      RUNTIME: "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
     dir: "runtime/{{.RT}}/{{.VER}}"
     cmds:
       - |
-        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-        RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-        if test -n "{{.PUSH}}"
+        if echo '{{.RUNTIME}}' | grep '{{.FILTER}}'
         then
-          {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
-        else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.COMMON}}" . --load
+          if test -n "{{.PUSH}}"
+          then
+                echo ">>> Building arm/amd and pushing {{.RUNTIME}}"
+                {{.DRY2}} docker buildx build -t "{{.RUNTIME}}" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
+          else
+                echo ">>> Building {{.RUNTIME}}"
+                {{.DRY2}} docker buildx build -t "{{.RUNTIME}}" --build-arg COMMON="{{.COMMON}}" . --load
+          fi
+          echo "<<< Built {{.RUNTIME}}"
         fi
-        echo "Built $RUNTIME"
 
   build-lang:
+    silent: true
     desc: build images for one runtime
     requires: { vars: [RT] }
     vars:
@@ -131,29 +164,44 @@ tasks:
         vars:
           VER: "{{base .ITEM}}"
 
+  # build all
   build:
     silent: true
-    requires: { vars: [TAG, RUNTIMES] }
-    vars:
-      RT_REGEX:
-        sh: echo "{{.RUNTIMES}}" | tr ',' '|'
-      SPECIFIC_RT:
-        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
+    desc: build the runtimes selected by task tag
     cmds:
-      - |
-        if [ -z "{{.SPECIFIC_RT}}" ];
-        then
-          echo "==> BUILDING RUNTIMES {{.RUNTIMES}}"
-          for ITEM in `echo {{.RUNTIMES}} | tr ',' ' '`; do
-            echo "==> BUILDING $ITEM:{{.TAG}}"
-            task build-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}}
-          done
-        else echo "Build {{.SPECIFIC_RT}}"
-          task build-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
-        fi
+    - |
+        T="{{.TAG}}"
+        TS="${T#*_}"
+        RT="${T%%_*}"
+        echo Building: $T
+        case "$T" in
+          all_*)
+            {{.DRY}} task build-common TAG="$TS" PUSH="{{.PUSH}}" DRY2={{.DRY2}} FILTER={{.FILTER}}
+            for runtime in $(echo {{.RUNTIMES}} | tr ',' ' ')
+            do {{.DRY}} task build-lang RT="$runtime" TAG="$TS" PUSH="{{.PUSH}}" DRY2={{.DRY2}} FILTER={{.FILTER}}
+            done
+          ;;
+          common_*)
+            {{.DRY}} task build-common TAG="$TS" PUSH="{{.PUSH}}" DRY2={{.DRY2}} FILTER={{.FILTER}}
+          ;;
+          experimental_*)
+            {{.DRY}} task x:build-experimental-runtimes TAG="$TS" PUSH="{{.PUSH}}"
+          ;;
+          *_*)
+            TS="${T#*_}"
+            {{.DRY}} task build-common TAG="$TS" PUSH="{{.PUSH}}" DRY2={{.DRY2}} FILTER={{.FILTER}}
+            {{.DRY}} task build-lang RT="$RT" TAG="$TS" PUSH="{{.PUSH}}" DRY2={{.DRY2}} FILTER={{.FILTER}}
+          ;;
+          *)
+            echo this should not happen - did you read the README
+          ;;
+        esac
 
-  build-and-push:
-    - task build PUSH=y DRY={{.DRY}}
+  buildx:
+    desc: build and push the runtimes selected by task tag
+    silent: false
+    cmds:
+    - task build PUSH=y FILTER="{{.FILTER}}" DRY2='{{.DRY2}}'
 
   run:
     desc: run a runtime
@@ -174,18 +222,6 @@ tasks:
         -e OW_COMPILER=/mnt/bin/compile
         "{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
 
-  debug-experimental:
-    desc: debug a runtime
-    requires: { vars: [RT, VER] }
-    dir: "runtime/experimental/{{.RT}}/{{.VER}}"
-    cmds:
-      - >
-        BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
-        {{.DRY}} docker run -p 8080:8080 -ti
-        --entrypoint=/bin/bash -v $PWD:/mnt
-        -e OW_COMPILER=/mnt/bin/compile
-        "${BASEIMG}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-
   init:
     desc: intialize a runtime with a test
     requires: { vars: [RT, VER, T] }
@@ -197,131 +233,9 @@ tasks:
     cmds:
       - python3 packages/invoke.py run '{{.J}}'
 
-  render-runtime:
-    requires: { vars: [RT, VER] }
-    dir: "runtime/{{.RT}}/{{.VER}}"
-    cmds:
-      - |
-        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-        RUNTIME="{{.BASEIMG}}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-        ENVVER=$(echo "{{.VER}}" | tr '.' '_' | tr '[:upper:][:lower:]' '[:lower:][:upper:]')
-        ENVRT=$(echo "{{.RT}}" | tr '[a-zA-Z]' '[A-Za-z]')
-        if test -n "{{.PUSH}}"
-        then
-          {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"  >> {{.BASE_DIR}}/runtimes.env
-        else {{.DRY}} echo "OPS_RUNTIME_TAG_${ENVRT}_${ENVVER}={{.VER}}-{{.TAG}}"
-        fi
-        echo "Rendered $RUNTIME"
-
-  render-lang:
-    desc: render images for one runtime
-    requires: { vars: [RT, BASE_DIR] }
-    vars:
-      DIRS:
-        sh: ls -d  runtime/{{.RT}}/v* || echo ""
-    cmds:
-      - for: { var: DIRS }
-        task: render-runtime
-        vars:
-          VER: "{{base .ITEM}}"
-          BASE_DIR: "{{.BASE_DIR}}"
-
-  render:
-    silent: true
-    requires: { vars: [TAG, RUNTIMES] }
-    vars:
-      RT_REGEX:
-        sh: echo "{{.RUNTIMES}}" | tr ',' '|'
-      SPECIFIC_RT:
-        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
-      BASE_DIR:
-        sh: pwd
-    cmds:
-      - |
-        rm -f runtimes.env
-        echo "OPS_RUNTIME_PREFIX={{.REPO_PATH}}" >> runtimes.env
-        echo "==> RENDERING RUNTIMES {{.RUNTIMES}}"
-        for ITEM in `echo {{.RUNTIMES}} | tr ',' ' '`; do
-          echo "==> RENDERINGG $ITEM:{{.TAG}}"
-          task render-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}} BASE_DIR="{{.BASE_DIR}}"
-        done
-
-  generate-runtimes:
-    silent: true
-    dotenv:
-      - runtimes.env
-    cmds:
-      - cat runtimes.json.tpl | envsubst  > runtimes.json
-
   render-runtimes:
     silent: true
     desc: generate a runtimes.json file with all the runtime corresponding to the current TAG
     cmds:
-      - |
-        task render PUSH=y
-        task generate-runtimes
-
-  build-experimental-runtime:
-    requires: { vars: [RT, VER] }
-    dir: "runtime/experimental/{{.RT}}/{{.VER}}"
-    cmds:
-      - |
-        BASEIMG=$(echo "${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}")
-        RUNTIME="$BASEIMG/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}"
-        PLATFORMS=$(cat platforms.txt)
-        if test -n "{{.PUSH}}"
-        then
-          {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" --platform "$PLATFORMS" . --push
-        else {{.DRY}} docker buildx build -t "$RUNTIME" --build-arg COMMON="{{.EXPERIMENTAL_COMMON}}" . --load
-        fi
-        echo "Built $RUNTIME on platforms $PLATFORMS"
-
-  build-experimental-lang:
-    desc: build images for experimental runtimes
-    requires: { vars: [RT] }
-    vars:
-      DIRS:
-        sh: ls -d runtime/experimental/{{.RT}}/v* || echo ""
-    cmds:
-      - for: { var: DIRS }
-        task: build-experimental-runtime
-        vars:
-          VER: "{{base .ITEM}}"
-
-  build-experimental-runtimes:
-    silent: true
-    requires: { vars: [TAG, EXPERIMENTAL_RUNTIMES] }
-    vars:
-      RT_REGEX:
-        sh: echo "{{.EXPERIMENTAL_RUNTIMES}}" | tr ',' '|'
-      SPECIFIC_RT:
-        sh: echo "{{.TAG}}" | grep -E -o '({{.RT_REGEX}})' || echo ''
-    cmds:
-      - |
-        if [ -z "{{.SPECIFIC_RT}}" ];
-        then
-          echo "==> BUILDING RUNTIMES {{.EXPERIMENTAL_RUNTIMES}}"
-          for ITEM in `echo {{.EXPERIMENTAL_RUNTIMES}} | tr ',' ' '`; do
-            echo "==> BUILDING $ITEM:{{.TAG}}"
-            task build-experimental-lang RT=$ITEM PUSH="{{.PUSH}}" DRY={{.DRY}}
-          done
-        else echo "Build {{.SPECIFIC_RT}}"
-          task build-experimental-lang RT={{.SPECIFIC_RT}} PUSH="{{.PUSH}}" DRY={{.DRY}}
-        fi
-
-  debug-experimental-proxied-runtime:
-    desc: debug a runtime
-    requires: { vars: [RT, VER] }
-    cmds:
-      - >
-        BASEIMG="${MY_DOCKER_HUB_REGISTRY:-$DOCKER_HUB_REGISTRY}" ;
-        {{.DRY}} docker run -p 8081:8080 -e OW_ACTIVATE_PROXY_SERVER=1 -ti
-        --entrypoint=/mnt/proxy-experimental -v $PWD:/mnt
-        "${BASEIMG}/openserverless-runtime-{{.RT}}:{{.VER}}-{{.TAG}}" -debug
-
-  debug-experimental-proxy:
-    desc: debug a runtime
-    requires: { vars: [RT, VER] }
-    cmds:
-      - export GOOS=linux; go build -o proxy-experimental
-      - task: debug-experimental-proxied-runtime
+      - echo "creating runtimes.json"
+      - uv run runtimes.py {{.TAG}} >runtimes.json
