@@ -238,4 +238,4 @@ tasks:
     desc: generate a runtimes.json file with all the runtime corresponding to the current TAG
     cmds:
       - echo "creating runtimes.json"
-      - uv run runtimes.py {{.TAG}} >runtimes.json
+      - python3 runtimes.py {{.TAG}} >runtimes.json
