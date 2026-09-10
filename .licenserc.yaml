@@ -24,8 +24,6 @@ header:
     - '**/*.sample'
     - 'env.src'
     - '.git-hooks/pre-commit'
-    - '**/_*'
-    - 'nuvroot.json'
     - 'LICENSE'
     - 'NOTICE'
     - 'DISCLAIMER'
