@@ -153,8 +153,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           task tag RT="${{ inputs.runtime }}"
-      - name: Build and push common
-        run: task buildx FILTER=runtime-common:1.18.4
       # The tag looks like <scope>_<timestamp>; the runtime shards use the
       # scope to decide whether they apply to this run.
       - name: Read tag scope
@@ -182,6 +180,7 @@ jobs:
       # so entries for every language can stay listed here all the time.
       matrix:
         include:
+          - { rt: common, ver: 1.18.4 }
           - { rt: python, ver: sys }
           - { rt: python, ver: v3.11 }
           - { rt: python, ver: v3.12 }

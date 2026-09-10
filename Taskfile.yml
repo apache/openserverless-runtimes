@@ -102,10 +102,11 @@ tasks:
         | docker login -u $DOCKERHUB_USER
         --password-stdin {{.REGISTRY}}
       - >
-        {{.DRY}} docker run -it --rm --privileged
-        tonistiigi/binfmt:qemu-v7.0.0-28 --install all
+       {{.DRY}}
+        docker run -it --rm --privileged tonistiigi/binfmt:qemu-v7.0.0-28 --install all
       - >
-        {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
+        {{.DRY}}
+        docker buildx create --name mybuilder --bootstrap --use
 
   clean-images:
     - docker images -a | grep openserverless | awk '{print $3}' | xargs docker rmi -f
