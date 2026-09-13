@@ -17,8 +17,8 @@
 
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
-FROM golang:1.26-bookworm
-ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.26
+FROM golang:1.25-bookworm
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.25
 COPY --from=builder /go/bin/proxy /bin/proxy
 
 RUN \

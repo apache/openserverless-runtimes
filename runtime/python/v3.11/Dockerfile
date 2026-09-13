@@ -18,7 +18,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM python:3.11.16-bookworm
+FROM python:3.11.16-slim-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11.16
 COPY --from=builder /go/bin/proxy /bin/proxy
 

@@ -1,11 +1,16 @@
 ==============================================================================
-WARN -- Apache License 2.0 incompatibilities
+WARN -- Apache License 2.0 incompatibilities and open review items
 Container image: apache/openserverless-runtime-python:v3.11
 ==============================================================================
 
-This file lists third-party components bundled by the Dockerfile beside
-it whose licenses are NOT compatible with the Apache License, Version 2.0,
-together with components that require special handling.
+This file accompanies the LICENSE and NOTICE files beside it. Everything below
+is a WARNING: it is NOT part of the licensing grant. Each item must be
+resolved or confirmed by the PPMC and the Incubator mentors before a release
+vote.
+
+The inventory it comments on is the 78 Python distributions pinned in
+requirements.txt beside this file, plus the base image and the packages the
+Dockerfile installs from the Debian archive.
 
 Classification follows the ASF third-party licensing policy:
 
@@ -16,51 +21,135 @@ Classification follows the ASF third-party licensing policy:
               separate file, with the reciprocal license disclosed.
   Category X  MUST NOT be included in an Apache release artifact.
 
-IMPORTANT SCOPE NOTE
+
+SCOPE NOTE
 ------------------------------------------------------------------------------
 The Apache release artifact for OpenServerless is the SOURCE distribution,
 which contains this Dockerfile and the files beside it -- all Apache-2.0
-licensed. The published container image is a CONVENIENCE BINARY assembled
-at build time from third-party base images and package repositories.
-Category X components inherited from a base operating system image are
-disclosed below but are not redistributed by the ASF in source form.
-Category X components that this Dockerfile ADDS on purpose must be removed.
+licensed. The published container image is a CONVENIENCE BINARY assembled at
+build time from third-party base images and package repositories. Category X
+components inherited from a base operating system image are disclosed below
+but are not redistributed by the ASF in source form. Category X components
+that this Dockerfile ADDS on purpose must be removed.
 
 
 ==============================================================================
 CATEGORY X (AS BUNDLED)
 ==============================================================================
 
-  Component : Debian/Ubuntu/Alpine base image userland
+  Component : Debian bookworm base image userland
+              (via python:3.11.16-bookworm)
   License   : mixed, incl. GPL-2.0/GPL-3.0
   Category  : X (as bundled)
   Action    :
-      The base image contains GPL-licensed operating-system components. The Apache release
-      artifact is the SOURCE (this Dockerfile and the files beside it); the published
-      container image is a convenience binary assembled from third-party base images.
-      No action required beyond this disclosure.
+      The base image contains GPL-licensed operating-system components. The
+      Apache release artifact is the SOURCE (this Dockerfile and the files
+      beside it); the published container image is a convenience binary
+      assembled from third-party base images. No action required beyond this
+      disclosure.
+
+
+==============================================================================
+CATEGORY B -- WEAK COPYLEFT, BINARY INCLUSION ONLY
+==============================================================================
+
+  Component : certifi 2026.7.22
+  License   : MPL-2.0
+  Category  : B
+  Action    :
+      Pulled in transitively by requests, httpx, minio and others. Binary form
+      only, unmodified, as a separate file, with the license disclosed. See
+      warning 4 below: certifi itself ships only a pointer to the MPL, not a
+      copy of it.
+
+  Component : orjson 3.12.0
+  License   : MPL-2.0 AND (Apache-2.0 OR MIT)
+  Category  : B for the MPL-2.0 part
+  Action    :
+      Same conditions as certifi. Pulled in by langsmith. Binary form only,
+      unmodified, as a separate file, with the license disclosed in LICENSE.
+
+  Component : tqdm 4.70.1
+  License   : MPL-2.0 AND MIT
+  Category  : B for the MPL-2.0 part
+  Action    :
+      Same conditions as certifi. Pulled in by nltk and openai. Its single
+      license file carries both the MPL-2.0 reference and the MIT text.
+
+
+==============================================================================
+LICENSES NEEDING A JUDGEMENT CALL
+==============================================================================
+
+  Component : regex 2026.9.10
+  License   : Apache-2.0 AND CNRI-Python
+  Category  : A
+  Action    :
+      The CNRI Python license is part of the Python license stack the ASF
+      already accepts for CPython itself. Both texts ship with the distribution
+      and both are disclosed in LICENSE.
+
+  Component : pycryptodome 3.23.0
+  License   : BSD-2-Clause AND public domain
+  Category  : A
+  Action    :
+      Code originating from PyCrypto is released into the public domain, the
+      remainder is BSD 2-clause. Both are permissive. The distribution names
+      its contributors in an AUTHORS file rather than in a single copyright
+      line, which is why LICENSE points at that file instead of quoting one.
+
+
+  Component : langdetect 1.0.9
+  License   : Apache-2.0
+  Category  : A
+  Action    :
+      The distribution's metadata contradicts itself: the "license" field says
+      MIT while the trove classifier and the LICENSE and NOTICE files shipped
+      in the wheel all say Apache-2.0. Recorded as Apache-2.0 on the strength
+      of the shipped license files. Worth reporting upstream.
+
+  Component : langsmith 0.12.4
+  License   : MIT declared in metadata, no license file published
+  Category  : A
+  Action    :
+      See warning 7 below. There is no copyright notice to reproduce, which is
+      what the MIT license requires of a redistributor. Ask upstream to ship
+      its license file.
+
+  Component : cffi 2.1.1 and scramp 1.4.17
+  License   : MIT-0 (MIT No Attribution)
+  Category  : A
+  Action    :
+      MIT-0 drops the attribution requirement of MIT. It is more permissive
+      than MIT, not less, so nothing is required of a redistributor. Recorded
+      for completeness.
 
 
 ==============================================================================
 CATEGORY A
 ==============================================================================
 
-  Component : zip / unzip (Info-ZIP)
-  License   : Info-ZIP License
+  Component : CPython 3.11.16 and the components bundled with it
+  License   : PSF-2.0, with bundled code under further permissive licenses
   Category  : A
   Action    :
-      BSD-like and Apache-compatible. No action required.
+      No action required.
 
-
-==============================================================================
-CATEGORY A (UNDER MIT)
-==============================================================================
-
-  Component : simplejson
-  License   : MIT OR AFL-2.1
-  Category  : A (under MIT)
+  Component : zip (Info-ZIP), python3-lxml (BSD-3-Clause), plus the 81 Python
+              distributions pinned in requirements.txt
+  License   : MIT family (35), BSD (20), Apache-2.0 (19), MPL (see Category
+              B) (3), PSF (3), ISC (1)
+  Category  : A
   Action    :
-      Dual-licensed. Elect the MIT option, which is Category A. No action required.
+      No action required. Every distribution is recorded one by one in LICENSE
+      with its version, license and copyright notice.
+
+  Component : Go modules linked into /bin/proxy
+  License   : BSD-3-Clause, MIT, ISC, Apache-2.0
+  Category  : A
+  Action    :
+      No action required. See warning 10.
+
 
 
 ==============================================================================
@@ -69,14 +158,109 @@ SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
 
   None. This Dockerfile adds no Category X component.
 
+  The lightgbm dependency, which pulled in the numpy and scipy manylinux
+  wheels and with them a vendored LGPL-2.1-or-later libquadmath shared
+  object, has been removed from requirements.in. No LGPL component is
+  present in this image any more.
+
+  The GPL components of the Debian userland are inherited from the base
+  image.
+
+==============================================================================
+WARNINGS ON THE INVENTORY ITSELF
+==============================================================================
+
+  1. THE INVENTORY DESCRIBES THE linux/amd64 WHEELS
+     Where a distribution publishes platform wheels, the license facts in
+     LICENSE were taken from the manylinux x86_64 wheel, because that is what
+     pip installs in this image. An image built for linux/arm64 would resolve
+     to different wheels, and its vendored-library set has NOT been checked
+     here.
+
+  2. certifi SHIPS A POINTER TO THE MPL, NOT A COPY OF IT
+     certifi's license file is a short notice saying the Source Code Form is
+     subject to the MPL 2.0 and giving a URL. The MPL requires that a copy of
+     the license accompany the distribution. Since this LICENSE records
+     licenses by reference rather than reproducing their full texts, a full
+     MPL-2.0 copy is NOT present in the source tree. Decide with the PPMC
+     whether the reference is sufficient for a convenience binary, or add the
+     full MPL-2.0 text to the release.
+
+  3. THREE DISTRIBUTIONS ARE INSTALLED WITHOUT ANY VERSION CONSTRAINT
+     The build runs
+
+         pip3 install --upgrade pip six wheel virtualenv
+
+     before installing the pinned requirements. six, wheel and virtualenv --
+     and virtualenv's own dependencies -- are therefore whatever the index
+     serves on the day of the build, and are NOT part of the inventory in
+     LICENSE except for six, which requirements.txt also pins. The two steps
+     contradict each other, exactly as they do in the sibling Python runtimes.
+     Pin them, or drop them and let requirements.txt decide.
+
+  4. THE PINNED REQUIREMENTS ARE DETERMINISTIC, THE INVENTORY IS NOT
+     SELF-MAINTAINING
+     requirements.txt is generated by pip-compile from requirements.in and
+     pins all 81 distributions with ==, so the inventory is exact for as long
+     as that file is not regenerated. Regenerating it can introduce new
+     transitive distributions whose licenses nobody has reviewed. Add a license
+     check to whatever regenerates requirements.txt, and regenerate LICENSE,
+     NOTICE and this file in the same step.
+
+  5. ONE DISTRIBUTION SHIPS NO LICENSE TEXT
+     langsmith 0.12.4 declares MIT in its metadata but publishes no license
+     file in either its wheel or its sdist, so there is no copyright notice to
+     reproduce, which is what the MIT license requires of a redistributor.
+
+  6. VENDORED BINARY CODE IS ONLY AS VISIBLE AS THE WHEEL MAKES IT
+     A wheel is under no obligation to declare the shared objects it
+     vendors. pydantic-core, jiter, orjson, ormsgpack, zstandard, xxhash,
+     uuid-utils and others ship
+     compiled code built from vendored C, C++ and Rust projects, and no claim
+     is made here that every vendored component is accounted for.
+
+  7. WHEEL METADATA WAS READ FROM PyPI, NOT FROM A BUILT IMAGE
+     The license facts recorded in LICENSE were taken from the wheels and
+     sdists published on PyPI at exactly the versions pinned in
+     requirements.txt. The authoritative copy for the shipped image remains
+     the <dist>-<version>.dist-info/ directory inside the image.
+
+  8. THE BUNDLED PROXY CANNOT BE VERIFIED FROM THIS DIRECTORY
+     /bin/proxy is copied from the image named by the COMMON build argument,
+     which defaults to `missing:missing`. The Go module inventory was derived
+     from the go.mod and go.sum of this repository, not from the binary that
+     actually ends up in the image.
+
+  9. LICENSE RECORDS LICENSES BY REFERENCE, NOT BY REPRODUCTION
+     Following the layout of the Apache Pekko LICENSE and NOTICE
+
+         https://github.com/apache/pekko/blob/main/LICENSE
+         https://github.com/apache/pekko/blob/main/NOTICE
+
+     each component block names the license and reproduces the copyright
+     notice, rather than reproducing the full license text. This satisfies the
+     attribution requirement of the MIT and BSD families, whose condition is
+     that the copyright notice be retained. Confirm with the mentors that it is
+     also acceptable for the MPL components in Category B above.
+
+ 10. DEPENDENCIES OF USER ACTIONS ARE NOT COVERED
+     Beyond the distributions listed above, user actions bring their own
+     Python dependencies at deploy time. Those libraries are NOT part of this
+     image and NOT part of any Apache release artifact, and no claim is made
+     here about their licenses.
+
+
 ==============================================================================
 ADDITIONAL NOTES
 ==============================================================================
 
-Base image: python:3.11.16-bookworm (CPython under the PSF License 2.0).
-The `chess`, `xpdf` and `python3-psycopg2` components flagged in earlier
-revisions of this file are no longer installed by this runtime.
-The pip dependency tree resolved from requirements.txt is far larger than
-the direct requirements listed here; requirements.txt records the full
-pinned closure. Run `pip-licenses` inside the built image for the
-complete inventory before a release audit.
+On top of the default package set shared by all the Python runtimes, this
+image adds the data and LLM stack declared in requirements.in: beautifulsoup4,
+feedparser, joblib, plotly, openai, ollama,
+langchain, nltk and langdetect, together with their transitive dependencies.
+
+lxml arrives here as the Debian python3-lxml package, not as a wheel.
+
+The pinned set is identical to that of the sibling versioned Python
+runtimes: with lightgbm removed, all three resolve to the same 78
+distributions at the same versions.
