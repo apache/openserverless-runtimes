@@ -27,3 +27,6 @@ header:
     - 'WARN'
     - '**/*.json'
     - 'go.sum'
+    - openwhisk/_test/etc
+    - openwhisk/_test/dir/etc
+    - '**/.gitkeep'

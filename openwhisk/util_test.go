@@ -194,10 +194,16 @@ func removeLineNr(out string) string {
 	return re.ReplaceAllString(out, "::")
 }
 func TestMain(m *testing.M) {
-	// test fixture: _test/etc is read by Example_json_init and zipped
-	// into exec.zip by _test/build.sh, so write it before both run
-	if err := os.WriteFile("_test/etc", []byte("1\n"), 0644); err != nil {
-		log.Fatalf("cannot create test fixture _test/etc: %v", err)
+	// test fixtures: _test/etc is read by Example_json_init, and both
+	// _test/etc and _test/dir/etc are zipped into exec.zip by
+	// _test/build.sh, so write them before either runs
+	if err := os.MkdirAll("_test/dir", 0755); err != nil {
+		log.Fatalf("cannot create test fixture dir _test/dir: %v", err)
+	}
+	for _, f := range []string{"_test/etc", "_test/dir/etc"} {
+		if err := os.WriteFile(f, []byte("1\n"), 0644); err != nil {
+			log.Fatalf("cannot create test fixture %s: %v", f, err)
+		}
 	}
 
 	Debugging = false // enable debug of tests
