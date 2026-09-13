@@ -50,7 +50,7 @@ ENV HOME=/tmp
 WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action
 USER nobody
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT ["/bin/proxy"]

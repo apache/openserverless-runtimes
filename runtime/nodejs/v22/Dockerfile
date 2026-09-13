@@ -48,7 +48,7 @@ COPY lib/launcher.js /lib/launcher.js
 EXPOSE 8080
 USER nobody
 
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT ["/bin/proxy"]
