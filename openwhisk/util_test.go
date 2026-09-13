@@ -194,6 +194,12 @@ func removeLineNr(out string) string {
 	return re.ReplaceAllString(out, "::")
 }
 func TestMain(m *testing.M) {
+	// test fixture: _test/etc is read by Example_json_init and zipped
+	// into exec.zip by _test/build.sh, so write it before both run
+	if err := os.WriteFile("_test/etc", []byte("1\n"), 0644); err != nil {
+		log.Fatalf("cannot create test fixture _test/etc: %v", err)
+	}
+
 	Debugging = false // enable debug of tests
 	if !Debugging {
 		// silence those annoying tests
