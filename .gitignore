@@ -99,3 +99,5 @@ openserverless-runtimes
 runtimes.json
 action/**/*
 out.json
+openwhisk/_test/etc
+openwhisk/_test/dir/

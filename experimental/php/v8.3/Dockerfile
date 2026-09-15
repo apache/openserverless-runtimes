@@ -96,7 +96,7 @@ RUN chmod +x /bin/compile.php && chmod +x /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 ENV OW_EXECUTION_ENV=apacheopenserverless/action-php-v8.3
 
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT [ "/bin/proxy", "-debug" ]

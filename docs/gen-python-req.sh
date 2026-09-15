@@ -15,24 +15,34 @@
 # specific language governing permissions and limitations
 # under the License.
 # default packages available across all runtimes
-beautifulsoup4==4.10.0
-httplib2==0.19.1
-kafka_python==2.0.2
-python-dateutil==2.8.2
-requests==2.31.0
-scrapy==2.5.0
-simplejson==3.17.5
-twisted==21.7.0
-netifaces==0.11.0
-pyyaml==6.0.1
-redis==4.4.2
-boto3==1.28.25
-pg8000==1.31.5
-pymongo==4.4.1
-minio==7.1.16
-huggingface_hub==0.26.2
-accelerate==1.1.1
-protobuf==5.28.3
-sentencepiece==0.2.0
-mistral_inference==1.5.0
-transformers==4.46.3
+
+
+# this is not a script but a sequence of commands to be run manually
+
+DIR=sys
+DIR=v3.11
+DIR=v3.12
+DIR=v3.13
+cd "$(dirname $0)"
+BASE=$(pwd)
+for DIR in sys v3.11 v3.12 v3.13
+do
+    # pick your dir
+    cd $BASE/../runtime/python/$DIR
+
+docker run -i -v $PWD:/mnt $(awk '/FROM python/{ print $2}' Dockerfile) bash <<EOF
+cd /mnt
+rm requirements.txt
+
+# pip
+pip install pip-tools
+pip-compile requirements.in
+{ head -n 16 requirements.in; cat requirements.txt; } > requirements.new && mv requirements.new requirements.txt
+EOF
+
+done
+
+# uv
+#head -n 16 requirements.in >requirements.txt
+#uv pip compile requirements.in  >>requirements.txt
+
