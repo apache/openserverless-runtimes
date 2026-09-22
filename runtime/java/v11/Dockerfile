@@ -61,7 +61,7 @@ ENV OW_COMPILER=/bin/compile
 # default name to use when a jar is submitted as action
 ENV OW_SAVE_JAR=exec.jar
 
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT ["/bin/proxy"]

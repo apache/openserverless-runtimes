@@ -8,84 +8,832 @@ The Apache Software Foundation (http://www.apache.org/).
 Container image: apache/openserverless-runtime-nodejs:v22
 ------------------------------------------------------------------------------
 
-This image bundles third-party software. The components below are
-redistributed under the licenses recorded in the LICENSE file that
-accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
-listed in the WARN file as incompatible with the Apache License 2.0.
+---------------
 
-npm dependencies preinstalled in the image (package.json)
----------------------------------------------------------
-  * aws-s3 (^2.0.5)
-      License: MIT
-  * minio (^8.0.7)
-      License: Apache-2.0
-  * mongodb (^7.6.0)
-      License: Apache-2.0
-  * ollama (^0.6.3)
-      License: MIT
-  * openai (^7.10.0)
-      License: Apache-2.0
-  * openwhisk (^3.21.9)
-      License: Apache-2.0
-      Apache OpenWhisk.
-  * pg (^8.23.0)
-      License: MIT
-  * redis (^6.2.1)
-      License: MIT
-  * uuid (^14.0.2)
-      License: MIT
+The container image contains /bin/proxy, the Apache OpenServerless action
+proxy, copied from the common builder image, and the files bin/compile and
+lib/launcher.js, which were developed at The Apache Software Foundation under
+an Apache 2.0 license.
 
-Operating-system packages installed by the Dockerfile
------------------------------------------------------
-  * imagemagick ((Debian bookworm))
-      License: ImageMagick License (Apache-2.0 compatible)
-  * graphicsmagick ((Debian bookworm))
-      License: MIT
-  * unzip ((Debian bookworm))
-      License: Info-ZIP
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
 
-Action proxy (copied from the common builder image)
----------------------------------------------------
-  * github.com/google/uuid (v1.6.0)
-      License: BSD-3-Clause
-  * github.com/rs/zerolog (v1.33.0)
-      License: MIT
-  * github.com/stretchr/testify (v1.9.0)
-      License: MIT
-      Test-only dependency.
-  * github.com/davecgh/go-spew (v1.1.1)
-      License: ISC
-      Transitive.
-  * github.com/mattn/go-colorable (v0.1.13)
-      License: MIT
-      Transitive.
-  * github.com/mattn/go-isatty (v0.0.20)
-      License: MIT
-      Transitive.
-  * github.com/pmezard/go-difflib (v1.0.0)
-      License: BSD-3-Clause
-      Transitive.
-  * golang.org/x/sys (v0.26.0)
-      License: BSD-3-Clause
-      Transitive.
-  * gopkg.in/yaml.v3 (v3.0.1)
-      License: Apache-2.0 AND MIT
-      Transitive.
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
-Base operating system image
----------------------------
-  * (see the FROM line of the Dockerfile) (-)
-      License: mixed; see WARN
-      Operating-system components are supplied by the upstream base image and are not
-      redistributed by the ASF in source form.
+---------------
 
-------------------------------------------------------------------------------
-Attribution required by bundled components
-------------------------------------------------------------------------------
+The container image is built FROM node:22.23.2-bookworm and contains the
+Node.js runtime 22.23.2 and the third-party components bundled with it, which
+were released under an MIT license and the further licenses recorded in
+LICENSE.
 
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/), including Apache OpenWhisk
-components and Apache-2.0 licensed libraries listed above.
+Copyright Node.js contributors. All rights reserved.
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+Copyright (C) 2012-2022 by various contributors (see AUTHORS)
+Copyright (c) 1998 Massachusetts Institute of Technology
+Copyright (c) 2007 - 2023 Daniel Stenberg with many contributors, see AUTHORS
+Copyright (C) 2018-2020 Guy Bedford
+Copyright (c) 2019 Intel Corporation. All rights reserved.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+Copyright (c) Marco Ippolito and Amaro contributors
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+You may add Your own copyright statement to Your modifications and
+Copyright 2024 SWC contributors.
+COPYRIGHT AND PERMISSION NOTICE
+Copyright © 2016-2025 Unicode, Inc.
+this copyright and permission notice appear with all copies of the Data
+Files or Software, or (b) this copyright and permission notice appear in
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE
+Except as contained in this notice, the name of a copyright holder shall
+authorization of the copyright holder.
+Copyright (c) 1995-2016 International Business Machines Corporation and others
+OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+Except as contained in this notice, the name of a copyright holder
+of the copyright holder.
+#  Copyright (C) 2006-2008, Google Inc.
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+#   * Copyright (c) 1999 TaBE Project.
+#   * Copyright (c) 1999 Pai-Hsiang Hsiao.
+#   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#   * Copyright (c) 1999 Computer Systems and Communication Lab,
+#  Copyright 1996 Chih-Hao Tsai @ Beckman Institute,
+#  Copyright 2000, 2001, 2002, 2003 Nara Institute of Science
 
-This product includes software developed by third parties under the
-MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.
+---------------
+
+The container image is built FROM node:22.23.2-bookworm and contains npm,
+which was released under the Artistic License 2.0.
+
+Copyright (c) npm, Inc. and Contributors
+Copyright (c) their respective copyright owners
+Copyright (c) Mathias Pettersson and Brian Hammond
+Copyright (c) Tjarda Koster, https://jelloween.deviantart.com
+
+---------------
+
+The container image is built FROM node:22.23.2-bookworm and contains Yarn,
+which was released under a BSD 2-clause license.
+
+Copyright (c) 2016-present, Yarn Contributors. All rights reserved.
+* Redistributions of source code must retain the above copyright notice, this
+* Redistributions in binary form must reproduce the above copyright notice,
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+
+---------------
+
+The container image is built FROM node:22.23.2-bookworm and contains the
+Debian bookworm operating system userland. Each package of that userland
+carries its own copyright and license, recorded inside the image in
+/usr/share/doc/<package>/copyright.
+
+---------------
+
+The container image contains imagemagick, which was released under the
+ImageMagick license.
+
+Copyright @ 1999 ImageMagick Studio LLC, a non-profit organization dedicated to making software imaging solutions freely available.
+Licensor shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+Copyright [yyyy] [name of copyright owner]
+
+---------------
+
+The container image contains graphicsmagick, which was released under the
+GraphicsMagick license.
+
+GraphicsMagick Copyrights and Licenses
+be significant for the purposes of copyright. Repeated
+Copyright (C) 2002-2026 GraphicsMagick Group
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+Copyright (C) 2002 ImageMagick Studio, a non-profit organization dedicated
+Copyright 1999 E. I. du Pont de Nemours and Company
+Copyright (c) 2000 Markus Friedl.  All rights reserved.
+| Copyright (c) 1985-1988 by Supoj Sutanthavibul
+
+---------------
+
+The container image contains unzip, which was released under the Info-ZIP
+license.
+
+Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+For the purposes of this copyright and license, "Info-ZIP" is defined as
+
+---------------
+
+The container image contains @mongodb-js/saslprep 1.5.0, installed by npm,
+which was released under an MIT license.
+
+Copyright (c) 2014 Dmitry Tsvettsikh
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+
+---------------
+
+The container image contains @nodable/entities 3.0.0, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2026 Nodable
+
+---------------
+
+The container image contains @redis/bloom 6.2.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains @redis/client 6.2.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains @redis/json 6.2.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains @redis/search 6.2.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains @redis/time-series 6.2.1, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains @types/webidl-conversions 7.0.3, installed by
+npm, which was released under an MIT license.
+
+Copyrights are respective of each contributor listed at the beginning of each definition file.
+
+---------------
+
+The container image contains @types/whatwg-url 13.0.0, installed by npm, which
+was released under an MIT license.
+
+Copyrights are respective of each contributor listed at the beginning of each definition file.
+
+---------------
+
+The container image contains any-base 1.1.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2015 Kamil Harasimowicz and contributors
+
+---------------
+
+The container image contains anynum 1.0.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2026 Natural Intelligence
+
+---------------
+
+The container image contains async 3.2.6, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2010-2018 Caolan McMahon
+
+---------------
+
+The container image contains async-retry 1.3.3, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2021 Vercel, Inc.
+
+---------------
+
+The container image contains aws-s3 2.0.5, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2016-present Faustino Kialungila
+
+---------------
+
+The container image contains block-stream2 2.1.0, installed by npm, which was
+released under an MIT license.
+
+The published package ships no license text and records no copyright holder.
+The license above is the one declared in its package.json.
+
+---------------
+
+The container image contains browser-or-node 2.1.1, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2018 Dineshkumar Pandiyan <flexdinesh@gmail.com>
+
+---------------
+
+The container image contains bson 7.3.2, installed by npm, which was released
+under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains buffer-crc32 1.0.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2013-2024 Brian J. Brennan
+
+---------------
+
+The container image contains cluster-key-slot 1.1.2, installed by npm, which
+was released under an Apache 2.0 license.
+
+Copyright (c) 2018 Mike Diarmid (Salakar) <mike.diarmid@gmail.com>
+
+---------------
+
+The container image contains crypto-js 3.3.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2009-2013 Jeff Mott
+Copyright (c) 2013-2016 Evan Vosberg
+
+---------------
+
+The container image contains decode-uri-component 0.2.2, installed by npm,
+which was released under an MIT license.
+
+Copyright (c) 2017, Sam Verschueren <sam.verschueren@gmail.com> (github.com/SamVerschueren)
+
+---------------
+
+The container image contains eventemitter3 5.0.4, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2014 Arnout Kazemier
+
+---------------
+
+The container image contains fast-xml-builder 1.3.1, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2026 Natural Intelligence
+
+---------------
+
+The container image contains fast-xml-parser 5.11.1, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2017 Amit Kumar Gupta
+
+---------------
+
+The container image contains filter-obj 1.1.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+---------------
+
+The container image contains iconv-lite 0.6.3, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2011 Alexander Shtuchkin
+
+---------------
+
+The container image contains inherits 2.0.4, installed by npm, which was
+released under an ISC license.
+
+Copyright (c) Isaac Z. Schlueter
+
+---------------
+
+The container image contains ipaddr.js 2.5.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (C) 2011-2017 whitequark <whitequark@whitequark.org>
+
+---------------
+
+The container image contains is-unsafe 2.0.2, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2026 Natural Intelligence
+
+---------------
+
+The container image contains lodash 4.18.1, installed by npm, which was
+released under an MIT license.
+
+Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+Based on Underscore.js, copyright Jeremy Ashkenas,
+Copyright and related rights for sample code are waived via CC0. Sample
+
+---------------
+
+The container image contains memory-pager 1.5.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2017 Mathias Buus
+
+---------------
+
+The container image contains mime-db 1.52.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>
+Copyright (c) 2015-2022 Douglas Christopher Wilson <doug@somethingdoug.com>
+
+---------------
+
+The container image contains mime-types 2.1.35, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>
+Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com>
+
+---------------
+
+The container image contains minio 8.0.7, installed by npm, which was released
+under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains mongodb 7.6.0, installed by npm, which was
+released under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains mongodb-connection-string-url 7.0.2, installed by
+npm, which was released under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains needle 3.5.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Fork, Ltd.
+
+---------------
+
+The container image contains ollama 0.6.3, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2023 Saul
+
+---------------
+
+The container image contains openai 7.10.0, installed by npm, which was
+released under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains openwhisk 3.21.9, installed by npm, which was
+released under an Apache 2.0 license.
+
+"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.
+submitted to Licensor for inclusion in the Work by the copyright owner
+the copyright owner. For the purposes of this definition, "submitted"
+designated in writing by the copyright owner as "Not a Contribution."
+2. Grant of Copyright License. Subject to the terms and conditions of
+copyright license to reproduce, prepare Derivative Works of,
+that You distribute, all copyright, patent, trademark, and
+
+---------------
+
+The container image contains path-expression-matcher 1.6.2, installed by npm,
+which was released under an MIT license.
+
+Copyright (c) 2024
+
+---------------
+
+The container image contains pg 8.23.0, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2010 - 2021 Brian Carlson
+
+---------------
+
+The container image contains pg-cloudflare 1.4.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2010 - 2021 Brian Carlson
+
+---------------
+
+The container image contains pg-connection-string 2.14.0, installed by npm,
+which was released under an MIT license.
+
+Copyright (c) 2014 Iced Development
+
+---------------
+
+The container image contains pg-int8 1.0.1, installed by npm, which was
+released under an ISC license.
+
+Copyright © 2017, Charmander <~@charmander.me>
+
+---------------
+
+The container image contains pg-pool 3.14.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2017 Brian M. Carlson
+
+---------------
+
+The container image contains pg-protocol 1.16.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2010 - 2021 Brian Carlson
+
+---------------
+
+The container image contains pg-types 2.2.0, installed by npm, which was
+released under an MIT license.
+
+The published package ships no license text and records no copyright holder.
+The license above is the one declared in its package.json.
+
+---------------
+
+The container image contains pgpass 1.0.5, installed by npm, which was
+released under an MIT license.
+
+The published package ships no license text and records no copyright holder.
+The license above is the one declared in its package.json.
+
+---------------
+
+The container image contains postgres-array 2.0.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Ben Drucker <bvdrucker@gmail.com> (bendrucker.me)
+
+---------------
+
+The container image contains postgres-bytea 1.0.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Ben Drucker <bvdrucker@gmail.com> (bendrucker.me)
+
+---------------
+
+The container image contains postgres-date 1.0.7, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Ben Drucker <bvdrucker@gmail.com> (bendrucker.me)
+
+---------------
+
+The container image contains postgres-interval 1.2.0, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) Ben Drucker <bvdrucker@gmail.com> (bendrucker.me)
+
+---------------
+
+The container image contains punycode 2.3.1, installed by npm, which was
+released under an MIT license.
+
+Copyright Mathias Bynens <https://mathiasbynens.be/>
+
+---------------
+
+The container image contains query-string 7.1.3, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (http://sindresorhus.com)
+
+---------------
+
+The container image contains readable-stream 3.6.2, installed by npm, which
+was released under an MIT license.
+
+Copyright Node.js contributors. All rights reserved.
+Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+
+---------------
+
+The container image contains redis 6.2.1, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+The container image contains retry 0.13.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2011:
+
+---------------
+
+The container image contains safe-buffer 5.2.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Feross Aboukhadijeh
+
+---------------
+
+The container image contains safer-buffer 2.1.2, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2018 Nikita Skovoroda <chalkerx@gmail.com>
+
+---------------
+
+The container image contains sax 1.6.1, installed by npm, which was released
+under a Blue Oak Model License 1.0.0.
+
+## Copyright
+copyright in it.
+
+---------------
+
+The container image contains short-uuid 3.1.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2016 Samuel Rouse
+
+---------------
+
+The container image contains sparse-bitfield 3.0.3, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) 2016 Mathias Buus
+
+---------------
+
+The container image contains split-on-first 1.1.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+---------------
+
+The container image contains split2 4.2.0, installed by npm, which was
+released under an ISC license.
+
+Copyright (c) 2014-2018, Matteo Collina <hello@matteocollina.com>
+
+---------------
+
+The container image contains stream-chain 2.2.5, installed by npm, which was
+released under a BSD 3-clause license.
+
+Copyright 2019 Eugene Lazutkin
+
+---------------
+
+The container image contains stream-json 1.9.1, installed by npm, which was
+released under a BSD 3-clause license.
+
+Copyright (c) 2005-2024, Eugene Lazutkin
+DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+
+---------------
+
+The container image contains strict-uri-encode 2.0.0, installed by npm, which
+was released under an MIT license.
+
+Copyright (c) Kevin Martensson <kevinmartensson@gmail.com> (github.com/kevva)
+
+---------------
+
+The container image contains string_decoder 1.3.0, installed by npm, which was
+released under an MIT license.
+
+Copyright Node.js contributors. All rights reserved.
+Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+
+---------------
+
+The container image contains strnum 2.4.2, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2021 Natural Intelligence
+
+---------------
+
+The container image contains through2 4.0.2, installed by npm, which was
+released under an MIT license.
+
+**Copyright (c) Rod Vagg (the "Original Author") and additional contributors**
+
+---------------
+
+The container image contains tr46 5.1.1, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) Sebastian Mayr
+
+---------------
+
+The container image contains util-deprecate 1.0.2, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2014 Nathan Rajlich <nathan@tootallnate.net>
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+
+---------------
+
+The container image contains uuid 3.4.0, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2010-2016 Robert Kieffer and other contributors
+
+---------------
+
+The container image contains uuid 14.0.2, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2010-2020 Robert Kieffer and other contributors
+
+---------------
+
+The container image contains webidl-conversions 7.0.0, installed by npm, which
+was released under a BSD 2-clause license.
+
+Copyright (c) 2014, Domenic Denicola
+
+---------------
+
+The container image contains whatwg-fetch 3.6.20, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2014-2023 GitHub, Inc.
+
+---------------
+
+The container image contains whatwg-url 14.2.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) Sebastian Mayr
+
+---------------
+
+The container image contains xml-naming 0.3.0, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2026 Natural Intelligence
+
+---------------
+
+The container image contains xml2js 0.6.2, installed by npm, which was
+released under an MIT license.
+
+Copyright 2010, 2011, 2012, 2013. All rights reserved.
+
+---------------
+
+The container image contains xmlbuilder 11.0.1, installed by npm, which was
+released under an MIT license.
+
+Copyright (c) 2013 Ozgur Ozcitak
+
+---------------
+
+The container image contains xtend 4.0.2, installed by npm, which was released
+under an MIT license.
+
+Copyright (c) 2012-2014 Raynos.
+
+---------------
+
+The action proxy contains code from github.com/google/uuid v1.6.0 which was
+released under a BSD 3-clause license.
+
+Copyright (c) 2009,2014 Google Inc. All rights reserved.
+
+---------------
+
+The action proxy contains code from github.com/rs/zerolog v1.33.0 which was
+released under an MIT license.
+
+Copyright (c) 2017 Olivier Poitrey
+
+---------------
+
+The action proxy contains code from github.com/mattn/go-colorable v0.1.13
+which was released under an MIT license.
+
+Copyright (c) 2016 Yasuhiro Matsumoto
+
+---------------
+
+The action proxy contains code from github.com/mattn/go-isatty v0.0.20 which
+was released under an MIT license.
+
+Copyright (c) Yasuhiro MATSUMOTO <mattn.jp@gmail.com>
+
+---------------
+
+The action proxy contains code from golang.org/x/sys v0.26.0 which was
+released under a BSD 3-clause license.
+
+Copyright 2009 The Go Authors.
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/stretchr/testify v1.9.0 which was released under an MIT license.
+
+Copyright (c) 2012-2020 Mat Ryer, Tyler Bunnell and contributors.
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/davecgh/go-spew v1.1.1 which was released under an ISC license.
+
+Copyright (c) 2012-2016 Dave Collins <dave@davec.name>
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/pmezard/go-difflib v1.0.0 which was released under a BSD 3-clause
+license.
+
+Copyright (c) 2013, Patrick Mezard
+All rights reserved.
+
+---------------
+
+The test suite of the action proxy contains code from gopkg.in/yaml.v3 v3.0.1
+which was released under an MIT license and an Apache 2.0 license.
+
+Copyright (c) 2006-2010 Kirill Simonov
+Copyright (c) 2006-2011 Kirill Simonov
+Copyright (c) 2011-2019 Canonical Ltd
+
+Copyright 2011-2016 Canonical Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

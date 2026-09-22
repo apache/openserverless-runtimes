@@ -18,56 +18,40 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM python:3.13.15-slim-bookworm AS build-env
-
-# Set environment for uv installation
-ENV UV_CACHE_DIR=/tmp/uv-cache \
-    UV_INSTALL_DIR=/usr/local/bin
-
-# Install build tools and install uv
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates build-essential && \
-    curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    apt-get purge -y curl && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-WORKDIR /build
-COPY requirements.txt .
-RUN uv pip install --python python3 --system six wheel virtualenv
-RUN uv pip install --python python3 --system --no-cache-dir -r requirements.txt
-
-# Final minimal runtime
-FROM python:3.13.4-slim-bookworm
-
-# Set runtime environment
-ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.15 \
-    HOME=/tmp \
-    OW_LOG_INIT_ERROR=1 \
-    OW_WAIT_FOR_ACK=1 \
-    OW_COMPILER=/bin/compile
-
-# Install only runtime deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    zip ca-certificates && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy uv binary and Python packages from builder
-COPY --from=build-env /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
-COPY --from=build-env /usr/local/lib/python3.13 /usr/local/lib/python3.13
-
-# Copy OpenWhisk runtime and proxy binary
+FROM python:3.13.15-slim-bookworm
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.15
 COPY --from=builder /go/bin/proxy /bin/proxy
+
+# install zip
+RUN apt-get update && apt-get install -y python3-lxml zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install common modules for python
+COPY requirements.txt requirements.txt
+
+RUN pip3 install --upgrade pip six wheel virtualenv
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /action
+WORKDIR /
+
 ADD bin/compile /bin/compile
 ADD lib/launcher.py /lib/launcher.py
 
-# Prepare /action
-WORKDIR /action
-RUN chown nobody:root /action && chmod 0775 /action
+# log initialization errors
+ENV OW_LOG_INIT_ERROR=1
+# the launcher must wait for an ack
+ENV OW_WAIT_FOR_ACK=1
+# using the runtime name to identify the execution environment
+# compiler script
+ENV OW_COMPILER=/bin/compile
+# home directory
+ENV HOME=/tmp
 
+WORKDIR /action
+RUN chown nobody:root /action ; chmod 0775 /action
 USER nobody
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT ["/bin/proxy"]
