@@ -19,7 +19,7 @@ ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
 FROM python:3.13.15-slim-bookworm
-ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.12.14
+ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.13.15
 COPY --from=builder /go/bin/proxy /bin/proxy
 
 # install zip
