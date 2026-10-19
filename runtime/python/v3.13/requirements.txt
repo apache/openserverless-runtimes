@@ -233,9 +233,9 @@ lxml==6.1.3
     # via
     #   parsel
     #   scrapy
-mcp==2.1.1
+mcp==2.2.0
     # via -r requirements.in
-mcp-types==2.1.1
+mcp-types==2.2.0
     # via mcp
 milvus-lite==3.2.1
     # via langchain-milvus
