@@ -175,7 +175,7 @@ pydantic==2.13.5
     #   openai
 pydantic-core==2.46.5
     # via pydantic
-pymongo==4.18.1
+pymongo==4.18.2
     # via -r requirements.in
 pyparsing==3.3.2
     # via httplib2
