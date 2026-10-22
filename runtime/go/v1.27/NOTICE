@@ -8,64 +8,194 @@ The Apache Software Foundation (http://www.apache.org/).
 Container image: apache/openserverless-runtime-golang:v1.27
 ------------------------------------------------------------------------------
 
-This image bundles third-party software. The components below are
-redistributed under the licenses recorded in the LICENSE file that
-accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
-listed in the WARN file as incompatible with the Apache License 2.0.
+---------------
 
-Operating-system packages installed by the Dockerfile
------------------------------------------------------
-  * curl ((Debian bookworm))
-      License: curl (MIT-like)
-  * jq ((Debian bookworm))
-      License: MIT
-  * zip ((Debian bookworm))
-      License: Info-ZIP
-  * librdkafka1 / librdkafka++1 / librdkafka-dev ((Debian bookworm))
-      License: BSD-2-Clause
+The container image contains /bin/proxy, the Apache OpenServerless action
+proxy, copied from the common builder image, and the files bin/compile and
+lib/launcher.go, which were developed at The Apache Software Foundation under
+an Apache 2.0 license.
 
-Action proxy (copied from the common builder image)
----------------------------------------------------
-  * github.com/google/uuid (v1.6.0)
-      License: BSD-3-Clause
-  * github.com/rs/zerolog (v1.33.0)
-      License: MIT
-  * github.com/stretchr/testify (v1.9.0)
-      License: MIT
-      Test-only dependency.
-  * github.com/davecgh/go-spew (v1.1.1)
-      License: ISC
-      Transitive.
-  * github.com/mattn/go-colorable (v0.1.13)
-      License: MIT
-      Transitive.
-  * github.com/mattn/go-isatty (v0.0.20)
-      License: MIT
-      Transitive.
-  * github.com/pmezard/go-difflib (v1.0.0)
-      License: BSD-3-Clause
-      Transitive.
-  * golang.org/x/sys (v0.26.0)
-      License: BSD-3-Clause
-      Transitive.
-  * gopkg.in/yaml.v3 (v3.0.1)
-      License: Apache-2.0 AND MIT
-      Transitive.
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
 
-Base operating system image
----------------------------
-  * (see the FROM line of the Dockerfile) (-)
-      License: mixed; see WARN
-      Operating-system components are supplied by the upstream base image and are not
-      redistributed by the ASF in source form.
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
-------------------------------------------------------------------------------
-Attribution required by bundled components
-------------------------------------------------------------------------------
+---------------
 
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/), including Apache OpenWhisk
-components and Apache-2.0 licensed libraries listed above.
+The container image is built FROM golang:1.27-bookworm and contains the Go
+programming language distribution and its standard library, which were
+released under a BSD 3-clause license.
 
-This product includes software developed by third parties under the
-MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.
+Copyright 2009 The Go Authors.
+
+---------------
+
+The container image is built FROM golang:1.27-bookworm and contains the Debian
+bookworm operating system userland. Each package of that userland carries its
+own copyright and license, recorded inside the image in
+/usr/share/doc/<package>/copyright.
+
+---------------
+
+The container image contains curl, which was released under the curl license.
+
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright (c) 1996 - 2026, Daniel Stenberg, <daniel@haxx.se>, and many
+contributors, see the THANKS file.
+
+All rights reserved.
+
+Except as contained in this notice, the name of a copyright holder shall not
+be used in advertising or otherwise to promote the sale, use or other dealings
+in this Software without prior written authorization of the copyright holder.
+
+---------------
+
+The container image contains jq, which was released under an MIT license.
+
+jq is copyright (C) 2012 Stephen Dolan
+
+jq incorporates David M. Gay's dtoa.c and g_fmt.c.
+
+The author of this software is David M. Gay.
+
+Copyright (c) 1991, 2000, 2001 by Lucent Technologies.
+Copyright (c) 1991, 1996 by Lucent Technologies.
+
+jq uses parts of the open source C library "decNumber", which is distributed
+under the ICU license.
+
+Copyright (c) 1995-2005 International Business Machines Corporation and others
+All rights reserved.
+
+jv_thread.h is copied from Heimdal's lib/base/heimbase.h and some code
+in jv.c is copied from Heimdal's lib/base/dll.c:
+
+Portions Copyright (c) 2016 Kungliga Tekniska Högskolan
+(Royal Institute of Technology, Stockholm, Sweden).
+All rights reserved.
+
+jq uses a modified version of NetBSD implementation strptime().
+
+Copyright (c) 1997, 1998, 2005, 2008 The NetBSD Foundation, Inc.
+All rights reserved.
+
+This code was contributed to The NetBSD Foundation by Klaus Klein.
+Heavily optimised by David Laight
+
+---------------
+
+The container image contains zip, which was released under the Info-ZIP
+license.
+
+Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+
+For the purposes of this copyright and license, "Info-ZIP" is defined as
+the following set of individuals:
+
+   Mark Adler, John Bush, Karl Davis, Harald Denker, Jean-Michel Dubois,
+   Jean-loup Gailly, Hunter Goatley, Ed Gordon, Ian Gorman, Chris Herborth,
+   Dirk Haase, Greg Hartwig, Robert Heath, Jonathan Hudson, Paul Kienitz,
+   David Kirschbaum, Johnny Lee, Onno van der Linden, Igor Mandrichenko,
+   Steve P. Miller, Sergio Monesi, Keith Owens, George Petrov, Greg Roelofs,
+   Kai Uwe Rommel, Steve Salisbury, Dave Smith, Steven M. Schweda,
+   Christian Spieler, Cosmin Truta, Antoine Verheijen, Paul von Behren,
+   Rich Wales, Mike White.
+
+Info-ZIP retains the right to use the names "Info-ZIP," "Zip," "UnZip,"
+"UnZipSFX," "WiZ," "Pocket UnZip," "Pocket Zip," and "MacZip" for its
+own source and binary releases.
+
+---------------
+
+The container image contains librdkafka1, librdkafka++1 and librdkafka-dev,
+which were released under a BSD 2-clause license.
+
+librdkafka - Apache Kafka C driver library
+
+Copyright (c) 2012-2022, Magnus Edenhill
+              2023, Confluent Inc.
+All rights reserved.
+
+---------------
+
+The action proxy contains code from github.com/google/uuid v1.6.0 which was
+released under a BSD 3-clause license.
+
+Copyright (c) 2009,2014 Google Inc. All rights reserved.
+
+---------------
+
+The action proxy contains code from github.com/rs/zerolog v1.33.0 which was
+released under an MIT license.
+
+Copyright (c) 2017 Olivier Poitrey
+
+---------------
+
+The action proxy contains code from github.com/mattn/go-colorable v0.1.13
+which was released under an MIT license.
+
+Copyright (c) 2016 Yasuhiro Matsumoto
+
+---------------
+
+The action proxy contains code from github.com/mattn/go-isatty v0.0.20 which
+was released under an MIT license.
+
+Copyright (c) Yasuhiro MATSUMOTO <mattn.jp@gmail.com>
+
+---------------
+
+The action proxy contains code from golang.org/x/sys v0.26.0 which was
+released under a BSD 3-clause license.
+
+Copyright 2009 The Go Authors.
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/stretchr/testify v1.9.0 which was released under an MIT license.
+
+Copyright (c) 2012-2020 Mat Ryer, Tyler Bunnell and contributors.
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/davecgh/go-spew v1.1.1 which was released under an ISC license.
+
+Copyright (c) 2012-2016 Dave Collins <dave@davec.name>
+
+---------------
+
+The test suite of the action proxy contains code from
+github.com/pmezard/go-difflib v1.0.0 which was released under a BSD 3-clause
+license.
+
+Copyright (c) 2013, Patrick Mezard
+All rights reserved.
+
+---------------
+
+The test suite of the action proxy contains code from gopkg.in/yaml.v3 v3.0.1
+which was released under an MIT license and an Apache 2.0 license.
+
+Copyright (c) 2006-2010 Kirill Simonov
+Copyright (c) 2006-2011 Kirill Simonov
+Copyright (c) 2011-2019 Canonical Ltd
+
+Copyright 2011-2016 Canonical Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

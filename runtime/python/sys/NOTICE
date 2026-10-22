@@ -4,146 +4,98 @@ Copyright 2024 The Apache Software Foundation
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-------------------------------------------------------------------------------
-Container image: apache/openserverless-runtime-python:sys
-------------------------------------------------------------------------------
+---------------
 
-This image bundles third-party software. The components below are
-redistributed under the licenses recorded in the LICENSE file that
-accompanies this NOTICE. Components flagged '*** SEE WARN ***' are
-listed in the WARN file as incompatible with the Apache License 2.0.
+This NOTICE covers the container image
 
-Python packages preinstalled in the image (requirements.in)
------------------------------------------------------------
-  * argon2-cffi (25.1.0)
-      License: MIT
-  * argon2-cffi-bindings (26.1.0)
-      License: MIT
-  * asn1crypto (1.5.1)
-      License: MIT
-  * bcrypt (5.0.0)
-      License: Apache-2.0
-  * boto3 (1.43.89)
-      License: Apache-2.0
-  * botocore (1.43.89)
-      License: Apache-2.0
-  * cachetools (7.1.8)
-      License: MIT
-  * certifi (2026.7.22)
-      License: MPL-2.0
-      MPL-2.0 is ASF Category B; bundled unmodified as a separate file.
-  * cffi (2.1.1)
-      License: MIT-0
-  * charset-normalizer (3.5.1)
-      License: MIT
-  * dnspython (2.8.0)
-      License: ISC
-  * grpcio (1.83.1)
-      License: Apache-2.0
-  * httplib2 (0.32.0)
-      License: MIT
-  * idna (3.19)
-      License: BSD-3-Clause
-  * jmespath (1.1.0)
-      License: MIT
-  * kafka-python (3.0.11)
-      License: Apache-2.0
-  * minio (7.2.20)
-      License: Apache-2.0
-  * numpy (2.5.3)
-      License: BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
-  * orjson (3.12.0)
-      License: MPL-2.0 AND (Apache-2.0 OR MIT)
-      MPL-2.0 component is ASF Category B; bundled unmodified. See WARN.
-  * pandas (3.0.5)
-      License: BSD-3-Clause
-  * pg8000 (1.31.5)
-      License: BSD-3-Clause
-  * protobuf (7.36.1)
-      License: BSD-3-Clause
-  * pycparser (3.0)
-      License: BSD-3-Clause
-  * pycryptodome (3.23.0)
-      License: BSD-2-Clause AND Public Domain
-  * pymilvus (3.0.1)
-      License: Apache-2.0
-  * pymongo (4.18.0)
-      License: Apache-2.0
-  * pyparsing (3.3.2)
-      License: MIT
-  * python-dateutil (2.9.0.post0)
-      License: Apache-2.0 OR BSD-3-Clause
-  * python-dotenv (1.2.3)
-      License: BSD-3-Clause
-  * pyyaml (6.0.3)
-      License: MIT
-  * redis (8.1.0)
-      License: MIT
-  * requests (2.34.2)
-      License: Apache-2.0
-  * s3transfer (0.19.2)
-      License: Apache-2.0
-  * scramp (1.4.17)
-      License: MIT-0
-  * simplejson (4.1.2)
-      License: MIT OR AFL-2.1
-      Dual-licensed; the MIT option is elected. See WARN.
-  * six (1.17.0)
-      License: MIT
-  * typing-extensions (4.16.0)
-      License: PSF-2.0
-  * urllib3 (2.7.0)
-      License: MIT
+    apache/openserverless-runtime-python:sys
 
-Operating-system packages installed by the Dockerfile
------------------------------------------------------
-  * python3-lxml ((Debian bookworm))
-      License: BSD-3-Clause
-  * zip ((Debian bookworm))
-      License: Info-ZIP
+built by the Dockerfile beside this file. The Apache release artifact is the
+source distribution beside this file; the published container image is a
+convenience binary that additionally bundles the third-party software listed
+below. The licenses and copyright notices are recorded in the LICENSE file
+beside this one, and the open review items in the WARN file.
 
-Action proxy (copied from the common builder image)
----------------------------------------------------
-  * github.com/google/uuid (v1.6.0)
-      License: BSD-3-Clause
-  * github.com/rs/zerolog (v1.33.0)
-      License: MIT
-  * github.com/stretchr/testify (v1.9.0)
-      License: MIT
-      Test-only dependency.
-  * github.com/davecgh/go-spew (v1.1.1)
-      License: ISC
-      Transitive.
-  * github.com/mattn/go-colorable (v0.1.13)
-      License: MIT
-      Transitive.
-  * github.com/mattn/go-isatty (v0.0.20)
-      License: MIT
-      Transitive.
-  * github.com/pmezard/go-difflib (v1.0.0)
-      License: BSD-3-Clause
-      Transitive.
-  * golang.org/x/sys (v0.26.0)
-      License: BSD-3-Clause
-      Transitive.
-  * gopkg.in/yaml.v3 (v3.0.1)
-      License: Apache-2.0 AND MIT
-      Transitive.
+---------------
 
-Base operating system image
----------------------------
-  * (see the FROM line of the Dockerfile) (-)
-      License: mixed; see WARN
-      Operating-system components are supplied by the upstream base image and are not
-      redistributed by the ASF in source form.
+This image contains /bin/proxy, the Apache OpenServerless action proxy, copied
+from the common builder image, together with bin/compile and lib/launcher.py,
+which were developed at The Apache Software Foundation under an Apache 2.0
+license.
 
-------------------------------------------------------------------------------
-Attribution required by bundled components
-------------------------------------------------------------------------------
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
 
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/), including Apache OpenWhisk
-components and Apache-2.0 licensed libraries listed above.
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
 
-This product includes software developed by third parties under the
-MIT, BSD, ISC, PSF, MPL-2.0 and other licenses, as recorded in LICENSE.
+---------------
+
+This image is built FROM python:3.12.14-slim-bookworm
+and contains CPython 3.12.14, released under the Python Software Foundation
+License Version 2.
+
+Copyright (c) 2001-2026 Python Software Foundation. All Rights Reserved.
+Copyright (c) 1995-2001 Corporation for National Research Initiatives.
+Copyright (c) 1991-1995 Stichting Mathematisch Centrum. All Rights Reserved.
+
+Python includes software developed at
+the Python Software Foundation (https://www.python.org/psf/).
+
+---------------
+
+This image is built FROM python:3.12.14-slim-bookworm and contains the Debian
+bookworm operating system userland, whose packages carry their own copyrights
+and licenses, recorded inside the image in /usr/share/doc/<package>/copyright.
+
+---------------
+
+This image contains python3-lxml from the Debian archive, released under a BSD
+3-clause license.
+
+Copyright (c) 2004 Infrae. All rights reserved.
+
+---------------
+
+This image contains zip from the Debian archive, released under the Info-ZIP
+license.
+
+Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+
+---------------
+
+This image contains 29 Python distributions installed by pip from the
+pinned requirements.txt beside this file, by license:
+
+MIT (13), Apache 2.0 (9), BSD (4), ISC (1), Mozilla Public License 2.0 (1),
+Python Software Foundation (1).
+
+Every distribution, its version, its license and its copyright notice are
+recorded one by one in LICENSE.
+
+Of those, the following were released under an Apache 2.0 license and their
+copyright notices are reproduced in LICENSE:
+
+    bcrypt 5.0.0
+    boto3 1.43.93
+    botocore 1.43.93
+    kafka-python 3.0.11
+    minio 7.2.20
+    pymongo 4.18.1
+    requests 2.34.2
+    s3transfer 0.19.2
+
+---------------
+
+This image contains minio, which was released under an Apache 2.0 license.
+
+MinIO Cloud Storage, (C) 2014-2023 MinIO, Inc.
+
+This product includes software developed at MinIO, Inc.
+(https://min.io/).
+
+---------------
+
+This image contains certifi, which is in part subject to the Mozilla Public
+License 2.0. It is included in binary form only, unmodified, as a separate
+file, with the license disclosed in LICENSE. See WARN.

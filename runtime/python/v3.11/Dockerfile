@@ -18,7 +18,7 @@
 ARG COMMON=missing:missing
 FROM ${COMMON} AS builder
 
-FROM python:3.11.16-bookworm
+FROM python:3.11.16-slim-bookworm
 ENV OW_EXECUTION_ENV=apacheopenserverless/runtime-python-v3.11.16
 COPY --from=builder /go/bin/proxy /bin/proxy
 
@@ -50,7 +50,7 @@ ENV HOME=/tmp
 WORKDIR /action
 RUN chown nobody:root /action ; chmod 0775 /action
 USER nobody
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT ["/bin/proxy"]

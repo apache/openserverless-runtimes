@@ -1,10 +1,16 @@
 {
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
   "name": "nodejs",
   "version": "1.0.0",
   "description": "nodejs action",
   "author": "OpenServerless",
   "keywords": [],
-  "license": "ISC",
   "main": "index.js",
   "dependencies": {
     "aws-s3": "^2.0.5",

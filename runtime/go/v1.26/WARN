@@ -1,11 +1,12 @@
 ==============================================================================
-WARN -- Apache License 2.0 incompatibilities
+WARN -- Apache License 2.0 incompatibilities and open issues
 Container image: apache/openserverless-runtime-golang:v1.26
 ==============================================================================
 
 This file lists third-party components bundled by the Dockerfile beside
 it whose licenses are NOT compatible with the Apache License, Version 2.0,
-together with components that require special handling.
+together with components that require special handling and with the
+warnings that apply to the inventory recorded in LICENSE and NOTICE.
 
 Classification follows the ASF third-party licensing policy:
 
@@ -31,7 +32,7 @@ Category X components that this Dockerfile ADDS on purpose must be removed.
 CATEGORY X (AS BUNDLED)
 ==============================================================================
 
-  Component : Debian/Ubuntu/Alpine base image userland
+  Component : Debian bookworm base image userland (via golang:1.26-bookworm)
   License   : mixed, incl. GPL-2.0/GPL-3.0
   Category  : X (as bundled)
   Action    :
@@ -45,11 +46,43 @@ CATEGORY X (AS BUNDLED)
 CATEGORY A
 ==============================================================================
 
-  Component : zip / unzip (Info-ZIP)
+  Component : Go programming language distribution and standard library
+  License   : BSD-3-Clause (plus the Go PATENTS grant)
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE.
+
+  Component : curl
+  License   : curl (MIT/X-derivate)
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE.
+
+  Component : jq
+  License   : MIT, with bundled code under ICU, BSD-2-Clause and BSD-3-Clause
+  Category  : A
+  Action    :
+      No action required. The jq COPYING file also places the jq documentation
+      under CC BY 3.0; CC BY is Category A and the Debian jq binary package does
+      not ship that documentation. Full text reproduced in LICENSE.
+
+  Component : zip (Info-ZIP)
   License   : Info-ZIP License
   Category  : A
   Action    :
       BSD-like and Apache-compatible. No action required.
+
+  Component : librdkafka1 / librdkafka++1 / librdkafka-dev
+  License   : BSD-2-Clause
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE.
+
+  Component : Go modules linked into /bin/proxy and into its test suite
+  License   : BSD-3-Clause, MIT, ISC, Apache-2.0
+  Category  : A
+  Action    :
+      No action required. Full texts reproduced in LICENSE.
 
 
 ==============================================================================
@@ -58,13 +91,72 @@ SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
 
   None. This Dockerfile adds no Category X component.
 
+
+==============================================================================
+WARNINGS ON THE INVENTORY ITSELF
+==============================================================================
+
+  1. THIS DOCKERFILE IS BYTE-IDENTICAL TO runtime/go/v1.25/Dockerfile
+     runtime/go/v1.25 and runtime/go/v1.26 carry the same Dockerfile, the same
+     bin/compile and the same lib/launcher.go, and both build FROM
+     golang:1.26-bookworm with
+     OW_EXECUTION_ENV=apacheopenserverless/runtime-golang-v1.26.
+     The two directories therefore publish the same contents under two
+     different tags, and the bundled-software inventory recorded here is the
+     same for both. The v1.25 directory is the one that is wrong: either its
+     FROM line must go back to golang:1.25-bookworm, or the directory and its
+     tag must be retired. Until that is resolved, the Go toolchain version
+     named in the v1.25 LICENSE and NOTICE cannot be reconciled with the
+     release coordinates of that image.
+
+  2. FLOATING BASE IMAGE AND apt-get upgrade
+     The base image is referenced by tag, not by digest, and the Dockerfile
+     runs `apt-get update && apt-get upgrade -y`. The exact set of bundled
+     operating-system packages therefore changes between builds of the same
+     source tree. This inventory describes the components the Dockerfile
+     names; it cannot be exact for every build.
+
+  3. TRANSITIVE DEBIAN DEPENDENCIES ARE NOT ENUMERATED
+     `apt-get install curl jq zip librdkafka1 librdkafka++1 librdkafka-dev`
+     pulls further Debian packages that are installed into the image and are
+     not listed in LICENSE or NOTICE -- among them the TLS, SASL and
+     compression libraries that librdkafka and curl link against, and the
+     regular-expression library that jq links against. Their copyright files
+     are in /usr/share/doc/<package>/copyright inside the image. They are
+     part of the convenience binary, not of the source release; a complete
+     per-package inventory can only be produced from a built image.
+
+  4. LICENSE TEXTS WERE TAKEN FROM UPSTREAM, NOT FROM A BUILT IMAGE
+     The texts concatenated into LICENSE come from the upstream projects, at
+     the module versions recorded in go.mod for the Go dependencies and from
+     the upstream source for the Debian packages. Debian may ship a different
+     revision of the same license text, and the authoritative copy for the
+     shipped binaries remains /usr/share/doc/<package>/copyright inside the
+     image.
+
+  5. THE BUNDLED PROXY CANNOT BE VERIFIED FROM THIS DIRECTORY
+     /bin/proxy is copied from the image named by the COMMON build argument,
+     which defaults to `missing:missing`. The Go module inventory in LICENSE
+     and NOTICE was derived from the go.mod and go.sum of this repository. If
+     the image passed as COMMON is built from a different source tree, the
+     modules actually linked into /bin/proxy may differ.
+
+  6. librdkafka-dev IS A DEVELOPMENT PACKAGE
+     Headers and the static library are installed into a runtime image. They
+     are not needed to run actions and they enlarge the set of third-party
+     material shipped in the convenience binary.
+
+  7. DEPENDENCIES OF USER ACTIONS ARE NOT COVERED
+     This image ships no preinstalled Go libraries: user actions declare
+     their own dependencies, which /bin/compile fetches at action-compile
+     time. Those libraries are NOT part of this image and NOT part of any
+     Apache release artifact, and no claim is made here about their licenses.
+
+
 ==============================================================================
 ADDITIONAL NOTES
 ==============================================================================
 
-Base image: golang:1.26-bookworm. The Go toolchain is BSD-3-Clause licensed.
-This image ships no preinstalled Go libraries: user actions declare their
-own dependencies, which are fetched at action-compile time and are NOT
-part of this image or of any Apache release artifact.
+This image is marked as the default Go runtime by merge.json.
 The `git`, `vim` and `apt-utils` packages flagged in earlier revisions of
 this file are no longer installed by the Dockerfile.

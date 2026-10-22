@@ -201,191 +201,303 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+---------------
 
-==============================================================================
-LICENSES OF BUNDLED THIRD-PARTY SOFTWARE
-Container image: apache/openserverless-runtime-python:sys
-==============================================================================
+This LICENSE covers the container image
 
-Apache OpenServerless itself is licensed under the Apache License,
-Version 2.0, reproduced above. The container image built from the
-Dockerfile beside this file additionally bundles the third-party
-components listed below, each under its own license.
+    apache/openserverless-runtime-python:sys
 
-Refer to https://www.apache.org/legal/resolved.html for the ASF
-classification of these licenses. Components that are NOT compatible
-with the Apache License 2.0 are enumerated in the WARN file.
+built by the Dockerfile beside this file. The Apache release artifact is the
+SOURCE distribution -- this Dockerfile, requirements.in, requirements.txt and
+the files beside them -- all licensed under the Apache License 2.0 above. The
+published container image is a CONVENIENCE BINARY that additionally bundles
+the third-party components recorded below. Each block names the component, the
+license it was released under and its copyright notice. Components requiring
+special handling, and the open review items, are recorded in the WARN file
+beside this one; WARN is not part of this licensing grant.
 
-------------------------------------------------------------------------------
-Summary by license
-------------------------------------------------------------------------------
+---------------
 
-Apache-2.0
-    bcrypt (5.0.0)
-    boto3 (1.43.89)
-    botocore (1.43.89)
-    grpcio (1.83.1)
-    kafka-python (3.0.11)
-    minio (7.2.20)
-    pymilvus (3.0.1)
-    pymongo (4.18.0)
-    requests (2.34.2)
-    s3transfer (0.19.2)
+This image contains /bin/proxy, the Apache OpenServerless action proxy, copied
+from the common builder image, together with bin/compile and lib/launcher.py,
+which were developed at The Apache Software Foundation and released under an
+Apache 2.0 license.
 
-Apache-2.0 AND MIT
-    gopkg.in/yaml.v3 (v3.0.1)
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
 
-Apache-2.0 OR BSD-3-Clause
-    python-dateutil (2.9.0.post0)
+---------------
 
-BSD-2-Clause AND Public Domain
-    pycryptodome (3.23.0)
+This image is built FROM python:3.12.14-slim-bookworm and contains the CPython
+3.12.14 interpreter and standard library, which were released under the
+Python Software Foundation License Version 2, with bundled code under further
+permissive licenses.
 
-BSD-3-Clause
-    github.com/google/uuid (v1.6.0)
-    github.com/pmezard/go-difflib (v1.0.0)
-    golang.org/x/sys (v0.26.0)
-    idna (3.19)
-    pandas (3.0.5)
-    pg8000 (1.31.5)
-    protobuf (7.36.1)
-    pycparser (3.0)
-    python-dotenv (1.2.3)
-    python3-lxml ((Debian bookworm))
+Copyright (c) 2001-2026 Python Software Foundation. All Rights Reserved.
+Copyright (c) 2000 BeOpen.com. All Rights Reserved.
+Copyright (c) 1995-2001 Corporation for National Research Initiatives.
+Copyright (c) 1991-1995 Stichting Mathematisch Centrum. All Rights Reserved.
+<https://docs.python.org/3/license.html>
 
-BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
-    numpy (2.5.3)
+---------------
 
-ISC
-    dnspython (2.8.0)
-    github.com/davecgh/go-spew (v1.1.1)
+This image is built FROM python:3.12.14-slim-bookworm and contains the Debian
+bookworm operating system userland. Each package of that userland carries its
+own copyright and license, recorded inside the image in
+/usr/share/doc/<package>/copyright. That userland includes GPL-licensed
+components; see WARN.
 
-Info-ZIP
-    zip ((Debian bookworm))
+---------------
 
-MIT
-    argon2-cffi (25.1.0)
-    argon2-cffi-bindings (26.1.0)
-    asn1crypto (1.5.1)
-    cachetools (7.1.8)
-    charset-normalizer (3.5.1)
-    github.com/mattn/go-colorable (v0.1.13)
-    github.com/mattn/go-isatty (v0.0.20)
-    github.com/rs/zerolog (v1.33.0)
-    github.com/stretchr/testify (v1.9.0)
-    httplib2 (0.32.0)
-    jmespath (1.1.0)
-    pyparsing (3.3.2)
-    pyyaml (6.0.3)
-    redis (8.1.0)
-    six (1.17.0)
-    urllib3 (2.7.0)
+This image contains python3-lxml, installed from the Debian archive, which was
+released under a BSD 3-clause license with the exceptions recorded in its own
+license file.
 
-MIT OR AFL-2.1
-    simplejson (4.1.2)
+Copyright (c) 2004 Infrae. All rights reserved.
+lxml.cssselect and lxml.html are copyright Ian Bicking.
+<https://lxml.de/>
 
-MIT-0
-    cffi (2.1.1)
-    scramp (1.4.17)
+---------------
 
-MPL-2.0
-    certifi (2026.7.22)
+This image contains zip, installed from the Debian archive, which was released
+under the Info-ZIP license.
 
-MPL-2.0 AND (Apache-2.0 OR MIT)
-    orjson (3.12.0)
+Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+<http://infozip.sourceforge.net/>
 
-PSF-2.0
-    typing-extensions (4.16.0)
+---------------
 
-------------------------------------------------------------------------------
-Detail by component
-------------------------------------------------------------------------------
+This image contains argon2-cffi 25.1.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/argon2-cffi/25.1.0/>
 
-Python packages preinstalled in the image (requirements.in)
------------------------------------------------------------
-  argon2-cffi (25.1.0) -- MIT
-  argon2-cffi-bindings (26.1.0) -- MIT
-  asn1crypto (1.5.1) -- MIT
-  bcrypt (5.0.0) -- Apache-2.0
-  boto3 (1.43.89) -- Apache-2.0
-  botocore (1.43.89) -- Apache-2.0
-  cachetools (7.1.8) -- MIT
-  certifi (2026.7.22) -- MPL-2.0
-      MPL-2.0 is ASF Category B; bundled unmodified as a separate file.
-  cffi (2.1.1) -- MIT-0
-  charset-normalizer (3.5.1) -- MIT
-  dnspython (2.8.0) -- ISC
-  grpcio (1.83.1) -- Apache-2.0
-  httplib2 (0.32.0) -- MIT
-  idna (3.19) -- BSD-3-Clause
-  jmespath (1.1.0) -- MIT
-  kafka-python (3.0.11) -- Apache-2.0
-  minio (7.2.20) -- Apache-2.0
-  numpy (2.5.3) -- BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
-  orjson (3.12.0) -- MPL-2.0 AND (Apache-2.0 OR MIT)
-      MPL-2.0 component is ASF Category B; bundled unmodified. See WARN.
-  pandas (3.0.5) -- BSD-3-Clause
-  pg8000 (1.31.5) -- BSD-3-Clause
-  protobuf (7.36.1) -- BSD-3-Clause
-  pycparser (3.0) -- BSD-3-Clause
-  pycryptodome (3.23.0) -- BSD-2-Clause AND Public Domain
-  pymilvus (3.0.1) -- Apache-2.0
-  pymongo (4.18.0) -- Apache-2.0
-  pyparsing (3.3.2) -- MIT
-  python-dateutil (2.9.0.post0) -- Apache-2.0 OR BSD-3-Clause
-  python-dotenv (1.2.3) -- BSD-3-Clause
-  pyyaml (6.0.3) -- MIT
-  redis (8.1.0) -- MIT
-  requests (2.34.2) -- Apache-2.0
-  s3transfer (0.19.2) -- Apache-2.0
-  scramp (1.4.17) -- MIT-0
-  simplejson (4.1.2) -- MIT OR AFL-2.1
-      Dual-licensed; the MIT option is elected. See WARN.
-  six (1.17.0) -- MIT
-  typing-extensions (4.16.0) -- PSF-2.0
-  urllib3 (2.7.0) -- MIT
+Copyright (c) 2015 Hynek Schlawack and the argon2-cffi contributors
 
-Operating-system packages installed by the Dockerfile
------------------------------------------------------
-  python3-lxml ((Debian bookworm)) -- BSD-3-Clause
-  zip ((Debian bookworm)) -- Info-ZIP
+---------------
 
-Action proxy (copied from the common builder image)
----------------------------------------------------
-  github.com/google/uuid (v1.6.0) -- BSD-3-Clause
-  github.com/rs/zerolog (v1.33.0) -- MIT
-  github.com/stretchr/testify (v1.9.0) -- MIT
-      Test-only dependency.
-  github.com/davecgh/go-spew (v1.1.1) -- ISC
-      Transitive.
-  github.com/mattn/go-colorable (v0.1.13) -- MIT
-      Transitive.
-  github.com/mattn/go-isatty (v0.0.20) -- MIT
-      Transitive.
-  github.com/pmezard/go-difflib (v1.0.0) -- BSD-3-Clause
-      Transitive.
-  golang.org/x/sys (v0.26.0) -- BSD-3-Clause
-      Transitive.
-  gopkg.in/yaml.v3 (v3.0.1) -- Apache-2.0 AND MIT
-      Transitive.
+This image contains argon2-cffi-bindings 26.1.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/argon2-cffi-bindings/26.1.0/>
 
-Base operating system image
----------------------------
-  (see the FROM line of the Dockerfile) (-) -- mixed; see WARN
-      Operating-system components are supplied by the upstream base image and are not
-      redistributed by the ASF in source form.
+Copyright (c) 2021 Hynek Schlawack and the argon2-cffi-bindings contributors
 
-------------------------------------------------------------------------------
-Full license texts
-------------------------------------------------------------------------------
+---------------
 
-The complete text of the Apache License 2.0 is reproduced at the top of
-this file. The complete texts of the other licenses referenced above are
-distributed with each component inside the container image, in the
-package metadata directories of the respective package manager:
+This image contains asn1crypto 1.5.1, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/asn1crypto/1.5.1/>
 
-  * Python packages: <site-packages>/<dist>.dist-info/ (LICENSE, METADATA)
-  * Node.js packages: /node_modules/<pkg>/LICENSE
-  * PHP packages:     /phpAction/composer/vendor/<pkg>/LICENSE
-  * Go modules:       vendored module sources / pkg.go.dev
-  * Debian packages:  /usr/share/doc/<pkg>/copyright
+Copyright (c) 2015-2022 Will Bond <will@wbond.net>
+
+---------------
+
+This image contains bcrypt 5.0.0, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/bcrypt/5.0.0/>
+
+Copyright (c) 2013 Donald Stufft and individual contributors
+
+---------------
+
+This image contains boto3 1.43.93, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/boto3/1.43.93/>
+
+Copyright 2013-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains botocore 1.43.93, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/botocore/1.43.93/>
+
+Copyright 2012-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains certifi 2026.7.22, installed by pip, which was released
+under a Mozilla Public License 2.0.
+<https://pypi.org/project/certifi/2026.7.22/>
+
+The Mozilla CA bundle it carries was extracted from the Mozilla source tree.
+
+---------------
+
+This image contains cffi 2.1.1, installed by pip, which was released under an
+MIT No Attribution (MIT-0) license.
+<https://pypi.org/project/cffi/2.1.1/>
+
+---------------
+
+This image contains charset-normalizer 3.5.1, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/charset-normalizer/3.5.1/>
+
+Copyright (c) 2025 TAHRI Ahmed R.
+
+---------------
+
+This image contains dnspython 2.8.0, installed by pip, which was released
+under an ISC license.
+<https://pypi.org/project/dnspython/2.8.0/>
+
+Copyright (C) Dnspython Contributors
+Copyright (C) 2001-2017 Nominum, Inc.
+Copyright (C) Google Inc.
+
+---------------
+
+This image contains httplib2 0.32.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/httplib2/0.32.0/>
+
+Copyright (c) 2006 by Joe Gregorio
+
+---------------
+
+This image contains idna 3.19, installed by pip, which was released under a
+BSD 3-clause license.
+<https://pypi.org/project/idna/3.19/>
+
+Copyright (c) 2013-2026, Kim Davies and contributors.
+
+---------------
+
+This image contains jmespath 1.1.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/jmespath/1.1.0/>
+
+Copyright (c) 2013 Amazon.com, Inc. or its affiliates.  All Rights Reserved
+
+---------------
+
+This image contains kafka-python 3.0.11, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/kafka-python/3.0.11/>
+
+Copyright 2026 Dana Powers, David Arthur, and Contributors
+
+---------------
+
+This image contains minio 7.2.20, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/minio/7.2.20/>
+
+MinIO Cloud Storage, (C) 2014-2023 MinIO, Inc.
+
+---------------
+
+This image contains pg8000 1.31.5, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/pg8000/1.31.5/>
+
+Copyright Mathieu Fenniak and Contributors to pg8000.
+
+---------------
+
+This image contains pycparser 3.0, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/pycparser/3.0/>
+
+Copyright (c) 2008-2022, Eli Bendersky
+
+---------------
+
+This image contains pycryptodome 3.23.0, installed by pip, which was released
+under a BSD 2-clause license, with parts in the public domain.
+<https://pypi.org/project/pycryptodome/3.23.0/>
+
+Code originating from PyCrypto is released into the public domain; the
+remainder is BSD 2-clause. See the AUTHORS file shipped with the distribution.
+
+---------------
+
+This image contains pymongo 4.18.1, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/pymongo/4.18.1/>
+
+Copyright 2009-present MongoDB, Inc.
+
+---------------
+
+This image contains pyparsing 3.3.2, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/pyparsing/3.3.2/>
+
+Copyright (c) 2003-2025  Paul McGuire
+
+---------------
+
+This image contains python-dateutil 2.9.0.post0, installed by pip, which was
+released under an Apache 2.0 license and a BSD 3-clause license (dual
+licensed).
+<https://pypi.org/project/python-dateutil/2.9.0.post0/>
+
+Copyright 2017- Paul Ganssle <paul@ganssle.io>
+Copyright 2017- dateutil contributors (see AUTHORS file)
+Copyright (c) 2003-2011 - Gustavo Niemeyer <gustavo@niemeyer.net>
+
+---------------
+
+This image contains pyyaml 6.0.3, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/pyyaml/6.0.3/>
+
+Copyright (c) 2017-2021 Ingy döt Net
+Copyright (c) 2006-2016 Kirill Simonov
+
+---------------
+
+This image contains redis 8.1.0, installed by pip, which was released under an
+MIT license.
+<https://pypi.org/project/redis/8.1.0/>
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+This image contains requests 2.34.2, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/requests/2.34.2/>
+
+Copyright 2019 Kenneth Reitz
+
+---------------
+
+This image contains s3transfer 0.19.2, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/s3transfer/0.19.2/>
+
+Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains scramp 1.4.17, installed by pip, which was released under
+an MIT No Attribution (MIT-0) license.
+<https://pypi.org/project/scramp/1.4.17/>
+
+Copyright The Contributors
+
+---------------
+
+This image contains six 1.17.0, installed by pip, which was released under an
+MIT license.
+<https://pypi.org/project/six/1.17.0/>
+
+Copyright (c) 2010-2024 Benjamin Peterson
+
+---------------
+
+This image contains typing-extensions 4.16.0, installed by pip, which was
+released under a Python Software Foundation License Version 2.
+<https://pypi.org/project/typing-extensions/4.16.0/>
+
+Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The Netherlands.
+
+---------------
+
+This image contains urllib3 2.7.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/urllib3/2.7.0/>
+
+Copyright (c) 2008-2020 Andrey Petrov and contributors.

@@ -14,16 +14,14 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-pymilvus
-redis
-httplib2
-kafka_python
-python-dateutil
 requests
-simplejson
 pyyaml
+httplib2
+python-dateutil
 boto3
-pg8000
-pymongo
 minio
+pg8000
+redis
+pymongo
+kafka_python
 bcrypt

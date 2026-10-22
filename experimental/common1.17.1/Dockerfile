@@ -21,7 +21,7 @@ ENV HOME=/tmp
 USER nobody
 RUN CGO_ENABLED=0 go install github.com/apache/openserverless-runtimes@common1.17.1
 RUN mv /go/bin/openserverless-runtimes /go/bin/proxy
-# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE, WARN)
-COPY DISCLAIMER LICENSE NOTICE WARN /
+# Apache release metadata (see DISCLAIMER, LICENSE, NOTICE)
+COPY DISCLAIMER LICENSE NOTICE /
 
 ENTRYPOINT [ "/go/bin/proxy" ]

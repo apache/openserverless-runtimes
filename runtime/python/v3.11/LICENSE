@@ -201,162 +201,702 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+---------------
 
-==============================================================================
-LICENSES OF BUNDLED THIRD-PARTY SOFTWARE
-Container image: apache/openserverless-runtime-python:v3.11
-==============================================================================
+This LICENSE covers the container image
 
-Apache OpenServerless itself is licensed under the Apache License,
-Version 2.0, reproduced above. The container image built from the
-Dockerfile beside this file additionally bundles the third-party
-components listed below, each under its own license.
+    apache/openserverless-runtime-python:v3.11
 
-Refer to https://www.apache.org/legal/resolved.html for the ASF
-classification of these licenses. Components that are NOT compatible
-with the Apache License 2.0 are enumerated in the WARN file.
+built by the Dockerfile beside this file. The Apache release artifact is the
+SOURCE distribution -- this Dockerfile, requirements.in, requirements.txt and
+the files beside them -- all licensed under the Apache License 2.0 above. The
+published container image is a CONVENIENCE BINARY that additionally bundles
+the third-party components recorded below. Each block names the component, the
+license it was released under and its copyright notice. Components requiring
+special handling, and the open review items, are recorded in the WARN file
+beside this one; WARN is not part of this licensing grant.
 
-------------------------------------------------------------------------------
-Summary by license
-------------------------------------------------------------------------------
+---------------
 
-Apache-2.0
-    bcrypt (5.0.0)
-    boto3 (1.43.89)
-    farm-haystack (1.18.0)
-    kafka_python (3.0.11)
-    langdetect (1.0.9)
-    minio (7.2.20)
-    nltk (3.10.3)
-    openai (3.8.0)
-    pymongo (4.18.0)
-    requests (2.34.2)
+This image contains /bin/proxy, the Apache OpenServerless action proxy, copied
+from the common builder image, together with bin/compile and lib/launcher.py,
+which were developed at The Apache Software Foundation and released under an
+Apache 2.0 license.
 
-Apache-2.0 AND MIT
-    gopkg.in/yaml.v3 (v3.0.1)
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
 
-Apache-2.0 OR BSD-3-Clause
-    python-dateutil (2.9.0.post0)
+---------------
 
-BSD-2-Clause
-    feedparser (6.0.14)
+This image is built FROM python:3.11.16-slim-bookworm and contains the CPython
+3.11.16 interpreter and standard library, which were released under the
+Python Software Foundation License Version 2, with bundled code under further
+permissive licenses.
 
-BSD-3-Clause
-    github.com/google/uuid (v1.6.0)
-    github.com/pmezard/go-difflib (v1.0.0)
-    golang.org/x/sys (v0.26.0)
-    joblib (1.6.0)
-    numpy (2.4.6)
-    pg8000 (1.31.5)
-    python3-lxml ((Debian bookworm))
-    scikit-learn (1.9.0)
-    scrapy (2.18.0)
+Copyright (c) 2001-2026 Python Software Foundation. All Rights Reserved.
+Copyright (c) 2000 BeOpen.com. All Rights Reserved.
+Copyright (c) 1995-2001 Corporation for National Research Initiatives.
+Copyright (c) 1991-1995 Stichting Mathematisch Centrum. All Rights Reserved.
+<https://docs.python.org/3/license.html>
 
-ISC
-    github.com/davecgh/go-spew (v1.1.1)
+---------------
 
-Info-ZIP
-    zip ((Debian bookworm))
+This image is built FROM python:3.11.16-slim-bookworm and contains the Debian
+bookworm operating system userland. Each package of that userland carries its
+own copyright and license, recorded inside the image in
+/usr/share/doc/<package>/copyright. That userland includes GPL-licensed
+components; see WARN.
 
-MIT
-    beautifulsoup4 (4.15.0)
-    github.com/mattn/go-colorable (v0.1.13)
-    github.com/mattn/go-isatty (v0.0.20)
-    github.com/rs/zerolog (v1.33.0)
-    github.com/stretchr/testify (v1.9.0)
-    httplib2 (0.32.0)
-    langchain (1.4.0)
-    lightgbm (4.7.0)
-    netifaces (0.11.0)
-    ollama (0.6.2)
-    plotly (7.0.0)
-    pyyaml (6.0.3)
-    redis (8.1.0)
-    twisted (26.4.0)
+---------------
 
-MIT OR AFL-2.1
-    simplejson (4.1.2)
+This image contains python3-lxml, installed from the Debian archive, which was
+released under a BSD 3-clause license with the exceptions recorded in its own
+license file.
 
-mixed; see WARN
-    (see the FROM line of the Dockerfile) (-)
+Copyright (c) 2004 Infrae. All rights reserved.
+lxml.cssselect and lxml.html are copyright Ian Bicking.
+<https://lxml.de/>
 
-------------------------------------------------------------------------------
-Detail by component
-------------------------------------------------------------------------------
+---------------
 
-Python packages preinstalled in the image (requirements.in)
------------------------------------------------------------
-  beautifulsoup4 (4.15.0) -- MIT
-  httplib2 (0.32.0) -- MIT
-  kafka_python (3.0.11) -- Apache-2.0
-  python-dateutil (2.9.0.post0) -- Apache-2.0 OR BSD-3-Clause
-  requests (2.34.2) -- Apache-2.0
-  scrapy (2.18.0) -- BSD-3-Clause
-  simplejson (4.1.2) -- MIT OR AFL-2.1
-      Dual-licensed; the MIT option is elected. See WARN.
-  twisted (26.4.0) -- MIT
-  netifaces (0.11.0) -- MIT
-  pyyaml (6.0.3) -- MIT
-  redis (8.1.0) -- MIT
-  boto3 (1.43.89) -- Apache-2.0
-  pg8000 (1.31.5) -- BSD-3-Clause
-  pymongo (4.18.0) -- Apache-2.0
-  minio (7.2.20) -- Apache-2.0
-  openai (3.8.0) -- Apache-2.0
-  langchain (1.4.0) -- MIT
-  farm-haystack (1.18.0) -- Apache-2.0
-  nltk (3.10.3) -- Apache-2.0
-  langdetect (1.0.9) -- Apache-2.0
-  plotly (7.0.0) -- MIT
-  ollama (0.6.2) -- MIT
-  joblib (1.6.0) -- BSD-3-Clause
-  lightgbm (4.7.0) -- MIT
-  feedparser (6.0.14) -- BSD-2-Clause
-  numpy (2.4.6) -- BSD-3-Clause
-  scikit-learn (1.9.0) -- BSD-3-Clause
-  bcrypt (5.0.0) -- Apache-2.0
+This image contains zip, installed from the Debian archive, which was released
+under the Info-ZIP license.
 
-Operating-system packages installed by the Dockerfile
------------------------------------------------------
-  python3-lxml ((Debian bookworm)) -- BSD-3-Clause
-  zip ((Debian bookworm)) -- Info-ZIP
+Copyright (c) 1990-2007 Info-ZIP.  All rights reserved.
+<http://infozip.sourceforge.net/>
 
-Action proxy (copied from the common builder image)
----------------------------------------------------
-  github.com/google/uuid (v1.6.0) -- BSD-3-Clause
-  github.com/rs/zerolog (v1.33.0) -- MIT
-  github.com/stretchr/testify (v1.9.0) -- MIT
-      Test-only dependency.
-  github.com/davecgh/go-spew (v1.1.1) -- ISC
-      Transitive.
-  github.com/mattn/go-colorable (v0.1.13) -- MIT
-      Transitive.
-  github.com/mattn/go-isatty (v0.0.20) -- MIT
-      Transitive.
-  github.com/pmezard/go-difflib (v1.0.0) -- BSD-3-Clause
-      Transitive.
-  golang.org/x/sys (v0.26.0) -- BSD-3-Clause
-      Transitive.
-  gopkg.in/yaml.v3 (v3.0.1) -- Apache-2.0 AND MIT
-      Transitive.
+---------------
 
-Base operating system image
----------------------------
-  (see the FROM line of the Dockerfile) (-) -- mixed; see WARN
-      Operating-system components are supplied by the upstream base image and are not
-      redistributed by the ASF in source form.
+This image contains annotated-types 0.8.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/annotated-types/0.8.0/>
 
-------------------------------------------------------------------------------
-Full license texts
-------------------------------------------------------------------------------
+Copyright (c) 2022 the contributors
 
-The complete text of the Apache License 2.0 is reproduced at the top of
-this file. The complete texts of the other licenses referenced above are
-distributed with each component inside the container image, in the
-package metadata directories of the respective package manager:
+---------------
 
-  * Python packages: <site-packages>/<dist>.dist-info/ (LICENSE, METADATA)
-  * Node.js packages: /node_modules/<pkg>/LICENSE
-  * PHP packages:     /phpAction/composer/vendor/<pkg>/LICENSE
-  * Go modules:       vendored module sources / pkg.go.dev
-  * Debian packages:  /usr/share/doc/<pkg>/copyright
+This image contains anyio 4.15.1, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/anyio/4.15.1/>
+
+Copyright (c) 2018 Alex Grönholm
+
+---------------
+
+This image contains argon2-cffi 25.1.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/argon2-cffi/25.1.0/>
+
+Copyright (c) 2015 Hynek Schlawack and the argon2-cffi contributors
+
+---------------
+
+This image contains argon2-cffi-bindings 26.1.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/argon2-cffi-bindings/26.1.0/>
+
+Copyright (c) 2021 Hynek Schlawack and the argon2-cffi-bindings contributors
+
+---------------
+
+This image contains asn1crypto 1.5.1, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/asn1crypto/1.5.1/>
+
+Copyright (c) 2015-2022 Will Bond <will@wbond.net>
+
+---------------
+
+This image contains bcrypt 5.0.0, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/bcrypt/5.0.0/>
+
+Copyright (c) 2013 Donald Stufft and individual contributors
+
+---------------
+
+This image contains beautifulsoup4 4.15.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/beautifulsoup4/4.15.0/>
+
+Copyright (c) Leonard Richardson
+
+---------------
+
+This image contains boto3 1.43.93, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/boto3/1.43.93/>
+
+Copyright 2013-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains botocore 1.43.93, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/botocore/1.43.93/>
+
+Copyright 2012-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains certifi 2026.7.22, installed by pip, which was released
+under a Mozilla Public License 2.0.
+<https://pypi.org/project/certifi/2026.7.22/>
+
+The Mozilla CA bundle it carries was extracted from the Mozilla source tree.
+
+---------------
+
+This image contains cffi 2.1.1, installed by pip, which was released under an
+MIT No Attribution (MIT-0) license.
+<https://pypi.org/project/cffi/2.1.1/>
+
+---------------
+
+This image contains charset-normalizer 3.5.1, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/charset-normalizer/3.5.1/>
+
+Copyright (c) 2025 TAHRI Ahmed R.
+
+---------------
+
+This image contains click 8.5.0, installed by pip, which was released under a
+BSD 3-clause license.
+<https://pypi.org/project/click/8.5.0/>
+
+Copyright 2014 Pallets
+
+---------------
+
+This image contains cloudpickle 3.1.2, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/cloudpickle/3.1.2/>
+
+Copyright (c) 2015, Cloudpickle contributors.
+Copyright (c) 2012, Regents of the University of California.
+Copyright (c) 2009 PiCloud, Inc. http://www.picloud.com.
+
+---------------
+
+This image contains defusedxml 0.7.1, installed by pip, which was released
+under a Python Software Foundation License Version 2.
+<https://pypi.org/project/defusedxml/0.7.1/>
+
+---------------
+
+This image contains distro 1.9.0, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/distro/1.9.0/>
+
+Copyright 2015-2021 Nir Cohen
+
+---------------
+
+This image contains dnspython 2.8.0, installed by pip, which was released
+under an ISC license.
+<https://pypi.org/project/dnspython/2.8.0/>
+
+Copyright (C) Dnspython Contributors
+Copyright (C) 2001-2017 Nominum, Inc.
+Copyright (C) Google Inc.
+
+---------------
+
+This image contains feedparser 6.0.14, installed by pip, which was released
+under a BSD 2-clause license.
+<https://pypi.org/project/feedparser/6.0.14/>
+
+Copyright (C) 2010-2025 Kurt McKee <contactme@kurtmckee.org>
+Copyright (C) 2002-2008 Mark Pilgrim
+
+---------------
+
+This image contains feedparser-sgmllib 2.1.0, installed by pip, which was
+released under a Python Software Foundation License Version 2.
+<https://pypi.org/project/feedparser-sgmllib/2.1.0/>
+
+Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The Netherlands.
+
+---------------
+
+This image contains h11 0.16.0, installed by pip, which was released under an
+MIT license.
+<https://pypi.org/project/h11/0.16.0/>
+
+Copyright (c) 2016 Nathaniel J. Smith <njs@pobox.com> and other contributors
+
+---------------
+
+This image contains httpcore 1.0.9, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/httpcore/1.0.9/>
+
+Copyright © 2020, Encode OSS Ltd.
+
+---------------
+
+This image contains httpcore2 2.12.0, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/httpcore2/2.12.0/>
+
+Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
+Copyright © 2020, Encode OSS Ltd.
+
+---------------
+
+This image contains httplib2 0.32.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/httplib2/0.32.0/>
+
+Copyright (c) 2006 by Joe Gregorio
+
+---------------
+
+This image contains httpx 0.28.1, installed by pip, which was released under a
+BSD 3-clause license.
+<https://pypi.org/project/httpx/0.28.1/>
+
+Copyright © 2019, Encode OSS Ltd.
+
+---------------
+
+This image contains httpx2 2.12.0, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/httpx2/2.12.0/>
+
+Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
+Copyright © 2019, Encode OSS Ltd.
+
+---------------
+
+This image contains idna 3.19, installed by pip, which was released under a
+BSD 3-clause license.
+<https://pypi.org/project/idna/3.19/>
+
+Copyright (c) 2013-2026, Kim Davies and contributors.
+
+---------------
+
+This image contains jiter 0.17.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/jiter/0.17.0/>
+
+Copyright (c) 2022 to present Samuel Colvin
+
+---------------
+
+This image contains jmespath 1.1.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/jmespath/1.1.0/>
+
+Copyright (c) 2013 Amazon.com, Inc. or its affiliates.  All Rights Reserved
+
+---------------
+
+This image contains joblib 1.6.0, installed by pip, which was released under a
+BSD 3-clause license.
+<https://pypi.org/project/joblib/1.6.0/>
+
+Copyright (c) 2008-2021, The joblib developers.
+
+---------------
+
+This image contains jsonpatch 1.33, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/jsonpatch/1.33/>
+
+Copyright (c) 2011 Stefan Kögl <stefan@skoegl.net>
+
+---------------
+
+This image contains jsonpointer 3.1.1, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/jsonpointer/3.1.1/>
+
+Copyright (c) 2011 Stefan Kögl <stefan@skoegl.net>
+
+---------------
+
+This image contains kafka-python 3.0.11, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/kafka-python/3.0.11/>
+
+Copyright 2026 Dana Powers, David Arthur, and Contributors
+
+---------------
+
+This image contains langchain 1.4.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/langchain/1.4.0/>
+
+Copyright (c) LangChain, Inc.
+
+---------------
+
+This image contains langchain-core 1.6.3, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/langchain-core/1.6.3/>
+
+Copyright (c) LangChain, Inc.
+
+---------------
+
+This image contains langchain-protocol 0.0.19, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/langchain-protocol/0.0.19/>
+
+Copyright (c) 2026 LangChain, Inc.
+
+---------------
+
+This image contains langdetect 1.0.9, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/langdetect/1.0.9/>
+
+Copyright 2014-2015 Michal "Mimino" Danilak
+Copyright (c) 2010-2014 Cybozu Labs, Inc. All rights reserved.
+
+---------------
+
+This image contains langgraph 1.2.11, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/langgraph/1.2.11/>
+
+Copyright (c) 2024 LangChain, Inc.
+
+---------------
+
+This image contains langgraph-checkpoint 4.2.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/langgraph-checkpoint/4.2.0/>
+
+Copyright (c) 2024 LangChain, Inc.
+
+---------------
+
+This image contains langgraph-prebuilt 1.1.0, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/langgraph-prebuilt/1.1.0/>
+
+Copyright (c) 2024 LangChain, Inc.
+
+---------------
+
+This image contains langgraph-sdk 0.4.4, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/langgraph-sdk/0.4.4/>
+
+Copyright (c) 2024 LangChain, Inc.
+
+---------------
+
+This image contains langsmith 0.12.4, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/langsmith/0.12.4/>
+
+The distribution declares MIT but publishes no license file; see WARN.
+
+---------------
+
+This image contains minio 7.2.20, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/minio/7.2.20/>
+
+MinIO Cloud Storage, (C) 2014-2023 MinIO, Inc.
+
+---------------
+
+This image contains narwhals 2.26.0, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/narwhals/2.26.0/>
+
+Copyright (c) 2024 to present, Marco Gorelli
+
+---------------
+
+This image contains nltk 3.10.3, installed by pip, which was released under an
+Apache 2.0 license.
+<https://pypi.org/project/nltk/3.10.3/>
+
+Copyright (C) 2001-2026 NLTK Project
+
+---------------
+
+This image contains ollama 0.6.2, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/ollama/0.6.2/>
+
+Copyright (c) Ollama
+
+---------------
+
+This image contains openai 3.13.0, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/openai/3.13.0/>
+
+Copyright 2026 OpenAI
+
+---------------
+
+This image contains orjson 3.12.0, installed by pip, which was released under
+a Mozilla Public License 2.0 AND (Apache 2.0 OR MIT) license.
+<https://pypi.org/project/orjson/3.12.0/>
+
+Copyright 2018-2026 ijl and orjson contributors
+
+---------------
+
+This image contains ormsgpack 1.12.2, installed by pip, which was released
+under an Apache 2.0 OR MIT license.
+<https://pypi.org/project/ormsgpack/1.12.2/>
+
+Copyright 2021-2026 Aviram Hassan and ormsgpack contributors
+
+---------------
+
+This image contains packaging 26.3, installed by pip, which was released under
+an Apache 2.0 OR BSD 2-clause license.
+<https://pypi.org/project/packaging/26.3/>
+
+Copyright (c) Donald Stufft and individual contributors.
+
+---------------
+
+This image contains pg8000 1.31.5, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/pg8000/1.31.5/>
+
+Copyright Mathieu Fenniak and Contributors to pg8000.
+
+---------------
+
+This image contains plotly 7.0.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/plotly/7.0.0/>
+
+Copyright (c) 2016-2024 Plotly Technologies Inc.
+
+---------------
+
+This image contains pycparser 3.0, installed by pip, which was released under
+a BSD 3-clause license.
+<https://pypi.org/project/pycparser/3.0/>
+
+Copyright (c) 2008-2022, Eli Bendersky
+
+---------------
+
+This image contains pycryptodome 3.23.0, installed by pip, which was released
+under a BSD 2-clause license, with parts in the public domain.
+<https://pypi.org/project/pycryptodome/3.23.0/>
+
+Code originating from PyCrypto is released into the public domain; the
+remainder is BSD 2-clause. See the AUTHORS file shipped with the distribution.
+
+---------------
+
+This image contains pydantic 2.13.5, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/pydantic/2.13.5/>
+
+Copyright (c) 2017 to present Pydantic Services Inc. and individual contributors.
+
+---------------
+
+This image contains pydantic-core 2.46.5, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/pydantic-core/2.46.5/>
+
+Copyright (c) 2022 Samuel Colvin
+
+---------------
+
+This image contains pymongo 4.18.1, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/pymongo/4.18.1/>
+
+Copyright 2009-present MongoDB, Inc.
+
+---------------
+
+This image contains pyparsing 3.3.2, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/pyparsing/3.3.2/>
+
+Copyright (c) 2003-2025  Paul McGuire
+
+---------------
+
+This image contains python-dateutil 2.9.0.post0, installed by pip, which was
+released under an Apache 2.0 license and a BSD 3-clause license (dual
+licensed).
+<https://pypi.org/project/python-dateutil/2.9.0.post0/>
+
+Copyright 2017- Paul Ganssle <paul@ganssle.io>
+Copyright 2017- dateutil contributors (see AUTHORS file)
+Copyright (c) 2003-2011 - Gustavo Niemeyer <gustavo@niemeyer.net>
+
+---------------
+
+This image contains pyyaml 6.0.3, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/pyyaml/6.0.3/>
+
+Copyright (c) 2017-2021 Ingy döt Net
+Copyright (c) 2006-2016 Kirill Simonov
+
+---------------
+
+This image contains redis 8.1.0, installed by pip, which was released under an
+MIT license.
+<https://pypi.org/project/redis/8.1.0/>
+
+Copyright (c) 2022-2023, Redis, inc.
+
+---------------
+
+This image contains regex 2026.9.10, installed by pip, which was released
+under an Apache 2.0 license AND a CNRI-Python license.
+<https://pypi.org/project/regex/2026.9.10/>
+
+Portions copyright (c) 1998-2001 by Secret Labs AB, licensed under CNRI's
+Python 1.6 license terms.
+
+---------------
+
+This image contains requests 2.34.2, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/requests/2.34.2/>
+
+Copyright 2019 Kenneth Reitz
+
+---------------
+
+This image contains requests-toolbelt 1.0.0, installed by pip, which was
+released under an Apache 2.0 license.
+<https://pypi.org/project/requests-toolbelt/1.0.0/>
+
+Copyright 2014 Ian Cordasco, Cory Benfield
+
+---------------
+
+This image contains s3transfer 0.19.2, installed by pip, which was released
+under an Apache 2.0 license.
+<https://pypi.org/project/s3transfer/0.19.2/>
+
+Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+---------------
+
+This image contains scramp 1.4.17, installed by pip, which was released under
+an MIT No Attribution (MIT-0) license.
+<https://pypi.org/project/scramp/1.4.17/>
+
+Copyright The Contributors
+
+---------------
+
+This image contains six 1.17.0, installed by pip, which was released under an
+MIT license.
+<https://pypi.org/project/six/1.17.0/>
+
+Copyright (c) 2010-2024 Benjamin Peterson
+
+---------------
+
+This image contains sniffio 1.3.1, installed by pip, which was released under
+an Apache 2.0 OR MIT license.
+<https://pypi.org/project/sniffio/1.3.1/>
+
+Copyright (c) 2018 Nathaniel J. Smith and other contributors
+
+---------------
+
+This image contains soupsieve 2.9.2, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/soupsieve/2.9.2/>
+
+Copyright (c) 2018 - 2026 Isaac Muse <isaacmuse@gmail.com>
+
+---------------
+
+This image contains tenacity 9.1.4, installed by pip, which was released under
+an Apache 2.0 license.
+<https://pypi.org/project/tenacity/9.1.4/>
+
+Copyright 2016-2018 Julien Danjou, Joshua Harlow and contributors
+Copyright 2016 Étienne Bersac
+
+---------------
+
+This image contains tqdm 4.70.1, installed by pip, which was released under a
+Mozilla Public License 2.0 AND MIT license.
+<https://pypi.org/project/tqdm/4.70.1/>
+
+Copyright (c) 2013 noamraph
+Copyright (c) 2015-2024 the tqdm developers
+
+---------------
+
+This image contains truststore 0.10.4, installed by pip, which was released
+under an MIT license.
+<https://pypi.org/project/truststore/0.10.4/>
+
+Copyright (c) 2022 Seth Michael Larson
+
+---------------
+
+This image contains typing-extensions 4.16.0, installed by pip, which was
+released under a Python Software Foundation License Version 2.
+<https://pypi.org/project/typing-extensions/4.16.0/>
+
+Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, The Netherlands.
+
+---------------
+
+This image contains typing-inspection 0.4.4, installed by pip, which was
+released under an MIT license.
+<https://pypi.org/project/typing-inspection/0.4.4/>
+
+Copyright (c) Pydantic Services Inc. 2025 to present
+
+---------------
+
+This image contains urllib3 2.7.0, installed by pip, which was released under
+an MIT license.
+<https://pypi.org/project/urllib3/2.7.0/>
+
+Copyright (c) 2008-2020 Andrey Petrov and contributors.
+
+---------------
+
+This image contains uuid-utils 0.17.1, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/uuid-utils/0.17.1/>
+
+Copyright © 2023, Amin Alaee.
+
+---------------
+
+This image contains websockets 16.1.1, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/websockets/16.1.1/>
+
+Copyright (c) Aymeric Augustin and contributors
+
+---------------
+
+This image contains xxhash 4.0.1, installed by pip, which was released under a
+BSD 2-clause license.
+<https://pypi.org/project/xxhash/4.0.1/>
+
+Copyright (c) 2014-2026, Yue Du
+
+---------------
+
+This image contains zstandard 0.25.0, installed by pip, which was released
+under a BSD 3-clause license.
+<https://pypi.org/project/zstandard/0.25.0/>
+
+Copyright (c) 2016, Gregory Szorc

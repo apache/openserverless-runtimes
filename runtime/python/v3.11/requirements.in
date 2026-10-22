@@ -15,31 +15,26 @@
 # specific language governing permissions and limitations
 # under the License.
 # default packages available across all runtimes
-beautifulsoup4
-httplib2
-kafka_python
-python-dateutil
 requests
-scrapy
-simplejson
-twisted
-netifaces
 pyyaml
-redis
+httplib2
+python-dateutil
 boto3
-pg8000
-pymongo
 minio
+pg8000
+redis
+pymongo
+kafka_python
+bcrypt
+
+beautifulsoup4
+feedparser
+joblib
+plotly
+
 openai
+ollama
 langchain
-farm-haystack
 nltk
 langdetect
-plotly
-ollama
-joblib
-lightgbm
-feedparser
-numpy
-scikit-learn
-bcrypt
+

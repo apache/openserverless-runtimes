@@ -1,11 +1,12 @@
 ==============================================================================
-WARN -- Apache License 2.0 incompatibilities
+WARN -- Apache License 2.0 incompatibilities and open issues
 Container image: apache/openserverless-runtime-nodejs:v20
 ==============================================================================
 
 This file lists third-party components bundled by the Dockerfile beside
 it whose licenses are NOT compatible with the Apache License, Version 2.0,
-together with components that require special handling.
+together with components that require special handling and with the
+warnings that apply to the inventory recorded in LICENSE and NOTICE.
 
 Classification follows the ASF third-party licensing policy:
 
@@ -31,7 +32,7 @@ Category X components that this Dockerfile ADDS on purpose must be removed.
 CATEGORY X (AS BUNDLED)
 ==============================================================================
 
-  Component : Debian/Ubuntu/Alpine base image userland
+  Component : Debian bookworm base image userland (via node:20.11.1-bookworm)
   License   : mixed, incl. GPL-2.0/GPL-3.0
   Category  : X (as bundled)
   Action    :
@@ -42,21 +43,80 @@ CATEGORY X (AS BUNDLED)
 
 
 ==============================================================================
+LICENSES NOT ENUMERATED BY THE ASF POLICY
+==============================================================================
+
+  Component : sax 1.6.1 (npm)
+  License   : BlueOak-1.0.0
+  Category  : not listed in resolved.html
+  Action    :
+      The Blue Oak Model License 1.0.0 is permissive and imposes no reciprocal obligation,
+      so it behaves like Category A, but it is not enumerated in the ASF policy. Confirm
+      on legal-discuss before relying on this image in a release.
+
+  Component : npm (bundled in the base image)
+  License   : Artistic-2.0
+  Category  : not listed in resolved.html
+  Action    :
+      npm arrives with the Node.js base image rather than being installed by this
+      Dockerfile. It is disclosed in LICENSE and NOTICE for completeness of the
+      convenience binary. Confirm the classification on legal-discuss if npm is ever
+      shipped as part of a release artifact rather than inherited from a base image.
+
+
+==============================================================================
 CATEGORY A
 ==============================================================================
 
-  Component : zip / unzip (Info-ZIP)
+  Component : Node.js 20.11.1 and the components bundled with it
+  License   : MIT, with bundled code under Apache-2.0 (OpenSSL), BSD-3-Clause (V8,
+              c-ares), zlib, Unicode (ICU), MIT and further licenses
+  Category  : A
+  Action    :
+      No action required. The complete Node.js LICENSE, which enumerates every bundled
+      component, is reproduced in LICENSE.
+
+  Component : Yarn (bundled in the base image)
+  License   : BSD-2-Clause
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE.
+
+  Component : imagemagick
+  License   : ImageMagick License (Apache-2.0 derivative)
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE. See warning 6 on its delegate
+      libraries.
+
+  Component : graphicsmagick
+  License   : GraphicsMagick License (MIT-style), with bundled code under further
+              permissive licenses
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE. See warning 6 on its delegate
+      libraries.
+
+  Component : unzip (Info-ZIP)
   License   : Info-ZIP License
   Category  : A
   Action    :
       BSD-like and Apache-compatible. No action required.
 
-  Component : imagemagick / graphicsmagick
-  License   : ImageMagick License / MIT
+  Component : the 119 npm packages installed from package.json
+  License   : MIT (103), Apache-2.0 (7), ISC (4), BSD-3-Clause (2), BSD-2-Clause (2),
+              BlueOak-1.0.0 (1)
+  Category  : A, except the BlueOak package recorded above
+  Action    :
+      No action required on the licenses themselves. Full texts reproduced in LICENSE.
+      See warnings 1 through 4 on how this set is determined and on the three packages
+      that ship no license text.
+
+  Component : Go modules linked into /bin/proxy and into its test suite
+  License   : BSD-3-Clause, MIT, ISC, Apache-2.0
   Category  : A
   Action    :
-      Both are Apache-2.0 compatible. Note that ImageMagick delegate libraries may pull in
-      additional licences; verify the delegate set if the image is audited in depth.
+      No action required. Full texts reproduced in LICENSE.
 
 
 ==============================================================================
@@ -65,14 +125,98 @@ SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
 
   None. This Dockerfile adds no Category X component.
 
+
+==============================================================================
+WARNINGS ON THE INVENTORY ITSELF
+==============================================================================
+
+  1. THE LOCK FILE IS NOT USED BY THE BUILD
+     The Dockerfile copies only package.json:
+       COPY package.json /
+       RUN cd / && npm install
+     package-lock.json sits beside the Dockerfile but is never copied into the
+     build context of the image, so `npm install` resolves the dependency tree
+     afresh against the semver ranges in package.json every time the image is
+     built. The inventory in LICENSE and NOTICE was derived from the committed
+     package-lock.json, which is the only machine-readable record of the tree
+     in this repository. IT IS NOT GUARANTEED TO MATCH WHAT THE IMAGE SHIPS.
+     Copy package-lock.json into the image and use `npm ci` so that the
+     licensed set and the installed set are the same.
+
+  2. EVERY DEPENDENCY IS A CARET RANGE
+     package.json pins nothing: aws-s3 ^2.0.5, minio ^8.0.7, mongodb ^7.6.0,
+     ollama ^0.6.3, openai ^7.10.0, openwhisk ^3.21.9, pg ^8.23.0, redis
+     ^6.2.1, uuid ^14.0.2. A rebuild can therefore pull new minor versions and
+     entirely new transitive packages whose licenses nobody has reviewed. The
+     119 packages recorded here are the tree as locked, not a ceiling.
+
+     Worse, the committed lock file does not satisfy its own package.json: it
+     pins mongodb 6.21.0 against a declared range of ^7.6.0, openai 4.104.0
+     against ^7.10.0, redis 4.7.1 against ^6.2.1, uuid 9.0.1 against ^14.0.2
+     and ollama 0.5.18 against ^0.6.3. No `npm install` from this package.json
+     would produce this tree, so the inventory below describes a dependency
+     set the build cannot reach. runtime/nodejs/v22 carries the identical
+     package.json with an up-to-date lock resolving to 82 packages. Refresh
+     this lock, then regenerate LICENSE and NOTICE from it.
+
+  3. THREE PACKAGES SHIP NO LICENSE TEXT
+     generic-pool 3.9.0, pg-types 2.2.0 and pgpass 1.0.5 declare "MIT" in
+     their package.json but publish no LICENSE file, and their repositories do
+     not carry one either. The MIT license requires its copyright notice to be
+     reproduced with redistribution; for these three there is no copyright
+     notice to reproduce. They are disclosed in LICENSE and NOTICE with the
+     declared license and that fact. Raise it with the upstream projects, or
+     replace them, before relying on this image in a release.
+
+  4. THE npm INVENTORY WAS BUILT FROM PUBLISHED TARBALLS, NOT FROM THE IMAGE
+     The license texts concatenated into LICENSE were taken from the package
+     tarballs on the npm registry at exactly the versions in
+     package-lock.json, except for sixteen packages that publish no license
+     file in the tarball, whose texts come from their upstream repositories.
+     The authoritative copy for the shipped image remains
+     /node_modules/<package>/LICENSE inside the image.
+
+  5. THE RUNTIME PACKAGE DECLARES THE WRONG LICENSE
+     package.json declares "license": "ISC" for the OpenServerless nodejs
+     runtime package itself. This repository is Apache-2.0. The declaration is
+     not shipped to users as a license grant, but it misstates the license of
+     ASF code and should be corrected to "Apache-2.0".
+
+  6. DELEGATE AND TRANSITIVE OPERATING-SYSTEM LIBRARIES ARE NOT ENUMERATED
+     `apt-get install imagemagick graphicsmagick unzip` pulls a large set of
+     further Debian packages -- the image and compression delegate libraries
+     that both Magick implementations link against -- which are installed into
+     the image and are not listed in LICENSE or NOTICE. Their copyright files
+     are in /usr/share/doc/<package>/copyright inside the image. They are part
+     of the convenience binary, not of the source release; a complete
+     per-package inventory can only be produced from a built image.
+
+  7. LICENSE TEXTS FOR THE BASE IMAGE WERE TAKEN FROM UPSTREAM
+     The Node.js LICENSE reproduced here is the one published at tag v20.11.1,
+     which matches the pinned base image. The npm, Yarn, ImageMagick and
+     GraphicsMagick texts come from those projects' own repositories and may
+     be a different revision from the one Debian ships. The authoritative copy
+     for the shipped binaries remains /usr/share/doc/<package>/copyright and
+     the base image's own license files.
+
+  8. THE BUNDLED PROXY CANNOT BE VERIFIED FROM THIS DIRECTORY
+     /bin/proxy is copied from the image named by the COMMON build argument,
+     which defaults to `missing:missing`. The Go module inventory in LICENSE
+     and NOTICE was derived from the go.mod and go.sum of this repository. If
+     the image passed as COMMON is built from a different source tree, the
+     modules actually linked into /bin/proxy may differ.
+
+  9. DEPENDENCIES OF USER ACTIONS ARE NOT COVERED
+     Beyond the packages listed above, user actions bring their own npm
+     dependencies. Those libraries are NOT part of this image and NOT part of
+     any Apache release artifact, and no claim is made here about their
+     licenses.
+
+
 ==============================================================================
 ADDITIONAL NOTES
 ==============================================================================
 
-Base image: node:20.11.1-bookworm (Node.js is MIT licensed).
-The unlicensed `node-auth0` package flagged in earlier revisions of this
-file is no longer in package.json.
-The npm dependency tree resolved by `npm install` is far larger than the
-direct dependencies listed here. Run `npm ls --all` or a license scanner
-inside the built image for the complete transitive inventory before an
-official release audit.
+The base image node:20.11.1-bookworm is pinned to a patch release from
+February 2024 while the apt and npm steps are not pinned at all, so the
+image mixes a frozen runtime with a floating dependency set.

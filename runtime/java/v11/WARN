@@ -1,11 +1,12 @@
 ==============================================================================
-WARN -- Apache License 2.0 incompatibilities
+WARN -- Apache License 2.0 incompatibilities and open issues
 Container image: apache/openserverless-runtime-java:v11
 ==============================================================================
 
 This file lists third-party components bundled by the Dockerfile beside
 it whose licenses are NOT compatible with the Apache License, Version 2.0,
-together with components that require special handling.
+together with components that require special handling and with the
+warnings that apply to the inventory recorded in LICENSE and NOTICE.
 
 Classification follows the ASF third-party licensing policy:
 
@@ -28,10 +29,10 @@ Category X components that this Dockerfile ADDS on purpose must be removed.
 
 
 ==============================================================================
-CATEGORY X (as bundled)
+CATEGORY X (AS BUNDLED)
 ==============================================================================
 
-  Component : ibm-semeru-runtimes base image (OpenJDK class library)
+  Component : OpenJDK class library and tools (via ibm-semeru-runtimes:open-11.0.24.1_8-jdk-focal)
   License   : GPL-2.0 WITH Classpath-exception-2.0
   Category  : X (as bundled)
   Action    :
@@ -41,14 +42,16 @@ CATEGORY X (as bundled)
       contain only the Dockerfile. Alternatively switch to an Eclipse Temurin or Amazon
       Corretto image and state the same disclaimer.
 
-  Component : glibc / locales
+  Component : locales (Ubuntu focal) and the glibc locale data it generates
   License   : GPL-2.0-or-later AND LGPL-2.1-or-later
   Category  : X (as bundled)
   Action    :
-      Part of the base operating system image. Not distributed by the ASF as source;
-      the ASF release is the Dockerfile only. No action required beyond this disclosure.
+      Installed on purpose by this Dockerfile, not merely inherited from the base image.
+      It is a stock operating-system package of the base distribution and is not
+      redistributed by the ASF in source form, but it is GPL material added by an explicit
+      apt-get install line and is disclosed here for that reason.
 
-  Component : Debian/Ubuntu/Alpine base image userland
+  Component : Ubuntu focal base image userland
   License   : mixed, incl. GPL-2.0/GPL-3.0
   Category  : X (as bundled)
   Action    :
@@ -59,19 +62,124 @@ CATEGORY X (as bundled)
 
 
 ==============================================================================
+CATEGORY B
+==============================================================================
+
+  Component : Eclipse OpenJ9 virtual machine and Eclipse OMR
+  License   : EPL-2.0 OR Apache-2.0 (secondary: GPL-2.0 WITH Classpath-exception-2.0,
+              GPL-2.0 WITH OpenJDK-assembly-exception-1.0)
+  Category  : B under EPL-2.0, A under Apache-2.0
+  Action    :
+      OpenJ9 is dual-licensed and MAY be taken under the Apache License 2.0, which makes
+      it Category A for this image. It is recorded here because the image ships it in
+      binary form only and because the OpenJ9 LICENSE additionally carries the Unicode,
+      MurmurHash3, libffi, zlib and CuTest notices reproduced in LICENSE.
+
+
+==============================================================================
+CATEGORY A
+==============================================================================
+
+  Component : Google Gson 2.11.0
+  License   : Apache-2.0
+  Category  : A
+  Action    :
+      No action required on the license. See warning 1 below on how it is obtained.
+
+  Component : python (Ubuntu focal)
+  License   : Python Software Foundation License
+  Category  : A
+  Action    :
+      No action required. Full text reproduced in LICENSE. See warning 3 below.
+
+  Component : Go modules linked into /bin/proxy and into its test suite
+  License   : BSD-3-Clause, MIT, ISC, Apache-2.0
+  Category  : A
+  Action    :
+      No action required. Full texts reproduced in LICENSE.
+
+
+==============================================================================
 SUMMARY OF REQUIRED REMOVALS (Category X added by this Dockerfile)
 ==============================================================================
 
-  None. This Dockerfile adds no Category X component.
+  None. This Dockerfile adds no Category X component beyond the stock
+  operating-system packages of the base image it builds on.
+
+
+==============================================================================
+WARNINGS ON THE INVENTORY ITSELF
+==============================================================================
+
+  1. A BINARY JAR IS DOWNLOADED AT BUILD TIME WITH NO INTEGRITY CHECK
+     The Dockerfile pulls gson-2.11.0.jar over the network with
+       ADD https://search.maven.org/remotecontent?filepath=...
+     and verifies neither a checksum nor a signature. Whatever that URL
+     returns is redistributed inside the published image and linked into
+     /usr/java/lib/launcher.jar. The inventory in LICENSE and NOTICE assumes
+     the URL serves the Apache-2.0 licensed Google Gson 2.11.0 artifact; that
+     assumption is not enforced by the build. Pin the artifact by SHA-256, or
+     vendor it, so that what is licensed here is what is shipped.
+
+  2. THE BASE IMAGE IS OUT OF STANDARD SUPPORT
+     ibm-semeru-runtimes:open-11.0.24.1_8-jdk-focal is built on Ubuntu 20.04
+     (focal), whose standard support ended in April 2025, and pins Java
+     11.0.24.1. Newer operating-system packages than those recorded here may
+     be required, and each rebuild of a fixed base tag can still change the
+     bundled package set through `apt-get upgrade`.
+
+  3. WHICH PYTHON IS INSTALLED IS NOT PINNED
+     The Dockerfile installs the `python` package and bin/compile runs under
+     `#!/usr/bin/env python`. On Ubuntu 20.04 that name is the Python 2
+     interpreter, which reached end of life on 2020-01-01; Python 3 is a
+     different package. The Python Software Foundation License text
+     reproduced in LICENSE is the one that ships with CPython 2.7. Confirm
+     what the build actually installs and pin it.
+
+  4. TRANSITIVE AND INHERITED PACKAGES ARE NOT ENUMERATED
+     `apt-get install locales python` pulls further Ubuntu packages, and the
+     base image ships an entire JDK and userland. Their copyright files are in
+     /usr/share/doc/<package>/copyright inside the image. They are part of the
+     convenience binary, not of the source release; a complete per-package
+     inventory can only be produced from a built image.
+
+  5. LICENSE TEXTS WERE TAKEN FROM UPSTREAM, NOT FROM A BUILT IMAGE
+     The texts concatenated into LICENSE come from the upstream projects: the
+     OpenJDK and Eclipse OpenJ9 LICENSE files, the GNU GPL 2.0 and LGPL 2.1
+     as published by the FSF, the CPython 2.7 LICENSE, and for the Go
+     dependencies the module versions recorded in go.mod. The distributions
+     may ship different revisions of the same texts, and the authoritative
+     copy for the shipped binaries remains /usr/share/doc/<package>/copyright
+     and the JDK's own legal directory inside the image.
+
+  6. THE BUNDLED PROXY CANNOT BE VERIFIED FROM THIS DIRECTORY
+     /bin/proxy is copied from the image named by the COMMON build argument,
+     which defaults to `missing:missing`. The Go module inventory in LICENSE
+     and NOTICE was derived from the go.mod and go.sum of this repository. If
+     the image passed as COMMON is built from a different source tree, the
+     modules actually linked into /bin/proxy may differ.
+
+  7. DEPENDENCIES OF USER ACTIONS ARE NOT COVERED
+     Beyond Gson, this image ships no preinstalled Java libraries: user
+     actions bring their own jars. Those libraries are NOT part of this image
+     and NOT part of any Apache release artifact, and no claim is made here
+     about their licenses.
+
+  8. THE SAME INVENTORY APPLIES TO THE OTHER JAVA RUNTIMES
+     This Dockerfile differs from runtime/java/v8 only in the
+     ibm-semeru-runtimes base tag and in the VERSION, UPDATE and BUILD
+     environment variables, and lib/src/Launcher.java is identical; bin/compile
+     differs only in a logging call. runtime/java/v17 and v21 are built the
+     same way and download the same Gson 2.11.0 jar from the same unverified
+     URL. The bundled-software inventory is therefore identical across the four
+     Java images apart from the JDK version, and it must be updated in all of
+     them together. This image is not the default one: runtime/java/v8 is.
+
 
 ==============================================================================
 ADDITIONAL NOTES
 ==============================================================================
 
-Base image: ibm-semeru-runtimes:open-11.0.24.1_8-jdk-focal.
-Google Gson 2.11.0 (Apache-2.0) is downloaded from Maven Central at build
-time and linked into /usr/java/lib/launcher.jar. Downloading a dependency
-at build time does not place it in the Apache source release, but it IS
-redistributed inside the published convenience binary, so it is disclosed
-in NOTICE and LICENSE.
-
+The Java security manager APIs used by lib/src/Launcher.java
+(java.security.Permission) are deprecated for removal from Java 17 onwards;
+this affects the later Java runtime images, not the licensing of this one.

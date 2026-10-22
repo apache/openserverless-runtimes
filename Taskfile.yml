@@ -35,10 +35,23 @@ vars:
   BASEIMG: '{{.REGISTRY}}/{{.REPO_PATH}}'
   # if you change this, change also the task build FILTER=common:1.18.4 in workflow image.yml
   COMMON_VER: 1.18.4
+  # Builder used for local (non-PUSH) builds. It must use the "docker" driver so
+  # that images loaded with --load land in the docker daemon store and are then
+  # visible as a FROM base to subsequent builds. The "docker-container" driver
+  # (mybuilder) keeps its own isolated store and would try to pull the
+  # not-yet-pushed common image from the registry. Multi-arch PUSH builds are
+  # unaffected and keep using the current builder (mybuilder).
+  # The docker-driver builder is named after the active docker context
+  # ("default" on plain Linux, "desktop-linux" on Docker Desktop), so derive it
+  # instead of hardcoding. Override with LOCAL_BUILDER in the environment.
+  LOCAL_BUILDER:
+    sh: echo "${LOCAL_BUILDER:-$(docker context show 2>/dev/null || echo default)}"
   # pick the most recently created tag (tags are annotated, so they carry their
   # own creation date and sort correctly even when they share a commit)
-  TAG:
+  FULLTAG:
     sh: git for-each-ref --sort=-creatordate --count=1 --format='%(refname:short)' refs/tags 2>/dev/null | grep . || echo snapshot
+  TAG:
+    sh: FULL="{{.FULLTAG}}" ; echo ${FULL##*_}
   COMMON: "{{.BASEIMG}}/openserverless-runtime-common:{{.COMMON_VER}}-{{.TAG}}"
   # if you cahange this change also the filter in workflow image.yml
   #RUNTIMES: "go,nodejs,php,python,java" temp disabled php
@@ -102,10 +115,11 @@ tasks:
         | docker login -u $DOCKERHUB_USER
         --password-stdin {{.REGISTRY}}
       - >
-        {{.DRY}} docker run -it --rm --privileged
-        tonistiigi/binfmt:qemu-v7.0.0-28 --install all
+        {{.DRY}}
+        docker run -it --rm --privileged tonistiigi/binfmt:qemu-v7.0.0-28 --install all
       - >
-        {{.DRY}} docker buildx create --name mybuilder --bootstrap --use
+        {{.DRY}}
+        docker buildx create --name mybuilder --bootstrap --use
 
   clean-images:
     - docker images -a | grep openserverless | awk '{print $3}' | xargs docker rmi -f
@@ -124,8 +138,8 @@ tasks:
                 echo ">>> Building arm/amd and pushing {{.COMMON}}"
                 {{.DRY2}} docker buildx build -t "{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
           else
-              echo ">>> Building {{.COMMON}}"
-              {{.DRY2}} docker buildx build -t "{{.COMMON}}" . --load
+              echo ">>> Building {{.COMMON}} (local, docker driver)"
+              {{.DRY2}} docker buildx build --builder {{.LOCAL_BUILDER}} -t "{{.COMMON}}" . --load
           fi
           echo "<<< Built {{.COMMON}}"
         fi
@@ -145,8 +159,8 @@ tasks:
                 echo ">>> Building arm/amd and pushing {{.RUNTIME}}"
                 {{.DRY2}} docker buildx build -t "{{.RUNTIME}}" --build-arg COMMON="{{.COMMON}}" --platform linux/amd64,linux/arm64 . --push
           else
-                echo ">>> Building {{.RUNTIME}}"
-                {{.DRY2}} docker buildx build -t "{{.RUNTIME}}" --build-arg COMMON="{{.COMMON}}" . --load
+                echo ">>> Building {{.RUNTIME}} (local, docker driver)"
+                {{.DRY2}} docker buildx build --builder {{.LOCAL_BUILDER}} -t "{{.RUNTIME}}" --build-arg COMMON="{{.COMMON}}" . --load
           fi
           echo "<<< Built {{.RUNTIME}}"
         fi
@@ -157,7 +171,7 @@ tasks:
     requires: { vars: [RT] }
     vars:
       DIRS:
-        sh: ls -d  runtime/{{.RT}}/v* || echo ""
+        sh: ls -d  runtime/{{.RT}}/* || echo ""
     cmds:
       - for: { var: DIRS }
         task: build-runtime
@@ -170,7 +184,7 @@ tasks:
     desc: build the runtimes selected by task tag
     cmds:
     - |
-        T="{{.TAG}}"
+        T="{{.FULLTAG}}"
         TS="${T#*_}"
         RT="${T%%_*}"
         echo Building: $T
@@ -238,4 +252,4 @@ tasks:
     desc: generate a runtimes.json file with all the runtime corresponding to the current TAG
     cmds:
       - echo "creating runtimes.json"
-      - uv run runtimes.py {{.TAG}} >runtimes.json
+      - python3 runtimes.py {{.TAG}} >runtimes.json
