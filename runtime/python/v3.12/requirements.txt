@@ -140,7 +140,7 @@ minio==7.2.20
     # via -r requirements.in
 narwhals==2.26.0
     # via plotly
-nltk==3.10.3
+nltk==3.10.4
     # via -r requirements.in
 ollama==0.6.2
     # via -r requirements.in
