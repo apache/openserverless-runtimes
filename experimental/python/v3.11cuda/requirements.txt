@@ -28,7 +28,7 @@ pyyaml==6.0.1
 redis==4.4.2
 boto3==1.28.25
 pg8000==1.31.5
-pymongo==4.4.1
+pymongo==4.18.3
 minio==7.1.16
 huggingface_hub==0.26.2
 accelerate==1.1.1
