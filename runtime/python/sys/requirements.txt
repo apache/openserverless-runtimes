@@ -62,7 +62,7 @@ pycparser==3.0
     # via cffi
 pycryptodome==3.23.0
     # via minio
-pymongo==4.18.1
+pymongo==4.18.3
     # via -r requirements.in
 pyparsing==3.3.2
     # via httplib2
