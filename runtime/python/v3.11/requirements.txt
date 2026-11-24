@@ -124,7 +124,7 @@ langchain-protocol==0.0.19
     #   langgraph-sdk
 langdetect==1.0.9
     # via -r requirements.in
-langgraph==1.2.11
+langgraph==1.2.14
     # via langchain
 langgraph-checkpoint==4.2.0
     # via
@@ -132,7 +132,7 @@ langgraph-checkpoint==4.2.0
     #   langgraph-prebuilt
 langgraph-prebuilt==1.1.0
     # via langgraph
-langgraph-sdk==0.4.4
+langgraph-sdk==0.4.14
     # via langgraph
 langsmith==0.12.4
     # via langchain-core
