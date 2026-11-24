@@ -132,7 +132,7 @@ langgraph-checkpoint==4.2.0
     #   langgraph-prebuilt
 langgraph-prebuilt==1.1.0
     # via langgraph
-langgraph-sdk==0.4.4
+langgraph-sdk==0.4.6
     # via langgraph
 langsmith==0.12.4
     # via langchain-core
